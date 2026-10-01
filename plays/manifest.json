@@ -1,4 +1,5 @@
 [
-  { "title": "U13 Lineout - 4 Jump & Shift", "file": "plays/lineout_4.json" },
-  { "title": "U13 Scrum - 8 Pick to 10", "file": "plays/scrum_pick.json" }
+  { "title": "Sep 27th - penalty - try", "file": "plays/sep27-penalty- try.json" },
+  { "title": "Sep 27th - penalty - no try", "file": "plays/sep27-penalty.json" }
+
 ]
