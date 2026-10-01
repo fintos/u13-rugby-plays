@@ -1,0 +1,767 @@
+{
+  "title": "Backline Strike & Loop (13v13 U13)",
+  "date": "2026-10-01T19:28:27.863Z",
+  "frames": [
+    {
+      "name": "Phase 1 - Midfield Ruck Platform & Launch",
+      "actors": [
+        {
+          "id": "p_A_1",
+          "type": "player",
+          "team": "A",
+          "num": 1,
+          "name": "LH Prop",
+          "x": 187,
+          "y": 423
+        },
+        {
+          "id": "p_A_2",
+          "type": "player",
+          "team": "A",
+          "num": 2,
+          "name": "Hooker",
+          "x": 245,
+          "y": 272
+        },
+        {
+          "id": "p_A_3",
+          "type": "player",
+          "team": "A",
+          "num": 3,
+          "name": "TH Prop",
+          "x": 189,
+          "y": 97
+        },
+        {
+          "id": "p_A_4",
+          "type": "player",
+          "team": "A",
+          "num": 4,
+          "name": "Lock 4",
+          "x": 212,
+          "y": 159
+        },
+        {
+          "id": "p_A_5",
+          "type": "player",
+          "team": "A",
+          "num": 5,
+          "name": "Lock 5",
+          "x": 232,
+          "y": 231
+        },
+        {
+          "id": "p_A_8",
+          "type": "player",
+          "team": "A",
+          "num": 8,
+          "name": "No 8",
+          "x": 219,
+          "y": 336
+        },
+        {
+          "id": "ball_1",
+          "type": "ball",
+          "x": 314,
+          "y": 412
+        },
+        {
+          "id": "p_B_1",
+          "type": "player",
+          "team": "B",
+          "num": 1,
+          "name": "Def Prop 1",
+          "x": 420,
+          "y": 285
+        },
+        {
+          "id": "p_B_2",
+          "type": "player",
+          "team": "B",
+          "num": 2,
+          "name": "Def Hooker",
+          "x": 419,
+          "y": 334
+        },
+        {
+          "id": "p_B_3",
+          "type": "player",
+          "team": "B",
+          "num": 3,
+          "name": "Def Prop 3",
+          "x": 425,
+          "y": 380
+        },
+        {
+          "id": "p_B_4",
+          "type": "player",
+          "team": "B",
+          "num": 4,
+          "name": "Def Lock 4",
+          "x": 487,
+          "y": 357
+        },
+        {
+          "id": "p_B_5",
+          "type": "player",
+          "team": "B",
+          "num": 5,
+          "name": "Def Lock 5",
+          "x": 455,
+          "y": 480
+        },
+        {
+          "id": "p_B_8",
+          "type": "player",
+          "team": "B",
+          "num": 8,
+          "name": "Def No 8",
+          "x": 586,
+          "y": 365
+        },
+        {
+          "id": "p_B_9",
+          "type": "player",
+          "team": "B",
+          "num": 9,
+          "name": "Def Scrum Half",
+          "x": 438,
+          "y": 422
+        },
+        {
+          "id": "p_B_10",
+          "type": "player",
+          "team": "B",
+          "num": 10,
+          "name": "Def Fly Half",
+          "x": 460,
+          "y": 340
+        },
+        {
+          "id": "p_B_12",
+          "type": "player",
+          "team": "B",
+          "num": 12,
+          "name": "Def Centre 12",
+          "x": 465,
+          "y": 390
+        },
+        {
+          "id": "p_B_13",
+          "type": "player",
+          "team": "B",
+          "num": 13,
+          "name": "Def Centre 13",
+          "x": 470,
+          "y": 440
+        },
+        {
+          "id": "p_B_11",
+          "type": "player",
+          "team": "B",
+          "num": 11,
+          "name": "Def Wing 11",
+          "x": 485,
+          "y": 505
+        },
+        {
+          "id": "p_B_14",
+          "type": "player",
+          "team": "B",
+          "num": 14,
+          "name": "Def Wing 14",
+          "x": 450,
+          "y": 107
+        },
+        {
+          "id": "p_B_15",
+          "type": "player",
+          "team": "B",
+          "num": 15,
+          "name": "Def Fullback",
+          "x": 665,
+          "y": 370
+        },
+        {
+          "id": "p_A_9_4335",
+          "type": "player",
+          "team": "A",
+          "num": 9,
+          "name": "Scrum Half",
+          "x": 207,
+          "y": 252,
+          "carrier": false
+        },
+        {
+          "id": "p_A_10_4335",
+          "type": "player",
+          "team": "A",
+          "num": 10,
+          "name": "Fly Half",
+          "x": 206,
+          "y": 286,
+          "carrier": true
+        },
+        {
+          "id": "p_A_12_4335",
+          "type": "player",
+          "team": "A",
+          "num": 12,
+          "name": "Inside Centre",
+          "x": 291,
+          "y": 390,
+          "carrier": false
+        },
+        {
+          "id": "p_A_13_4335",
+          "type": "player",
+          "team": "A",
+          "num": 13,
+          "name": "Outside Centre",
+          "x": 263,
+          "y": 451,
+          "carrier": false
+        },
+        {
+          "id": "p_A_11_4335",
+          "type": "player",
+          "team": "A",
+          "num": 11,
+          "name": "Left Wing",
+          "x": 168,
+          "y": 318,
+          "carrier": false
+        },
+        {
+          "id": "p_A_14_4335",
+          "type": "player",
+          "team": "A",
+          "num": 14,
+          "name": "Right Wing",
+          "x": 231,
+          "y": 518,
+          "carrier": false
+        },
+        {
+          "id": "p_A_15_4335",
+          "type": "player",
+          "team": "A",
+          "num": 15,
+          "name": "Fullback",
+          "x": 201,
+          "y": 361,
+          "carrier": false
+        }
+      ],
+      "drawings": []
+    },
+    {
+      "id": 1790882729615,
+      "name": "Phase 2",
+      "actors": [
+        {
+          "id": "p_A_1",
+          "type": "player",
+          "team": "A",
+          "num": 1,
+          "name": "LH Prop",
+          "x": 187,
+          "y": 423
+        },
+        {
+          "id": "p_A_2",
+          "type": "player",
+          "team": "A",
+          "num": 2,
+          "name": "Hooker",
+          "x": 245,
+          "y": 272
+        },
+        {
+          "id": "p_A_3",
+          "type": "player",
+          "team": "A",
+          "num": 3,
+          "name": "TH Prop",
+          "x": 189,
+          "y": 97
+        },
+        {
+          "id": "p_A_4",
+          "type": "player",
+          "team": "A",
+          "num": 4,
+          "name": "Lock 4",
+          "x": 212,
+          "y": 159
+        },
+        {
+          "id": "p_A_5",
+          "type": "player",
+          "team": "A",
+          "num": 5,
+          "name": "Lock 5",
+          "x": 232,
+          "y": 231
+        },
+        {
+          "id": "p_A_8",
+          "type": "player",
+          "team": "A",
+          "num": 8,
+          "name": "No 8",
+          "x": 219,
+          "y": 336
+        },
+        {
+          "id": "ball_1",
+          "type": "ball",
+          "x": 283,
+          "y": 458
+        },
+        {
+          "id": "p_B_1",
+          "type": "player",
+          "team": "B",
+          "num": 1,
+          "name": "Def Prop 1",
+          "x": 420,
+          "y": 285
+        },
+        {
+          "id": "p_B_2",
+          "type": "player",
+          "team": "B",
+          "num": 2,
+          "name": "Def Hooker",
+          "x": 419,
+          "y": 334
+        },
+        {
+          "id": "p_B_3",
+          "type": "player",
+          "team": "B",
+          "num": 3,
+          "name": "Def Prop 3",
+          "x": 425,
+          "y": 380
+        },
+        {
+          "id": "p_B_4",
+          "type": "player",
+          "team": "B",
+          "num": 4,
+          "name": "Def Lock 4",
+          "x": 487,
+          "y": 357
+        },
+        {
+          "id": "p_B_5",
+          "type": "player",
+          "team": "B",
+          "num": 5,
+          "name": "Def Lock 5",
+          "x": 455,
+          "y": 480
+        },
+        {
+          "id": "p_B_8",
+          "type": "player",
+          "team": "B",
+          "num": 8,
+          "name": "Def No 8",
+          "x": 586,
+          "y": 365
+        },
+        {
+          "id": "p_B_9",
+          "type": "player",
+          "team": "B",
+          "num": 9,
+          "name": "Def Scrum Half",
+          "x": 438,
+          "y": 422
+        },
+        {
+          "id": "p_B_10",
+          "type": "player",
+          "team": "B",
+          "num": 10,
+          "name": "Def Fly Half",
+          "x": 460,
+          "y": 340
+        },
+        {
+          "id": "p_B_12",
+          "type": "player",
+          "team": "B",
+          "num": 12,
+          "name": "Def Centre 12",
+          "x": 465,
+          "y": 390
+        },
+        {
+          "id": "p_B_13",
+          "type": "player",
+          "team": "B",
+          "num": 13,
+          "name": "Def Centre 13",
+          "x": 470,
+          "y": 440
+        },
+        {
+          "id": "p_B_11",
+          "type": "player",
+          "team": "B",
+          "num": 11,
+          "name": "Def Wing 11",
+          "x": 485,
+          "y": 505
+        },
+        {
+          "id": "p_B_14",
+          "type": "player",
+          "team": "B",
+          "num": 14,
+          "name": "Def Wing 14",
+          "x": 450,
+          "y": 107
+        },
+        {
+          "id": "p_B_15",
+          "type": "player",
+          "team": "B",
+          "num": 15,
+          "name": "Def Fullback",
+          "x": 665,
+          "y": 370
+        },
+        {
+          "id": "p_A_9_4335",
+          "type": "player",
+          "team": "A",
+          "num": 9,
+          "name": "Scrum Half",
+          "x": 207,
+          "y": 252,
+          "carrier": false
+        },
+        {
+          "id": "p_A_10_4335",
+          "type": "player",
+          "team": "A",
+          "num": 10,
+          "name": "Fly Half",
+          "x": 206,
+          "y": 286,
+          "carrier": true
+        },
+        {
+          "id": "p_A_12_4335",
+          "type": "player",
+          "team": "A",
+          "num": 12,
+          "name": "Inside Centre",
+          "x": 291,
+          "y": 390,
+          "carrier": false
+        },
+        {
+          "id": "p_A_13_4335",
+          "type": "player",
+          "team": "A",
+          "num": 13,
+          "name": "Outside Centre",
+          "x": 263,
+          "y": 451,
+          "carrier": false
+        },
+        {
+          "id": "p_A_11_4335",
+          "type": "player",
+          "team": "A",
+          "num": 11,
+          "name": "Left Wing",
+          "x": 168,
+          "y": 318,
+          "carrier": false
+        },
+        {
+          "id": "p_A_14_4335",
+          "type": "player",
+          "team": "A",
+          "num": 14,
+          "name": "Right Wing",
+          "x": 231,
+          "y": 518,
+          "carrier": false
+        },
+        {
+          "id": "p_A_15_4335",
+          "type": "player",
+          "team": "A",
+          "num": 15,
+          "name": "Fullback",
+          "x": 201,
+          "y": 361,
+          "carrier": false
+        }
+      ],
+      "drawings": []
+    },
+    {
+      "id": 1790882739165,
+      "name": "Phase 3",
+      "actors": [
+        {
+          "id": "p_A_1",
+          "type": "player",
+          "team": "A",
+          "num": 1,
+          "name": "LH Prop",
+          "x": 187,
+          "y": 423
+        },
+        {
+          "id": "p_A_2",
+          "type": "player",
+          "team": "A",
+          "num": 2,
+          "name": "Hooker",
+          "x": 245,
+          "y": 272
+        },
+        {
+          "id": "p_A_3",
+          "type": "player",
+          "team": "A",
+          "num": 3,
+          "name": "TH Prop",
+          "x": 189,
+          "y": 97
+        },
+        {
+          "id": "p_A_4",
+          "type": "player",
+          "team": "A",
+          "num": 4,
+          "name": "Lock 4",
+          "x": 212,
+          "y": 159
+        },
+        {
+          "id": "p_A_5",
+          "type": "player",
+          "team": "A",
+          "num": 5,
+          "name": "Lock 5",
+          "x": 232,
+          "y": 231
+        },
+        {
+          "id": "p_A_8",
+          "type": "player",
+          "team": "A",
+          "num": 8,
+          "name": "No 8",
+          "x": 219,
+          "y": 336
+        },
+        {
+          "id": "ball_1",
+          "type": "ball",
+          "x": 394,
+          "y": 470
+        },
+        {
+          "id": "p_B_1",
+          "type": "player",
+          "team": "B",
+          "num": 1,
+          "name": "Def Prop 1",
+          "x": 420,
+          "y": 285
+        },
+        {
+          "id": "p_B_2",
+          "type": "player",
+          "team": "B",
+          "num": 2,
+          "name": "Def Hooker",
+          "x": 419,
+          "y": 334
+        },
+        {
+          "id": "p_B_3",
+          "type": "player",
+          "team": "B",
+          "num": 3,
+          "name": "Def Prop 3",
+          "x": 425,
+          "y": 380
+        },
+        {
+          "id": "p_B_4",
+          "type": "player",
+          "team": "B",
+          "num": 4,
+          "name": "Def Lock 4",
+          "x": 487,
+          "y": 357
+        },
+        {
+          "id": "p_B_5",
+          "type": "player",
+          "team": "B",
+          "num": 5,
+          "name": "Def Lock 5",
+          "x": 416,
+          "y": 479
+        },
+        {
+          "id": "p_B_8",
+          "type": "player",
+          "team": "B",
+          "num": 8,
+          "name": "Def No 8",
+          "x": 586,
+          "y": 365
+        },
+        {
+          "id": "p_B_9",
+          "type": "player",
+          "team": "B",
+          "num": 9,
+          "name": "Def Scrum Half",
+          "x": 412,
+          "y": 440
+        },
+        {
+          "id": "p_B_10",
+          "type": "player",
+          "team": "B",
+          "num": 10,
+          "name": "Def Fly Half",
+          "x": 460,
+          "y": 340
+        },
+        {
+          "id": "p_B_12",
+          "type": "player",
+          "team": "B",
+          "num": 12,
+          "name": "Def Centre 12",
+          "x": 465,
+          "y": 390
+        },
+        {
+          "id": "p_B_13",
+          "type": "player",
+          "team": "B",
+          "num": 13,
+          "name": "Def Centre 13",
+          "x": 470,
+          "y": 440
+        },
+        {
+          "id": "p_B_11",
+          "type": "player",
+          "team": "B",
+          "num": 11,
+          "name": "Def Wing 11",
+          "x": 485,
+          "y": 505
+        },
+        {
+          "id": "p_B_14",
+          "type": "player",
+          "team": "B",
+          "num": 14,
+          "name": "Def Wing 14",
+          "x": 450,
+          "y": 107
+        },
+        {
+          "id": "p_B_15",
+          "type": "player",
+          "team": "B",
+          "num": 15,
+          "name": "Def Fullback",
+          "x": 665,
+          "y": 370
+        },
+        {
+          "id": "p_A_9_4335",
+          "type": "player",
+          "team": "A",
+          "num": 9,
+          "name": "Scrum Half",
+          "x": 207,
+          "y": 252,
+          "carrier": false
+        },
+        {
+          "id": "p_A_10_4335",
+          "type": "player",
+          "team": "A",
+          "num": 10,
+          "name": "Fly Half",
+          "x": 206,
+          "y": 286,
+          "carrier": true
+        },
+        {
+          "id": "p_A_12_4335",
+          "type": "player",
+          "team": "A",
+          "num": 12,
+          "name": "Inside Centre",
+          "x": 291,
+          "y": 390,
+          "carrier": false
+        },
+        {
+          "id": "p_A_13_4335",
+          "type": "player",
+          "team": "A",
+          "num": 13,
+          "name": "Outside Centre",
+          "x": 369,
+          "y": 465,
+          "carrier": false
+        },
+        {
+          "id": "p_A_11_4335",
+          "type": "player",
+          "team": "A",
+          "num": 11,
+          "name": "Left Wing",
+          "x": 168,
+          "y": 318,
+          "carrier": false
+        },
+        {
+          "id": "p_A_14_4335",
+          "type": "player",
+          "team": "A",
+          "num": 14,
+          "name": "Right Wing",
+          "x": 231,
+          "y": 518,
+          "carrier": false
+        },
+        {
+          "id": "p_A_15_4335",
+          "type": "player",
+          "team": "A",
+          "num": 15,
+          "name": "Fullback",
+          "x": 201,
+          "y": 361,
+          "carrier": false
+        }
+      ],
+      "drawings": []
+    }
+  ]
+}
