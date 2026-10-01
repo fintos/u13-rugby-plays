@@ -172,13 +172,13 @@
           <span>Deploy U13 Formations</span>
         </div>
         <div class="grid grid-cols-3 gap-1">
-          <button id="btnDeployBackline" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded text-slate-200 hover:text-white border border-slate-700/80 transition truncate text-center" title="Deploy Backs (13v13: Red Attack & Gold Defense)">
-            Backs
+          <button id="btnDeployFreePass" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded text-slate-200 hover:text-white border border-slate-700/80 transition truncate text-center" title="Deploy Free Pass (13v13: 10m from touch, 1 blind defender & deep open attack)">
+            Free Pass
           </button>
-          <button id="btnDeployScrum" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded text-slate-200 hover:text-white border border-slate-700/80 transition truncate text-center" title="Deploy 6-Man Scrum (13v13: Red Attack & Gold Defense)">
+          <button id="btnDeployScrum" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded text-slate-200 hover:text-white border border-slate-700/80 transition truncate text-center" title="Deploy 6-Man Scrum (13v13: 1/3 across pitch North-to-South)">
             Scrum
           </button>
-          <button id="btnDeployPenalty" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded text-slate-200 hover:text-white border border-slate-700/80 transition truncate text-center" title="Deploy Penalty (13v13: 10m Offside Defense & Deep Attack)">
+          <button id="btnDeployPenalty" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded text-slate-200 hover:text-white border border-slate-700/80 transition truncate text-center" title="Deploy Penalty (13v13: 10m Offside Defense & V-Formation Attack)">
             Penalty
           </button>
         </div>
@@ -288,12 +288,12 @@
         <div id="pitchBoard" class="relative rounded-2xl overflow-hidden pitch-shadow border-4 border-emerald-950 transition-all duration-300 max-w-full max-h-full" style="aspect-ratio: 100 / 60; width: 100%; max-width: 1100px;">
 
           <!-- Vector Pitch Lines (Rugby Union 1000 x 600 coordinate grid) -->
-          <svg id="pitchSvg" class="w-full h-full block bg-emerald-700" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet">
+          <svg id="pitchSvg" class="w-full h-full block bg-emerald-600" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet">
             <defs>
-              <!-- Grass striping pattern -->
+              <!-- Traditional Vibrant Grass Striping Pattern -->
               <pattern id="grassStripes" width="80" height="600" patternUnits="userSpaceOnUse">
-                <rect width="40" height="600" fill="#047857" />
-                <rect x="40" width="40" height="600" fill="#059669" />
+                <rect width="40" height="600" fill="#15803d" />
+                <rect x="40" width="40" height="600" fill="#16a34a" />
               </pattern>
               <!-- Drawing Arrowhead Markers -->
               <marker id="arrow-run" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -1207,42 +1207,47 @@
       const currentFrame = state.frames[state.currentFrameIndex];
       currentFrame.actors = [];
 
-      if (type === 'backs') {
-        // Attack Red (13 players): 6-man forward pod/ruck + 7-man backline
-        const redPlayers = [
-          { num: 1, name: 'LH Prop', x: 410, y: 285 },
-          { num: 2, name: 'Hooker', x: 410, y: 300 },
-          { num: 3, name: 'TH Prop', x: 410, y: 315 },
-          { num: 4, name: 'Lock 4', x: 388, y: 290 },
-          { num: 5, name: 'Lock 5', x: 388, y: 310 },
-          { num: 8, name: 'No 8', x: 365, y: 300 },
-          { num: 9, name: 'Scrum Half', x: 395, y: 260 },
-          { num: 10, name: 'Fly Half', x: 345, y: 340, carrier: true },
-          { num: 12, name: 'Inside Centre', x: 305, y: 395 },
-          { num: 13, name: 'Outside Centre', x: 265, y: 450 },
-          { num: 11, name: 'Left Wing', x: 400, y: 110 },
-          { num: 14, name: 'Right Wing', x: 220, y: 515 },
-          { num: 15, name: 'Fullback', x: 235, y: 375 }
+      if (type === 'freepass') {
+        // Free Pass: Set 10m from the top touchline (y=110, touchline is at y=30)
+        // Defense (Gold): 10m back offside line at x=580.
+        // Exactly 1 defender on the blind side (y=65), remaining 11 defenders spread across open side, 15 sweeper back.
+        const goldFreePass = [
+          { num: 11, name: 'Def Wing 11 (Blind)', x: 580, y: 65 },  // The 1 blindside defender
+          { num: 1, name: 'Def Prop 1', x: 580, y: 125 },
+          { num: 2, name: 'Def Hooker', x: 580, y: 165 },
+          { num: 4, name: 'Def Lock 4', x: 580, y: 205 },
+          { num: 9, name: 'Def Scrum Half', x: 580, y: 245 },
+          { num: 10, name: 'Def Fly Half', x: 580, y: 285 },
+          { num: 12, name: 'Def Centre 12', x: 580, y: 325 },
+          { num: 8, name: 'Def No 8', x: 580, y: 365 },
+          { num: 5, name: 'Def Lock 5', x: 580, y: 405 },
+          { num: 3, name: 'Def Prop 3', x: 580, y: 445 },
+          { num: 13, name: 'Def Centre 13', x: 580, y: 485 },
+          { num: 14, name: 'Def Wing 14', x: 580, y: 535 },
+          { num: 15, name: 'Def Fullback', x: 655, y: 290 }
         ];
 
-        // Defense Gold (13 players): 6 forwards at ruck + 7 backs in drift line
-        const goldPlayers = [
-          { num: 1, name: 'Def Prop 1', x: 440, y: 285 },
-          { num: 2, name: 'Def Hooker', x: 440, y: 300 },
-          { num: 3, name: 'Def Prop 3', x: 440, y: 315 },
-          { num: 4, name: 'Def Lock 4', x: 460, y: 285 },
-          { num: 5, name: 'Def Lock 5', x: 460, y: 315 },
-          { num: 8, name: 'Def No 8', x: 475, y: 300 },
-          { num: 9, name: 'Def Scrum Half', x: 445, y: 250 },
-          { num: 10, name: 'Def Fly Half', x: 475, y: 340 },
-          { num: 12, name: 'Def Centre 12', x: 480, y: 395 },
-          { num: 13, name: 'Def Centre 13', x: 485, y: 450 },
-          { num: 11, name: 'Def Wing 11', x: 495, y: 515 },
-          { num: 14, name: 'Def Wing 14', x: 485, y: 110 },
-          { num: 15, name: 'Def Fullback', x: 560, y: 380 }
+        // Attack (Red): Point of V / Tap taker at x=460, y=110.
+        // 1 blind support runner + trailing V angled toward the wide open pitch.
+        const redFreePass = [
+          { num: 9, name: 'Scrum Half (Point)', x: 460, y: 110, carrier: true },
+          { num: 11, name: 'Left Wing (Blind)', x: 425, y: 65 },
+          // Upper flank of V
+          { num: 1, name: 'LH Prop', x: 420, y: 150 },
+          { num: 2, name: 'Hooker', x: 385, y: 190 },
+          { num: 4, name: 'Lock 4', x: 350, y: 230 },
+          { num: 8, name: 'No 8', x: 315, y: 270 },
+          // Core & Open flank of V
+          { num: 10, name: 'Fly Half', x: 400, y: 220 },
+          { num: 5, name: 'Lock 5', x: 375, y: 295 },
+          { num: 3, name: 'TH Prop', x: 345, y: 350 },
+          { num: 12, name: 'Inside Centre', x: 340, y: 410 },
+          { num: 13, name: 'Outside Centre', x: 300, y: 465 },
+          { num: 14, name: 'Right Wing', x: 260, y: 525 },
+          { num: 15, name: 'Fullback', x: 280, y: 340 }
         ];
 
-        redPlayers.forEach(p => {
+        redFreePass.forEach(p => {
           currentFrame.actors.push({
             id: `p_A_${p.num}`,
             type: 'player',
@@ -1255,7 +1260,7 @@
           });
         });
 
-        goldPlayers.forEach(p => {
+        goldFreePass.forEach(p => {
           currentFrame.actors.push({
             id: `p_B_${p.num}`,
             type: 'player',
@@ -1271,44 +1276,44 @@
         currentFrame.actors.push({
           id: 'ball_main',
           type: 'ball',
-          x: 354,
-          y: 345
+          x: 466,
+          y: 114
         });
 
-        showToast("Deployed Backs Formation (13v13: Red Attack & Gold Defense)");
+        showToast("Deployed Free Pass (10m from touch, 1 blind defender & open V-attack)");
 
       } else if (type === 'scrum') {
-        // U13 6-Man Scrum (3-2-1): Props 1 & 3, Hooker 2, Locks 4 & 5, No 8 at base
+        // Scrum shifted 1/3 across pitch North-to-South (y ≈ 210, where pitch runs y=30 to y=570)
         const redScrum = [
-          { num: 1, name: 'LH Prop', x: 485, y: 282 },
-          { num: 2, name: 'Hooker', x: 485, y: 300 },
-          { num: 3, name: 'TH Prop', x: 485, y: 318 },
-          { num: 4, name: 'Lock 4', x: 462, y: 288 },
-          { num: 5, name: 'Lock 5', x: 462, y: 312 },
-          { num: 8, name: 'Number Eight', x: 438, y: 300, carrier: true },
-          { num: 9, name: 'Scrum Half', x: 450, y: 260 },
-          { num: 10, name: 'Fly Half', x: 380, y: 350 },
-          { num: 12, name: 'Inside Centre', x: 340, y: 405 },
-          { num: 13, name: 'Outside Centre', x: 300, y: 460 },
-          { num: 11, name: 'Left Wing', x: 420, y: 95 },
-          { num: 14, name: 'Right Wing', x: 255, y: 520 },
-          { num: 15, name: 'Fullback', x: 260, y: 375 }
+          { num: 1, name: 'LH Prop', x: 485, y: 192 },
+          { num: 2, name: 'Hooker', x: 485, y: 210 },
+          { num: 3, name: 'TH Prop', x: 485, y: 228 },
+          { num: 4, name: 'Lock 4', x: 462, y: 198 },
+          { num: 5, name: 'Lock 5', x: 462, y: 222 },
+          { num: 8, name: 'Number Eight', x: 438, y: 210, carrier: true },
+          { num: 9, name: 'Scrum Half', x: 450, y: 170 },
+          { num: 11, name: 'Left Wing (Blind)', x: 420, y: 75 },
+          { num: 10, name: 'Fly Half', x: 375, y: 275 },
+          { num: 12, name: 'Inside Centre', x: 335, y: 340 },
+          { num: 13, name: 'Outside Centre', x: 295, y: 405 },
+          { num: 14, name: 'Right Wing', x: 255, y: 485 },
+          { num: 15, name: 'Fullback', x: 270, y: 300 }
         ];
 
         const goldScrum = [
-          { num: 1, name: 'Def LH Prop', x: 515, y: 282 },
-          { num: 2, name: 'Def Hooker', x: 515, y: 300 },
-          { num: 3, name: 'Def TH Prop', x: 515, y: 318 },
-          { num: 4, name: 'Def Lock 4', x: 538, y: 288 },
-          { num: 5, name: 'Def Lock 5', x: 538, y: 312 },
-          { num: 8, name: 'Def No Eight', x: 562, y: 300 },
-          { num: 9, name: 'Def Scrum Half', x: 495, y: 255 },
-          { num: 10, name: 'Def Fly Half', x: 550, y: 350 },
-          { num: 12, name: 'Def Centre 12', x: 555, y: 405 },
-          { num: 13, name: 'Def Centre 13', x: 560, y: 460 },
-          { num: 11, name: 'Def Wing 11', x: 570, y: 520 },
-          { num: 14, name: 'Def Wing 14', x: 540, y: 95 },
-          { num: 15, name: 'Def Fullback', x: 630, y: 380 }
+          { num: 1, name: 'Def LH Prop', x: 515, y: 192 },
+          { num: 2, name: 'Def Hooker', x: 515, y: 210 },
+          { num: 3, name: 'Def TH Prop', x: 515, y: 228 },
+          { num: 4, name: 'Def Lock 4', x: 538, y: 198 },
+          { num: 5, name: 'Def Lock 5', x: 538, y: 222 },
+          { num: 8, name: 'Def No Eight', x: 562, y: 210 },
+          { num: 9, name: 'Def Scrum Half', x: 495, y: 165 },
+          { num: 14, name: 'Def Wing 14 (Blind)', x: 540, y: 75 },
+          { num: 10, name: 'Def Fly Half', x: 550, y: 275 },
+          { num: 12, name: 'Def Centre 12', x: 555, y: 340 },
+          { num: 13, name: 'Def Centre 13', x: 560, y: 405 },
+          { num: 11, name: 'Def Wing 11', x: 570, y: 490 },
+          { num: 15, name: 'Def Fullback', x: 635, y: 330 }
         ];
 
         redScrum.forEach(p => {
@@ -1341,45 +1346,50 @@
           id: 'ball_main',
           type: 'ball',
           x: 444,
-          y: 304
+          y: 214
         });
 
-        showToast("Deployed 6-Man Scrum (13v13: Red Attack & Gold Defense)");
+        showToast("Deployed 6-Man Scrum (1/3 across pitch North-to-South)");
 
       } else if (type === 'penalty') {
         // Penalty setup:
-        // Defence (Gold) in a straight line 10m back evenly spread across pitch (y 65 to 545), with 15 swept back
+        // Defence (Gold) in a straight offside line 10m back (x=580) evenly spread across pitch (y 65 to 540), with 15 swept back
         const goldPenalty = [
           { num: 11, name: 'Def Wing 11', x: 580, y: 65 },
-          { num: 1, name: 'Def Prop 1', x: 580, y: 110 },
-          { num: 4, name: 'Def Lock 4', x: 580, y: 155 },
-          { num: 2, name: 'Def Hooker', x: 580, y: 200 },
-          { num: 9, name: 'Def Scrum Half', x: 580, y: 245 },
-          { num: 10, name: 'Def Fly Half', x: 580, y: 290 },
-          { num: 8, name: 'Def No 8', x: 580, y: 335 },
-          { num: 5, name: 'Def Lock 5', x: 580, y: 380 },
-          { num: 3, name: 'Def Prop 3', x: 580, y: 425 },
-          { num: 12, name: 'Def Centre 12', x: 580, y: 470 },
-          { num: 13, name: 'Def Centre 13', x: 580, y: 510 },
-          { num: 14, name: 'Def Wing 14', x: 580, y: 545 },
+          { num: 1, name: 'Def Prop 1', x: 580, y: 105 },
+          { num: 4, name: 'Def Lock 4', x: 580, y: 145 },
+          { num: 2, name: 'Def Hooker', x: 580, y: 190 },
+          { num: 9, name: 'Def Scrum Half', x: 580, y: 235 },
+          { num: 10, name: 'Def Fly Half', x: 580, y: 280 },
+          { num: 8, name: 'Def No 8', x: 580, y: 325 },
+          { num: 5, name: 'Def Lock 5', x: 580, y: 370 },
+          { num: 3, name: 'Def Prop 3', x: 580, y: 415 },
+          { num: 12, name: 'Def Centre 12', x: 580, y: 460 },
+          { num: 13, name: 'Def Centre 13', x: 580, y: 500 },
+          { num: 14, name: 'Def Wing 14', x: 580, y: 540 },
           { num: 15, name: 'Def Fullback', x: 650, y: 300 }
         ];
 
-        // Attack (Red): 10m away at mark (x=460) with tap-taker 9 + staggered deep formation
+        // Attack (Red): Distinct V-Formation with the ball at the point of the V (9 at x=460, y=300).
+        // Runners branch diagonally backward North & South creating a chevron wedge.
         const redPenalty = [
-          { num: 9, name: 'Scrum Half', x: 460, y: 290, carrier: true },
-          { num: 10, name: 'Fly Half', x: 410, y: 335 },
-          { num: 11, name: 'Left Wing', x: 420, y: 75 },
-          { num: 1, name: 'LH Prop', x: 430, y: 140 },
-          { num: 4, name: 'Lock 4', x: 415, y: 185 },
-          { num: 2, name: 'Hooker', x: 430, y: 230 },
-          { num: 8, name: 'No 8', x: 395, y: 280 },
-          { num: 5, name: 'Lock 5', x: 415, y: 385 },
-          { num: 3, name: 'TH Prop', x: 430, y: 425 },
-          { num: 12, name: 'Inside Centre', x: 375, y: 440 },
-          { num: 13, name: 'Outside Centre', x: 340, y: 490 },
-          { num: 14, name: 'Right Wing', x: 360, y: 540 },
-          { num: 15, name: 'Fullback', x: 310, y: 360 }
+          // Point of the V (Tap taker with ball)
+          { num: 9, name: 'Scrum Half (Point)', x: 460, y: 300, carrier: true },
+          // North wing of the V
+          { num: 1, name: 'LH Prop', x: 420, y: 250 },
+          { num: 4, name: 'Lock 4', x: 380, y: 200 },
+          { num: 10, name: 'Fly Half', x: 340, y: 150 },
+          { num: 12, name: 'Inside Centre', x: 300, y: 100 },
+          { num: 11, name: 'Left Wing', x: 260, y: 55 },
+          // South wing of the V
+          { num: 2, name: 'Hooker', x: 420, y: 350 },
+          { num: 3, name: 'TH Prop', x: 380, y: 400 },
+          { num: 5, name: 'Lock 5', x: 340, y: 450 },
+          { num: 13, name: 'Outside Centre', x: 300, y: 500 },
+          { num: 14, name: 'Right Wing', x: 260, y: 545 },
+          // Central support inside & behind the V
+          { num: 8, name: 'No 8', x: 400, y: 300 },
+          { num: 15, name: 'Fullback', x: 330, y: 300 }
         ];
 
         redPenalty.forEach(p => {
@@ -1412,10 +1422,10 @@
           id: 'ball_main',
           type: 'ball',
           x: 466,
-          y: 294
+          y: 304
         });
 
-        showToast("Deployed Penalty Formation (13v13: 10m Offside Defense & Deep Attack)");
+        showToast("Deployed Penalty (10m Offside Defense & Attacking V-Formation)");
       }
 
       state.selectedActorIds.clear();
@@ -1426,7 +1436,7 @@
       renderKeyframeTimeline();
     }
 
-    document.getElementById('btnDeployBackline').onclick = () => deployFormationPreset('backs');
+    document.getElementById('btnDeployFreePass').onclick = () => deployFormationPreset('freepass');
     document.getElementById('btnDeployScrum').onclick = () => deployFormationPreset('scrum');
     document.getElementById('btnDeployPenalty').onclick = () => deployFormationPreset('penalty');
 
@@ -2078,7 +2088,7 @@
     window.onload = () => {
       lucide.createIcons();
       renderRosterList();
-      deployFormationPreset('backs');
+      deployFormationPreset('freepass');
       populateLocalPresetsDropdown();
       loadTeamManifestPlays();
     };
