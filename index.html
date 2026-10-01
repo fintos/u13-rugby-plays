@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>RugbyTactix Pro - Tactical Rugby Whiteboard & Animation Studio</title>
+  <title>RugbyTactix Pro - U13 Tactical Whiteboard & Animation Studio</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -71,14 +71,13 @@
     }
 
     @keyframes frame-glow {
-      0%, 100% { border-color: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); }
-      50% { border-color: #60a5fa; box-shadow: 0 0 18px rgba(96, 165, 250, 0.9); }
+      0%, 100% { border-color: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+      50% { border-color: #f87171; box-shadow: 0 0 18px rgba(248, 113, 113, 0.9); }
     }
     .active-frame {
       animation: frame-glow 1.5s infinite ease-in-out;
     }
 
-    /* Context Menu styling */
     #contextMenu {
       display: none;
       position: absolute;
@@ -88,24 +87,22 @@
 </head>
 <body class="bg-slate-950 text-slate-100 h-screen w-screen overflow-hidden flex flex-col font-sans no-select">
 
-  <!-- Fullscreen Drag & Drop Zone for JSON Playbook Files -->
   <div id="dropOverlay" class="fixed inset-0 bg-emerald-950/85 backdrop-blur-sm border-4 border-dashed border-emerald-400 z-50 hidden flex flex-col items-center justify-center pointer-events-none transition-all duration-200">
     <i data-lucide="file-up" class="w-16 h-16 text-emerald-300 animate-bounce mb-3"></i>
     <p class="text-xl font-bold text-white">Drop Rugby Playbook JSON Here</p>
     <p class="text-sm text-emerald-200 mt-1">Files load instantly into the tactics board & timeline</p>
   </div>
 
-  <!-- Top App Navigation & Controls Header -->
   <header class="h-16 bg-slate-900 border-b border-slate-800 px-3 sm:px-5 flex items-center justify-between z-30 shrink-0 select-none shadow-lg">
     <div class="flex items-center space-x-3">
       <div class="flex items-center space-x-2">
-        <div class="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-950/60 ring-1 ring-emerald-400/40">
+        <div class="w-9 h-9 rounded-lg bg-red-600 flex items-center justify-center text-white shadow-md shadow-red-950/60 ring-1 ring-red-400/40">
           <i data-lucide="shield" class="w-5 h-5"></i>
         </div>
         <div class="flex flex-col">
           <span class="font-bold text-base tracking-wide text-white flex items-center gap-1.5 leading-none">
-            RUGBY<span class="text-emerald-400 font-extrabold">TACTIX</span>
-            <span class="text-[10px] uppercase tracking-wider bg-amber-500/20 border border-amber-500/40 text-amber-300 px-1.5 py-0.5 rounded font-mono font-bold">U13s (13v13)</span>
+            RUGBY<span class="text-red-500 font-extrabold">TACTIX</span>
+            <span class="text-[10px] uppercase tracking-wider bg-amber-500/20 border border-amber-500/40 text-amber-300 px-1.5 py-0.5 rounded font-mono font-bold">U13 (13v13)</span>
           </span>
           <span class="text-[11px] text-slate-300 font-mono flex items-center gap-1 truncate max-w-[240px]" id="playTitleDisplay">
             U13 Backline Strike: 10-12 Loop (13v13)
@@ -113,22 +110,32 @@
         </div>
       </div>
 
-      <!-- Presets Selector -->
       <div class="hidden xl:flex items-center ml-3 pl-3 border-l border-slate-800">
         <label class="text-xs text-slate-300 mr-2 flex items-center gap-1 font-semibold">
-          <i data-lucide="bookmark" class="w-3.5 h-3.5 text-emerald-400"></i> U13 Plays:
+          <i data-lucide="book-open" class="w-3.5 h-3.5 text-emerald-400"></i> Playbook:
         </label>
-        <select id="presetSelect" class="bg-slate-800 text-xs text-slate-100 font-medium border border-slate-700 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none cursor-pointer">
-          <option value="" disabled>Select U13 Set Play (13v13 No 6 & 7)...</option>
-          <option value="preset_strike" selected>1. Backline Strike: 10-12 Loop (13v13)</option>
-          <option value="preset_lineout">2. 6-Man Lineout: Front Peel (13v13)</option>
-          <option value="preset_scrum">3. 6-Man Scrum: 8-9 Blindside Strike (13v13)</option>
-          <option value="preset_pod">4. Midfield Forward Pod & Screen Pass (13v13)</option>
+        <select id="presetSelect" class="bg-slate-800 text-xs text-slate-100 font-medium border border-slate-700 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none cursor-pointer max-w-[280px]">
+          <optgroup label="⚡ Standard U13 Plays" id="builtInGroup">
+            <option value="preset_strike" selected>1. Backline Strike: 10-12 Loop</option>
+            <option value="preset_lineout">2. 6-Man Lineout: Front Peel</option>
+            <option value="preset_scrum">3. 6-Man Scrum: 8-9 Blindside Strike</option>
+            <option value="preset_pod">4. Midfield Forward Pod & Screen Pass</option>
+          </optgroup>
+          <optgroup label="🌐 Team Plays (GitHub /plays)" id="githubPlaysGroup" class="hidden">
+            <!-- Dynamically populated from /plays/manifest.json -->
+          </optgroup>
+          <optgroup label="⭐ My Saved Device Plays" id="localCustomGroup" class="hidden">
+            <!-- Dynamically populated from localStorage -->
+          </optgroup>
         </select>
+
+        <!-- Reload/Sync Cloud Plays Button -->
+        <button id="btnSyncManifest" class="ml-1.5 p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-emerald-400 transition" title="Refresh Team Plays from GitHub (/plays/manifest.json)">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        </button>
       </div>
     </div>
 
-    <!-- Pitch Camera View Selector -->
     <div class="flex items-center space-x-1 sm:space-x-1.5 bg-slate-800/90 p-1 rounded-xl border border-slate-700">
       <button id="viewFullPitch" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white transition flex items-center gap-1.5 shadow" title="Full Rugby Pitch">
         <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
@@ -144,7 +151,6 @@
       </button>
     </div>
 
-    <!-- Primary Action Center: Highly Visible LOAD JSON & Playbook Controls -->
     <div class="flex items-center space-x-2">
       <!-- High Visibility LOAD JSON Button -->
       <button id="btnOpenLoadModal" class="px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-sm font-bold flex items-center gap-2 shadow-lg shadow-emerald-900/40 ring-2 ring-emerald-400 transition transform active:scale-95" title="Import or Load a JSON Playbook">
@@ -152,7 +158,13 @@
         <span class="tracking-wide uppercase">Load JSON</span>
       </button>
 
-      <!-- High Visibility SAVE JSON Button -->
+      <!-- Save Play to Local Preset Dropdown -->
+      <button id="btnSaveToDropdown" class="px-2.5 sm:px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-amber-400 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition" title="Save this play into your preset dropdown list">
+        <i data-lucide="bookmark-plus" class="w-4 h-4 text-amber-400"></i>
+        <span class="hidden lg:inline">Save to Presets</span>
+      </button>
+
+      <!-- Download JSON File Button -->
       <button id="btnSavePlay" class="px-3 sm:px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-black text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-amber-950/40 ring-2 ring-amber-400 transition transform active:scale-95" title="Download & Save JSON Playbook">
         <i data-lucide="download" class="w-4 h-4 sm:w-4.5 sm:h-4.5 text-slate-950 stroke-[2.5]"></i>
         <span class="tracking-wide uppercase hidden sm:inline">Save JSON</span>
@@ -161,13 +173,13 @@
       <!-- PNG Snapshot Export -->
       <button id="btnExportImage" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5 transition" title="Export PNG Snapshot">
         <i data-lucide="camera" class="w-4 h-4 text-sky-400"></i>
-        <span class="hidden lg:inline">PNG</span>
+        <span class="hidden xl:inline">PNG</span>
       </button>
 
       <!-- Ghost Trails Toggle -->
       <button id="toggleGhostTrails" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-emerald-600 border border-emerald-500 text-xs font-semibold text-white flex items-center gap-1.5 transition" title="Toggle Motion Path Vectors">
         <i data-lucide="git-commit" class="w-4 h-4"></i>
-        <span class="hidden xl:inline">Trails</span>
+        <span class="hidden 2xl:inline">Trails</span>
       </button>
 
       <!-- Reset Field -->
@@ -177,22 +189,28 @@
     </div>
   </header>
 
-  <!-- Secondary Quick Playbook Banner for Smaller Screens & Direct Access -->
   <div class="bg-slate-900/90 border-b border-slate-800/80 px-3 sm:px-5 py-1.5 flex items-center justify-between text-xs xl:hidden z-20">
     <div class="flex items-center gap-2">
       <span class="text-slate-400 font-semibold flex items-center gap-1">
-        <i data-lucide="bookmark" class="w-3.5 h-3.5 text-emerald-400"></i> Preset:
+        <i data-lucide="bookmark" class="w-3.5 h-3.5 text-emerald-400"></i> Play:
       </span>
-      <select id="presetSelectMobile" class="bg-slate-800 text-slate-200 text-xs rounded border border-slate-700 px-2 py-0.5 max-w-[200px] sm:max-w-xs">
-        <option value="preset_strike">1. Backline Strike: 10-12 Loop (13v13)</option>
-        <option value="preset_lineout">2. 6-Man Lineout: Front Peel (13v13)</option>
-        <option value="preset_scrum">3. 6-Man Scrum: 8-9 Blindside Strike (13v13)</option>
-        <option value="preset_pod">4. Midfield Forward Pod & Screen (13v13)</option>
+      <select id="presetSelectMobile" class="bg-slate-800 text-slate-200 text-xs rounded border border-slate-700 px-2 py-0.5 max-w-[190px] sm:max-w-xs">
+        <optgroup label="⚡ Standard U13 Plays" id="builtInGroupMobile">
+          <option value="preset_strike">1. Backline Strike: 10-12 Loop</option>
+          <option value="preset_lineout">2. 6-Man Lineout: Front Peel</option>
+          <option value="preset_scrum">3. 6-Man Scrum: 8-9 Blindside</option>
+          <option value="preset_pod">4. Forward Pod & Screen</option>
+        </optgroup>
+        <optgroup label="🌐 Team Plays (GitHub)" id="githubPlaysGroupMobile" class="hidden"></optgroup>
+        <optgroup label="⭐ My Saved Plays" id="localCustomGroupMobile" class="hidden"></optgroup>
       </select>
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-1.5">
+      <button id="btnSecondarySavePreset" class="px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-bold text-[11px] flex items-center gap-1">
+        <i data-lucide="bookmark-plus" class="w-3.5 h-3.5"></i> Preset
+      </button>
       <button id="btnSecondaryLoad" class="px-2 py-1 rounded-md bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-[11px] flex items-center gap-1">
-        <i data-lucide="folder-open" class="w-3.5 h-3.5"></i> Load Playbook
+        <i data-lucide="folder-open" class="w-3.5 h-3.5"></i> Load
       </button>
       <button id="btnSecondarySave" class="px-2 py-1 rounded-md bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-[11px] flex items-center gap-1">
         <i data-lucide="download" class="w-3.5 h-3.5"></i> Save
@@ -200,12 +218,11 @@
     </div>
   </div>
 
-  <!-- Main Body Content Area -->
   <div class="flex-1 flex overflow-hidden relative">
 
     <!-- Left Roster & Pitch Management Sidebar -->
     <aside id="rosterSidebar" class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col z-20 shrink-0 transition-all duration-300 ease-in-out relative">
-      <!-- Team Switcher Tabs -->
+      <!-- Team Switcher Tabs (Red vs Gold) -->
       <div class="p-2 border-b border-slate-800 grid grid-cols-2 gap-1 bg-slate-900/90">
         <button id="tabTeamA" class="py-1.5 px-2 text-xs font-semibold rounded bg-red-600 text-white flex items-center justify-center gap-1.5 transition shadow-sm">
           <span class="w-2.5 h-2.5 rounded-full bg-white"></span>
@@ -217,30 +234,29 @@
         </button>
       </div>
 
-      <!-- Quick Formations Toolbar -->
+      <!-- Quick Dual-Team Formations Deployment -->
       <div class="px-3 py-2 border-b border-slate-800 bg-slate-900/50 flex flex-col gap-1.5 text-xs">
         <div class="flex items-center justify-between text-slate-400 font-medium">
-          <span>Deploy Set Formations</span>
+          <span>Deploy U13 Formations</span>
         </div>
         <div class="grid grid-cols-3 gap-1">
-          <button id="btnDeployBackline" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] rounded text-slate-300 hover:text-white border border-slate-700/60 transition truncate">
-            Backs Line
+          <button id="btnDeployBackline" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] rounded text-slate-300 hover:text-white border border-slate-700/60 transition truncate" title="Deploy Backs (9, 10, 11, 12, 13, 14, 15)">
+            Backs (7)
           </button>
-          <button id="btnDeployScrum" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] rounded text-slate-300 hover:text-white border border-slate-700/60 transition truncate">
-            Scrum Pack
+          <button id="btnDeployScrum" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] rounded text-slate-300 hover:text-white border border-slate-700/60 transition truncate" title="Deploy 6-Man Forward Pack (1, 2, 3, 4, 5, 8)">
+            Scrum (6)
           </button>
-          <button id="btnDeployLineout" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] rounded text-slate-300 hover:text-white border border-slate-700/60 transition truncate">
-            Lineout
+          <button id="btnDeployLineout" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] rounded text-slate-300 hover:text-white border border-slate-700/60 transition truncate" title="Deploy 6-Man Lineout Pod">
+            Lineout (6)
           </button>
         </div>
       </div>
 
-      <!-- Equipment Spawner (Ball, Cone, Pad) -->
       <div class="p-2.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/40">
         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Equipment</span>
         <div class="flex items-center gap-2">
           <!-- Rugby Ball Spawner -->
-          <button id="spawnBallBtn" class="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-md shadow-sm transition active:scale-95" title="Place or Bring Ball to Pitch Center">
+          <button id="spawnBallBtn" class="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-md shadow-sm transition active:scale-95" title="Place or Recenter Rugby Ball">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
               <ellipse cx="12" cy="12" rx="10" ry="6" transform="rotate(-30 12 12)" fill="#f8fafc" stroke="#0f172a" stroke-width="1.5"/>
               <path d="M5 15 C 9 9, 15 15, 19 9" stroke="#dc2626" stroke-width="1.5" fill="none" stroke-linecap="round"/>
@@ -254,18 +270,17 @@
         </div>
       </div>
 
-      <!-- Active Players on Field Quick Bench / Manager -->
+      <!-- Active Players on Field Quick Bench -->
       <div class="px-3 py-1.5 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between text-xs">
-        <span class="text-slate-400 font-medium">On Pitch (<span id="activeCountDisplay">0</span>)</span>
+        <span class="text-slate-400 font-medium">On Pitch (<span id="activeCountDisplay">0</span>/13)</span>
         <button id="btnClearAllPlayers" class="text-[10px] text-red-400 hover:text-red-300 hover:underline">Clear Team</button>
       </div>
 
-      <!-- Scrollable Roster 1 to 15 Rugby Union Positional Tokens -->
+      <!-- Scrollable Roster 1 to 15 (No 6 & 7) -->
       <div class="flex-1 overflow-y-auto p-2 space-y-1.5" id="rosterListContainer">
         <!-- Roster items populated dynamically via JS -->
       </div>
 
-      <!-- Active Player Inspector & Removal Panel -->
       <div id="inspectorPanel" class="p-2.5 bg-slate-950/95 border-t border-slate-800 hidden flex-col gap-2 shadow-xl">
         <div class="flex items-center justify-between text-xs font-bold text-slate-300">
           <span class="flex items-center gap-1.5">
@@ -304,35 +319,27 @@
     <!-- Pitch Stage & Animation Board -->
     <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-950 relative">
 
-      <!-- Tactical Drawing Toolbar -->
       <div class="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-slate-900/95 backdrop-blur-md px-2 py-1.5 rounded-xl border border-slate-800/80 shadow-2xl">
-        <!-- Select / Pointer Mode -->
         <button id="toolSelect" class="tool-btn active-tool p-2 rounded-lg text-xs font-medium bg-emerald-600 text-white transition" title="Select / Move Players & Ball (V)">
           <i data-lucide="mouse-pointer" class="w-4 h-4"></i>
         </button>
         <div class="h-4 w-px bg-slate-700 mx-1"></div>
-        <!-- Running Line Arrow -->
         <button id="toolRun" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Running Line / Carry (Solid Arrow)">
           <i data-lucide="arrow-up-right" class="w-4 h-4 text-emerald-400"></i>
         </button>
-        <!-- Pass Line Arrow -->
         <button id="toolPass" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Passing Trajectory (Dashed Arrow)">
           <i data-lucide="move-right" class="w-4 h-4 text-sky-400"></i>
         </button>
-        <!-- Kick Trajectory Arc -->
         <button id="toolKick" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Kick / Box Kick (Curved Arc)">
           <i data-lucide="spline" class="w-4 h-4 text-purple-400"></i>
         </button>
-        <!-- Defensive Block / Tackle Line -->
         <button id="toolTackle" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Tackle / Defensive Line (Crossbar T-Line)">
           <i data-lucide="minus" class="w-4 h-4 text-amber-400"></i>
         </button>
-        <!-- Freehand Pen -->
         <button id="toolPen" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Freehand Pen Tool">
           <i data-lucide="pencil" class="w-4 h-4 text-yellow-300"></i>
         </button>
         <div class="h-4 w-px bg-slate-700 mx-1"></div>
-        <!-- Color Palette -->
         <div class="flex items-center gap-1 px-1">
           <button class="color-btn w-5 h-5 rounded-full bg-yellow-400 ring-2 ring-white scale-110" data-color="#facc15" title="Yellow"></button>
           <button class="color-btn w-5 h-5 rounded-full bg-white hover:scale-105" data-color="#ffffff" title="White"></button>
@@ -340,16 +347,14 @@
           <button class="color-btn w-5 h-5 rounded-full bg-sky-400 hover:scale-105" data-color="#38bdf8" title="Cyan/Sky"></button>
         </div>
         <div class="h-4 w-px bg-slate-700 mx-1"></div>
-        <!-- Clear Drawing Arrows -->
         <button id="btnClearDrawings" class="p-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-red-950/60 hover:text-red-300 transition" title="Clear Tactical Arrows on this Frame">
           <i data-lucide="eraser" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <!-- Pitch Wrapper Container -->
       <div id="pitchWrapper" class="flex-1 w-full h-full p-2 sm:p-4 flex items-center justify-center relative select-none">
 
-        <!-- Drag-Off Trash Drop Bin Indicator (shown while dragging any actor) -->
+        <!-- Drag-Off Trash Drop Bin Indicator -->
         <div id="dragTrashZone" class="absolute bottom-6 right-8 bg-red-950/80 border-2 border-dashed border-red-500 rounded-xl px-4 py-3 flex items-center gap-2 text-red-200 z-30 opacity-0 pointer-events-none transition-all duration-200 shadow-2xl">
           <i data-lucide="trash-2" class="w-5 h-5 text-red-400 animate-bounce"></i>
           <span class="text-xs font-bold uppercase tracking-wider">Drag here to remove</span>
@@ -358,7 +363,7 @@
         <!-- Pitch Board Holder -->
         <div id="pitchBoard" class="relative rounded-2xl overflow-hidden pitch-shadow border-4 border-emerald-950 transition-all duration-300" style="width: 100%; max-width: 1100px; aspect-ratio: 100 / 60;">
           
-          <!-- Pitch SVG Base & Field Graphics (World Rugby Standard Dimensions scaled 0..1000 x 0..600) -->
+          <!-- Pitch SVG Base & Field Graphics -->
           <svg id="pitchSvg" class="w-full h-full absolute inset-0 block" viewBox="0 0 1000 600" preserveAspectRatio="none">
             <defs>
               <linearGradient id="grassStripes" x1="0" y1="0" x2="1000" y2="0" gradientUnits="userSpaceOnUse">
@@ -398,52 +403,34 @@
               </marker>
             </defs>
 
-            <!-- Grass Pitch Canvas Background -->
             <rect width="1000" height="600" fill="url(#grassStripes)"/>
 
-            <!-- Rugby Field Markings -->
             <g id="pitchMarkings" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.9">
-              <!-- Dead-ball lines and touchlines -->
               <rect x="40" y="40" width="920" height="520" stroke-width="3"/>
-              
-              <!-- Try lines -->
               <line x1="120" y1="40" x2="120" y2="560" stroke-width="4"/>
               <line x1="880" y1="40" x2="880" y2="560" stroke-width="4"/>
 
-              <!-- In-Goal Watermarks -->
               <text x="80" y="310" fill="#ffffff" fill-opacity="0.22" font-size="28" font-family="'Teko', sans-serif" font-weight="700" letter-spacing="4" transform="rotate(-90 80 310)" text-anchor="middle">IN-GOAL</text>
               <text x="920" y="310" fill="#ffffff" fill-opacity="0.22" font-size="28" font-family="'Teko', sans-serif" font-weight="700" letter-spacing="4" transform="rotate(90 920 310)" text-anchor="middle">IN-GOAL</text>
 
-              <!-- Halfway line -->
               <line x1="500" y1="40" x2="500" y2="560" stroke-width="3"/>
               <circle cx="500" cy="300" r="4" fill="#ffffff"/>
 
-              <!-- 22m Lines -->
               <line x1="296" y1="40" x2="296" y2="560" stroke-width="3"/>
               <line x1="704" y1="40" x2="704" y2="560" stroke-width="3"/>
               <text x="296" y="30" fill="#ffffff" fill-opacity="0.8" font-size="14" font-weight="700" text-anchor="middle">22m</text>
               <text x="704" y="30" fill="#ffffff" fill-opacity="0.8" font-size="14" font-weight="700" text-anchor="middle">22m</text>
               <text x="500" y="30" fill="#ffffff" fill-opacity="0.9" font-size="14" font-weight="700" text-anchor="middle">50m</text>
 
-              <!-- 10m Dashed lines -->
               <line x1="420" y1="40" x2="420" y2="560" stroke-width="2" stroke-dasharray="10 10" stroke-opacity="0.85"/>
               <line x1="580" y1="40" x2="580" y2="560" stroke-width="2" stroke-dasharray="10 10" stroke-opacity="0.85"/>
-              <text x="420" y="30" fill="#ffffff" fill-opacity="0.6" font-size="12" font-weight="600" text-anchor="middle">10m</text>
-              <text x="580" y="30" fill="#ffffff" fill-opacity="0.6" font-size="12" font-weight="600" text-anchor="middle">10m</text>
 
-              <!-- 5m Dashed Lines parallel to touchline -->
               <line x1="120" y1="75" x2="880" y2="75" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.6"/>
               <line x1="120" y1="525" x2="880" y2="525" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.6"/>
 
-              <!-- 15m Dashed Lines parallel to touchline -->
               <line x1="120" y1="145" x2="880" y2="145" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.6"/>
               <line x1="120" y1="455" x2="880" y2="455" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.6"/>
 
-              <!-- 5m Dashed off tryline -->
-              <line x1="160" y1="75" x2="160" y2="525" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.5"/>
-              <line x1="840" y1="75" x2="840" y2="525" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.5"/>
-
-              <!-- Rugby Goal Posts -->
               <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
                 <line x1="120" y1="272" x2="120" y2="328"/>
                 <circle cx="120" cy="272" r="4.5" fill="#facc15" stroke="#ffffff" stroke-width="1.5"/>
@@ -454,31 +441,20 @@
               </g>
             </g>
 
-            <!-- Ghost Motion Trails Layer (Below tokens) -->
             <g id="ghostTrailsLayer" pointer-events="none"></g>
-
-            <!-- User Tactical Annotations (Below tokens) -->
             <g id="drawingsLayer" pointer-events="stroke"></g>
-            
-            <!-- Live Active Drawing Preview -->
             <path id="activeDrawingPath" d="" fill="none" stroke-width="3" stroke="#facc15" stroke-linecap="round" pointer-events="none"/>
           </svg>
 
           <!-- Interactive Players Layer (Z-Index 10) -->
-          <div id="actorsContainer" class="absolute inset-0 pointer-events-none z-10">
-            <!-- Tokens dynamically rendered here -->
-          </div>
+          <div id="actorsContainer" class="absolute inset-0 pointer-events-none z-10"></div>
 
-          <!-- Dedicated Top-Level Ball Layer (Z-Index 25) - ALWAYS ON TOP -->
-          <div id="ballTopLayer" class="absolute inset-0 pointer-events-none z-20">
-            <!-- Rugby ball dynamically rendered here above all players -->
-          </div>
-
+          <!-- Dedicated Top-Level Ball Layer (Z-Index 30) - ALWAYS VISIBLE ON TOP -->
+          <div id="ballTopLayer" class="absolute inset-0 pointer-events-none z-30"></div>
         </div>
 
       </div>
 
-      <!-- Right-Click Player Context Menu -->
       <div id="contextMenu" class="bg-slate-900 border border-slate-700 rounded-lg shadow-2xl p-1 text-xs text-slate-200 min-w-[160px]">
         <div class="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800" id="contextPlayerTitle">Player</div>
         <button id="contextToggleCarrier" class="w-full text-left px-2.5 py-1.5 hover:bg-slate-800 rounded flex items-center gap-2">
@@ -493,15 +469,12 @@
 
       <!-- Bottom Frame Timeline & Animation Bar -->
       <footer class="h-28 sm:h-32 bg-slate-900 border-t border-slate-800 flex flex-col z-30 shrink-0 select-none shadow-2xl">
-        <!-- Control Strip: Play/Pause, Step, Speed, Loop, Add Frame -->
         <div class="h-10 px-3 sm:px-6 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between">
           <div class="flex items-center space-x-2">
-            <!-- Play / Pause -->
-            <button id="btnPlayPause" class="w-8 h-8 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow transition active:scale-95" title="Play / Pause Animation (Space)">
+            <button id="btnPlayPause" class="w-8 h-8 rounded-lg bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow transition active:scale-95" title="Play / Pause Animation (Space)">
               <i data-lucide="play" id="playIcon" class="w-4 h-4 ml-0.5"></i>
             </button>
 
-            <!-- Step Navigation -->
             <button id="btnPrevFrame" class="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Previous Phase (Left Arrow)">
               <i data-lucide="skip-back" class="w-4 h-4"></i>
             </button>
@@ -509,12 +482,10 @@
               <i data-lucide="skip-forward" class="w-4 h-4"></i>
             </button>
 
-            <!-- Status Indicator -->
             <span id="frameStatusText" class="text-xs font-mono text-slate-300 font-semibold px-2">Phase 1 of 1</span>
 
             <div class="h-4 w-px bg-slate-700 mx-1 hidden sm:block"></div>
 
-            <!-- Playback Speed -->
             <div class="hidden sm:flex items-center space-x-1 text-slate-400">
               <span class="text-[11px]">Speed:</span>
               <select id="playbackSpeed" class="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded px-1.5 py-0.5 focus:outline-none">
@@ -525,12 +496,10 @@
               </select>
             </div>
 
-            <!-- Loop Toggle -->
             <button id="btnToggleLoop" class="p-1.5 rounded-md bg-emerald-900/40 text-emerald-300 hover:bg-slate-800 transition" title="Toggle Looping">
               <i data-lucide="repeat" class="w-3.5 h-3.5"></i>
             </button>
 
-            <!-- Transition Style -->
             <div class="hidden md:flex items-center space-x-1 text-slate-400">
               <span class="text-[11px]">Ease:</span>
               <select id="transitionStyle" class="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded px-1.5 py-0.5 focus:outline-none">
@@ -541,9 +510,8 @@
             </div>
           </div>
 
-          <!-- Add / Duplicate Frame Buttons -->
           <div class="flex items-center space-x-1.5">
-            <button id="btnAddFrame" class="px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center gap-1 shadow transition">
+            <button id="btnAddFrame" class="px-2.5 py-1 rounded-md bg-red-600 hover:bg-red-500 text-white font-semibold text-xs flex items-center gap-1 shadow transition">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i>
               <span>Add Step</span>
             </button>
@@ -554,16 +522,12 @@
           </div>
         </div>
 
-        <!-- Scrollable Frame Strip -->
-        <div class="flex-1 overflow-x-auto flex items-center px-4 space-x-3 py-2" id="keyframeTimelineTrack">
-          <!-- Keyframe cards rendered here dynamically -->
-        </div>
+        <div class="flex-1 overflow-x-auto flex items-center px-4 space-x-3 py-2" id="keyframeTimelineTrack"></div>
       </footer>
 
     </main>
   </div>
 
-  <!-- Dedicated Load / Import JSON Modal Dialog -->
   <div id="loadModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 shadow-2xl flex flex-col gap-4">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -576,7 +540,6 @@
         </button>
       </div>
 
-      <!-- File Picker -->
       <div class="flex flex-col gap-2">
         <label class="text-xs font-semibold text-slate-300">Option 1: Choose File from Computer</label>
         <label class="border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition bg-slate-950/40">
@@ -587,13 +550,11 @@
         </label>
       </div>
 
-      <!-- Raw Paste Area -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs font-semibold text-slate-300">Option 2: Paste JSON Content Directly</label>
         <textarea id="modalJsonTextarea" rows="4" placeholder='{"title": "My Play", "frames": [...] }' class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs font-mono text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
       </div>
 
-      <!-- Actions -->
       <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
         <button id="btnCancelLoad" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300">
           Cancel
@@ -605,14 +566,13 @@
     </div>
   </div>
 
-  <!-- Notification Toast -->
   <div id="toast" class="fixed bottom-36 right-6 bg-slate-900 border border-slate-700 text-white text-xs px-4 py-2.5 rounded-lg shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 z-50">
     <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400" id="toastIcon"></i>
     <span id="toastMsg">Action completed</span>
   </div>
 
   <script>
-    // Standard U13 Rugby Union Positional Template (13-a-side: Props 1 & 3, Hooker 2, Second Row 4 & 5, No 8, 9, 10, 11, 12, 13, 14, 15)
+    // Standard U13 Rugby Union Positional Template (13-a-side: No Flankers 6 & 7)
     const RUGBY_POSITIONS = [
       { num: 1, name: 'Loosehead Prop', short: '1', role: 'prop', team: 'A' },
       { num: 2, name: 'Hooker', short: '2', role: 'hooker', team: 'A' },
@@ -629,17 +589,16 @@
       { num: 15, name: 'Fullback', short: '15', role: 'fullback', team: 'A' }
     ];
 
-    // Global Tactical Whiteboard State
     const state = {
-      activeRosterTeam: 'A', // 'A' (Attack Blue) or 'B' (Defense Gold)
-      currentTool: 'select', // 'select', 'run', 'pass', 'kick', 'tackle', 'pen'
+      activeRosterTeam: 'A', // 'A' (Attack Red) or 'B' (Defense Gold)
+      currentTool: 'select',
       currentColor: '#facc15',
-      pitchView: 'full', // 'full', 'half', '22'
+      pitchView: 'full',
       selectedActorId: null,
       contextActorId: null,
       showGhostTrails: true,
+      githubManifestPlays: [],
 
-      // Multi-Frame Animation State
       frames: [
         {
           id: 1,
@@ -650,7 +609,6 @@
       ],
       currentFrameIndex: 0,
       
-      // Playback Engine State
       isPlaying: false,
       playbackSpeed: 1.0,
       loop: true,
@@ -660,7 +618,6 @@
       frameDurationMs: 1400
     };
 
-    // DOM Elements
     const pitchSvg = document.getElementById('pitchSvg');
     const pitchBoard = document.getElementById('pitchBoard');
     const actorsContainer = document.getElementById('actorsContainer');
@@ -681,17 +638,14 @@
     const dragTrashZone = document.getElementById('dragTrashZone');
     const contextMenu = document.getElementById('contextMenu');
 
-    // Drawing interaction state
     let isDrawing = false;
     let drawingStartPt = null;
     let currentFreehandPoints = [];
 
-    // Drag interaction state
     let draggedActorId = null;
     let dragOffset = { x: 0, y: 0 };
     let isDragging = false;
 
-    // Convert mouse/touch event coordinates into Normalized Pitch Coordinates (0..1000 x 0..600)
     function getPitchCoords(e) {
       const rect = pitchSvg.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -710,7 +664,6 @@
       };
     }
 
-    // Convert Normalized Pitch Coordinates (0..1000, 0..600) to relative percentages (%)
     function pitchToPercent(x, y) {
       const viewBox = pitchSvg.viewBox.baseVal;
       const pX = ((x - viewBox.x) / viewBox.width) * 100;
@@ -718,16 +671,169 @@
       return { pX, pY };
     }
 
+    async function loadTeamManifestPlays() {
+      // Look for plays/manifest.json, manifest.json, or ./plays/manifest.json
+      const candidatePaths = ['plays/manifest.json', 'manifest.json', './plays/manifest.json'];
+      let foundData = null;
+      let matchedPath = '';
+
+      for (const path of candidatePaths) {
+        try {
+          const resp = await fetch(path, { cache: 'no-store' });
+          if (resp.ok) {
+            foundData = await resp.json();
+            matchedPath = path;
+            break;
+          }
+        } catch (e) {
+          // Offline or local file:// protocol
+        }
+      }
+
+      const desktopGroup = document.getElementById('githubPlaysGroup');
+      const mobileGroup = document.getElementById('githubPlaysGroupMobile');
+
+      if (foundData && Array.isArray(foundData) && foundData.length > 0) {
+        state.githubManifestPlays = foundData;
+        desktopGroup.innerHTML = '';
+        mobileGroup.innerHTML = '';
+
+        foundData.forEach((item, idx) => {
+          const val = `gh_${idx}`;
+          const title = item.title || item.name || `Team Play ${idx + 1}`;
+          
+          const opt1 = document.createElement('option');
+          opt1.value = val;
+          opt1.innerText = `📁 ${title}`;
+          desktopGroup.appendChild(opt1);
+
+          const opt2 = document.createElement('option');
+          opt2.value = val;
+          opt2.innerText = `📁 ${title}`;
+          mobileGroup.appendChild(opt2);
+        });
+
+        desktopGroup.classList.remove('hidden');
+        mobileGroup.classList.remove('hidden');
+        showToast(`Loaded ${foundData.length} team plays from GitHub (${matchedPath})`);
+      } else {
+        desktopGroup.classList.add('hidden');
+        mobileGroup.classList.add('hidden');
+      }
+
+      refreshLocalCustomPresets();
+    }
+
+    function refreshLocalCustomPresets() {
+      const saved = JSON.parse(localStorage.getItem('rugby_custom_plays') || '[]');
+      const desktopGroup = document.getElementById('localCustomGroup');
+      const mobileGroup = document.getElementById('localCustomGroupMobile');
+
+      desktopGroup.innerHTML = '';
+      mobileGroup.innerHTML = '';
+
+      if (saved.length > 0) {
+        saved.forEach((item, idx) => {
+          const val = `local_${idx}`;
+          const title = item.title || `Saved Play ${idx + 1}`;
+
+          const opt1 = document.createElement('option');
+          opt1.value = val;
+          opt1.innerText = `⭐ ${title}`;
+          desktopGroup.appendChild(opt1);
+
+          const opt2 = document.createElement('option');
+          opt2.value = val;
+          opt2.innerText = `⭐ ${title}`;
+          mobileGroup.appendChild(opt2);
+        });
+
+        desktopGroup.classList.remove('hidden');
+        mobileGroup.classList.remove('hidden');
+      } else {
+        desktopGroup.classList.add('hidden');
+        mobileGroup.classList.add('hidden');
+      }
+    }
+
+    async function loadGitHubPlayByIndex(index) {
+      const entry = state.githubManifestPlays[index];
+      if (!entry) return;
+
+      const filePath = entry.file || entry.path;
+      if (!filePath) {
+        showToast("Error: No file path defined in manifest");
+        return;
+      }
+
+      try {
+        showToast(`Fetching ${entry.title || filePath}...`);
+        const resp = await fetch(filePath, { cache: 'no-store' });
+        if (!resp.ok) throw new Error(`HTTP error ${resp.status}`);
+        const parsed = await resp.json();
+        applyImportedPlaybook(parsed, entry.title || filePath);
+      } catch (err) {
+        console.error(err);
+        showToast(`Failed to load "${filePath}". Check repository path.`);
+      }
+    }
+
+    function loadLocalCustomPlayByIndex(index) {
+      const saved = JSON.parse(localStorage.getItem('rugby_custom_plays') || '[]');
+      const play = saved[index];
+      if (!play) return;
+      applyImportedPlaybook(play, play.title || "Device Preset");
+    }
+
+    function savePlayToDevicePresets() {
+      const defaultName = document.getElementById('playTitleDisplay').innerText.trim();
+      const playName = prompt("Enter a name for this custom preset:", defaultName);
+      if (!playName) return;
+
+      const customPlay = {
+        title: playName,
+        date: new Date().toISOString(),
+        frames: state.frames
+      };
+
+      const saved = JSON.parse(localStorage.getItem('rugby_custom_plays') || '[]');
+      const existingIdx = saved.findIndex(p => p.title.toLowerCase() === playName.toLowerCase());
+      if (existingIdx >= 0) {
+        saved[existingIdx] = customPlay;
+      } else {
+        saved.push(customPlay);
+      }
+
+      localStorage.setItem('rugby_custom_plays', JSON.stringify(saved));
+      refreshLocalCustomPresets();
+      
+      const select = document.getElementById('presetSelect');
+      const mobileSelect = document.getElementById('presetSelectMobile');
+      const val = `local_${existingIdx >= 0 ? existingIdx : saved.length - 1}`;
+      select.value = val;
+      if (mobileSelect) mobileSelect.value = val;
+
+      showToast(`Saved "${playName}" into Preset Dropdown!`);
+    }
+
+    document.getElementById('btnSaveToDropdown').onclick = savePlayToDevicePresets;
+    document.getElementById('btnSecondarySavePreset').onclick = savePlayToDevicePresets;
+    document.getElementById('btnSyncManifest').onclick = () => {
+      loadTeamManifestPlays();
+    };
+
     function renderRosterList() {
       const container = document.getElementById('rosterListContainer');
       container.innerHTML = '';
       const currentTeam = state.activeRosterTeam;
       const isAttack = currentTeam === 'A';
-      const bgBadgeColor = isAttack ? 'bg-red-600' : 'bg-amber-500';
+      
+      // Accessibility contrast safeguards: Red on Green with bold borders
+      const bgBadgeColor = isAttack ? 'bg-red-600 ring-1 ring-white shadow' : 'bg-amber-500';
       const textBadgeColor = isAttack ? 'text-white' : 'text-slate-950 font-bold';
 
       const currentFrame = state.frames[state.currentFrameIndex];
-      const activePlayers = currentFrame.actors.filter(a => a.type === 'player');
+      const activePlayers = currentFrame.actors.filter(a => a.type === 'player' && a.team === currentTeam);
       document.getElementById('activeCountDisplay').innerText = activePlayers.length;
 
       RUGBY_POSITIONS.forEach(pos => {
@@ -760,7 +866,7 @@
               </button>
             </div>
           ` : `
-            <button class="deploy-player-btn text-[11px] px-2 py-0.5 rounded font-medium bg-emerald-600/90 text-white hover:bg-emerald-500">
+            <button class="deploy-player-btn text-[11px] px-2 py-0.5 rounded font-medium ${isAttack ? 'bg-red-600 hover:bg-red-500' : 'bg-amber-600 hover:bg-amber-500'} text-white">
               Deploy
             </button>
           `}
@@ -783,7 +889,6 @@
       const playerToRemove = currentFrame.actors.find(a => a.id === actorId);
       
       if (playerToRemove && playerToRemove.carrier) {
-        // Detach ball if this player was carrier
         const ball = currentFrame.actors.find(a => a.type === 'ball');
         if (ball) ball.carrier = null;
       }
@@ -837,16 +942,14 @@
       showToast(`Placed #${num} ${name}`);
     }
 
-    // Deploy or Recenter Rugby Ball
     document.getElementById('spawnBallBtn').onclick = () => {
       const currentFrame = state.frames[state.currentFrameIndex];
       const existingBall = currentFrame.actors.find(a => a.type === 'ball');
       if (existingBall) {
         existingBall.x = 500;
         existingBall.y = 300;
-        // Unattach from any carrier
         currentFrame.actors.forEach(a => { if (a.type === 'player') a.carrier = false; });
-        showToast("Ball placed at center halfway");
+        showToast("Ball placed at halfway center");
       } else {
         currentFrame.actors.push({
           id: 'ball_' + Date.now().toString().slice(-4),
@@ -860,7 +963,6 @@
       renderGhostTrails();
     };
 
-    // Deploy Cone
     document.getElementById('spawnConeBtn').onclick = () => {
       const currentFrame = state.frames[state.currentFrameIndex];
       currentFrame.actors.push({
@@ -875,14 +977,13 @@
 
     function renderActors(interpolatedActors = null) {
       actorsContainer.innerHTML = '';
-      ballTopLayer.innerHTML = ''; // Clear dedicated ball layer
+      ballTopLayer.innerHTML = '';
 
       const currentFrame = state.frames[state.currentFrameIndex];
       const actorsToRender = interpolatedActors || currentFrame.actors;
 
-      // First Render Players & Cones into actorsContainer
       actorsToRender.forEach(actor => {
-        if (actor.type === 'ball') return; // Ball is rendered separately on top!
+        if (actor.type === 'ball') return;
 
         const coords = pitchToPercent(actor.x, actor.y);
         const el = document.createElement('div');
@@ -894,36 +995,31 @@
         if (actor.type === 'player') {
           const isSelected = state.selectedActorId === actor.id;
           const isAttack = actor.team === 'A';
+          
+          // Enhanced luminance contrast for Red vs Gold (Red on Green accessibility)
           const teamColorClass = isAttack 
-            ? 'bg-red-600 border-2 border-white text-white shadow-red-950/80 ring-2 ring-black/60' 
+            ? 'bg-red-600 border-2 border-white text-white shadow-red-950/80 ring-2 ring-black/70' 
             : 'bg-amber-500 border-2 border-slate-950 text-slate-950 font-black shadow-amber-950/60 ring-2 ring-black/40';
 
           el.innerHTML = `
             <div class="relative group">
-              <!-- Selection Aura Ring -->
               ${isSelected ? '<div class="absolute -inset-2 rounded-full border-2 border-emerald-400 animate-pulse pointer-events-none"></div>' : ''}
-              
-              <!-- Ball Carrier Halo (Yellow dashed ring) -->
               ${actor.carrier ? '<div class="absolute -inset-2.5 rounded-full border-2 border-dashed border-yellow-300 animate-spin" style="animation-duration: 5s;"></div>' : ''}
 
-              <!-- Numbered Jersey Token Circle -->
               <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full ${teamColorClass} flex items-center justify-center font-bold text-xs sm:text-sm shadow-xl transform transition group-hover:scale-110">
                 ${actor.num}
               </div>
 
-              <!-- Positional Name Badge -->
               <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap px-1.5 py-0.2 rounded bg-slate-950/90 border border-slate-700/80 text-[9px] font-semibold text-slate-200 pointer-events-none">
                 ${actor.name.split(' ')[0]}
               </div>
 
-              <!-- Quick Delete Floating 'x' icon on hover/select -->
               <button class="player-quick-del-btn absolute -top-2 -right-2 w-4 h-4 bg-red-600 hover:bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold shadow opacity-0 group-hover:opacity-100 transition" title="Delete Player">
                 ×
               </button>
             </div>
           `;
 
-          // Quick delete button event
           const delBtn = el.querySelector('.player-quick-del-btn');
           if (delBtn) {
             delBtn.onmousedown = (e) => {
@@ -932,7 +1028,6 @@
             };
           }
 
-          // Right-click context menu listener
           el.oncontextmenu = (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -947,14 +1042,13 @@
           `;
         }
 
-        // Attach Mouse & Touch Drag Listeners
         el.onmousedown = (e) => handleActorDragStart(e, actor.id);
         el.ontouchstart = (e) => handleActorDragStart(e, actor.id);
 
         actorsContainer.appendChild(el);
       });
 
-      // Always Render Rugby Ball in Dedicated Top Layer (Guaranteed on top of all players)
+      // Render Rugby Ball ALWAYS on top in dedicated ballTopLayer
       const ballActor = actorsToRender.find(a => a.type === 'ball');
       if (ballActor) {
         const coords = pitchToPercent(ballActor.x, ballActor.y);
@@ -969,10 +1063,8 @@
         ballEl.innerHTML = `
           <div class="relative group cursor-grab">
             ${isSelected ? '<div class="absolute -inset-2 rounded-full border-2 border-yellow-300 animate-pulse"></div>' : ''}
-            <!-- Rugby Ball SVG Token -->
-            <div class="w-8 h-5 sm:w-9 sm:h-5 bg-gradient-to-r from-amber-50 via-white to-amber-100 rounded-full border-2 border-amber-950 flex items-center justify-center shadow-2xl transform -rotate-12 transition group-hover:scale-125 ring-2 ring-black/40">
+            <div class="w-8 h-5 sm:w-9 sm:h-5 bg-gradient-to-r from-amber-50 via-white to-amber-100 rounded-full border-2 border-amber-950 flex items-center justify-center shadow-2xl transform -rotate-12 transition group-hover:scale-125 ring-2 ring-black/50">
               <div class="w-full h-0.5 bg-red-600 relative">
-                <!-- Seams & Laces -->
                 <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex space-x-0.5">
                   <span class="w-0.5 h-2 bg-slate-900"></span>
                   <span class="w-0.5 h-2 bg-slate-900"></span>
@@ -980,7 +1072,7 @@
                 </div>
               </div>
             </div>
-            <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 text-[8px] font-extrabold text-amber-300 bg-slate-950/90 px-1 py-0.2 rounded border border-amber-500/40 uppercase tracking-tighter">BALL</div>
+            <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 text-[8px] font-extrabold text-amber-300 bg-slate-950/90 px-1 py-0.2 rounded border border-amber-500/40 uppercase tracking-tighter shadow">BALL</div>
           </div>
         `;
 
@@ -1010,7 +1102,6 @@
         dragOffset.y = coords.y - actor.y;
       }
 
-      // Show bottom trash drop zone while dragging
       dragTrashZone.classList.remove('opacity-0', 'pointer-events-none');
       dragTrashZone.classList.add('opacity-100');
 
@@ -1032,7 +1123,6 @@
       actor.x = Math.max(10, Math.min(990, coords.x - dragOffset.x));
       actor.y = Math.max(10, Math.min(590, coords.y - dragOffset.y));
 
-      // Carrier attachment: keep ball glued next to player
       if (actor.carrier) {
         const ball = currentFrame.actors.find(a => a.type === 'ball');
         if (ball) {
@@ -1049,7 +1139,6 @@
       if (!isDragging) return;
       isDragging = false;
 
-      // Check if dropped into trash drop zone
       const trashRect = dragTrashZone.getBoundingClientRect();
       const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
       const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
@@ -1097,7 +1186,6 @@
       renderActors();
     }
 
-    // Context menu handlers
     function openContextMenu(e, actorId) {
       state.contextActorId = actorId;
       const currentFrame = state.frames[state.currentFrameIndex];
@@ -1703,7 +1791,6 @@
       };
     });
 
-    // Formations Presets for U13 (3-2-1 6-player forward pack, 7-player backline)
     function deployFormationPreset(type) {
       const currentFrame = state.frames[state.currentFrameIndex];
       const team = state.activeRosterTeam;
@@ -1798,15 +1885,13 @@
           {
             name: "Phase 1 - Midfield Ruck Platform & Launch",
             actors: [
-              // Attack Blue (13 players: 6 forwards + 7 backs)
-              // Forwards securing breakdown
+              // Attack Red (13 players)
               { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 385, y: 285 },
               { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 395, y: 298 },
               { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 385, y: 312 },
               { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 365, y: 288 },
               { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 365, y: 310 },
               { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 350, y: 298 },
-              // Backline
               { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 375, y: 260 },
               { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 330, y: 335, carrier: true },
               { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 295, y: 390 },
@@ -1814,17 +1899,14 @@
               { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 390, y: 115 },
               { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 215, y: 505 },
               { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 220, y: 370 },
-              // Ball
               { id: 'ball_1', type: 'ball', x: 338, y: 340 },
-              // Defense Gold (13 players: 6 forwards + 7 backs in drift formation)
-              // Forwards at breakdown
+              // Defense Gold (13 players)
               { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 420, y: 285 },
               { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 415, y: 298 },
               { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 420, y: 312 },
               { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 440, y: 280 },
               { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 440, y: 315 },
               { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 450, y: 298 },
-              // Defensive Backline
               { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 435, y: 255 },
               { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 460, y: 340 },
               { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 465, y: 390 },
@@ -1840,7 +1922,7 @@
           {
             name: "Phase 2 - 10 Passes to 12 & Loops Around",
             actors: [
-              // Attack Blue
+              // Attack Red
               { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 405, y: 290 },
               { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 410, y: 305 },
               { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 405, y: 320 },
@@ -1854,9 +1936,8 @@
               { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 415, y: 135 },
               { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 310, y: 510 },
               { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 300, y: 420 },
-              // Ball
               { id: 'ball_1', type: 'ball', x: 408, y: 389 },
-              // Defense Gold (Forwards fold, Backs drift hard on 12)
+              // Defense Gold
               { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 290 },
               { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 425, y: 305 },
               { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 430, y: 320 },
@@ -1878,7 +1959,7 @@
           {
             name: "Phase 3 - 10 Wraps & Releases Overlap Out Wide",
             actors: [
-              // Attack Blue
+              // Attack Red
               { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 430, y: 300 },
               { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 435, y: 315 },
               { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 430, y: 330 },
@@ -1892,9 +1973,8 @@
               { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 440, y: 160 },
               { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 490, y: 520 },
               { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 440, y: 460 },
-              // Ball
               { id: 'ball_1', type: 'ball', x: 483, y: 435 },
-              // Defense Gold (Narrowed by 12, caught in 3v2 on flank)
+              // Defense Gold
               { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 445, y: 300 },
               { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 440, y: 315 },
               { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 445, y: 330 },
@@ -1922,15 +2002,13 @@
           {
             name: "Phase 1 - 6-Man Lineout Set on 5m",
             actors: [
-              // Attack Blue (13 players: 6 forwards + 7 backs)
-              // 6-man lineout (Hooker 2 throwing, 1, 4, 3, 5, 8 in line)
+              // Attack Red
               { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 410, y: 55, carrier: true },
               { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 410, y: 95 },
               { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 410, y: 125 },
               { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 410, y: 155 },
               { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 410, y: 185 },
               { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 410, y: 215 },
-              // Backline 10m back from line of touch
               { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 375, y: 155 },
               { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 310, y: 260 },
               { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 275, y: 320 },
@@ -1938,16 +2016,14 @@
               { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 380, y: 90 },
               { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 205, y: 460 },
               { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 200, y: 310 },
-              // Ball
               { id: 'ball_1', type: 'ball', x: 416, y: 55 },
-              // Defense Gold (13 players: 6 mirror forwards + 7 backs)
+              // Defense Gold
               { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 440, y: 70 },
               { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 95 },
               { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 430, y: 125 },
               { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 430, y: 155 },
               { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 430, y: 185 },
               { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 430, y: 215 },
-              // Defensive Backline (10m back on 50m line)
               { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 460, y: 155 },
               { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 500, y: 260 },
               { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 500, y: 320 },
@@ -1963,7 +2039,7 @@
           {
             name: "Phase 2 - Jumper Won at 4 & Dish to 9",
             actors: [
-              // Attack Blue
+              // Attack Red
               { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 420, y: 70 },
               { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 410, y: 110 },
               { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 410, y: 125, carrier: true },
@@ -1977,9 +2053,8 @@
               { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 395, y: 90 },
               { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 240, y: 470 },
               { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 235, y: 330 },
-              // Ball
               { id: 'ball_1', type: 'ball', x: 415, y: 128 },
-              // Defense Gold (Front pod contests, Backs prepare lineout rush)
+              // Defense Gold
               { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 445, y: 75 },
               { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 425, y: 110 },
               { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 425, y: 125 },
@@ -2001,7 +2076,7 @@
           {
             name: "Phase 3 - 9 Fires Rapid Ball to 10 on the Charge",
             actors: [
-              // Attack Blue
+              // Attack Red
               { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 435, y: 85 },
               { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 420, y: 115 },
               { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 420, y: 130 },
@@ -2015,9 +2090,8 @@
               { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 410, y: 90 },
               { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 340, y: 480 },
               { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 335, y: 350 },
-              // Ball
               { id: 'ball_1', type: 'ball', x: 437, y: 270 },
-              // Defense Gold (Pressing up)
+              // Defense Gold
               { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 450, y: 85 },
               { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 115 },
               { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 430, y: 130 },
@@ -2045,15 +2119,13 @@
           {
             name: "Phase 1 - 3-2-1 Packs Engaged on 15m Mark",
             actors: [
-              // Attack Blue (13 players: 3-2-1 Scrum pack + 7 backs)
-              // Scrum pack: 1-2-3 front row, 4-5 second row, 8 at the base
+              // Attack Red
               { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 410, y: 185 },
               { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 410, y: 200 },
               { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 410, y: 215 },
               { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 388, y: 192 },
               { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 388, y: 208 },
               { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 366, y: 200, carrier: true },
-              // Backline: 9 at scrum base, 11 on blind touchline, 10-12-13-14-15 open
               { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 375, y: 165 },
               { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Blind Wing', x: 340, y: 95 },
               { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 330, y: 295 },
@@ -2061,17 +2133,14 @@
               { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 260, y: 410 },
               { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Open Wing', x: 220, y: 480 },
               { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 240, y: 310 },
-              // Ball
               { id: 'ball_1', type: 'ball', x: 372, y: 204 },
-              // Defense Gold (13 players: 3-2-1 Scrum pack + 7 backs)
-              // Defense Scrum
+              // Defense Gold
               { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 185 },
               { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 430, y: 200 },
               { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 430, y: 215 },
               { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 452, y: 192 },
               { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 452, y: 208 },
               { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 474, y: 200 },
-              // Defensive Backline
               { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 410, y: 160 },
               { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Blind Wing', x: 450, y: 95 },
               { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 460, y: 295 },
@@ -2085,7 +2154,7 @@
           {
             name: "Phase 2 - No 8 Picks Blind & Commits Defending 9",
             actors: [
-              // Attack Blue
+              // Attack Red
               { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 420, y: 185 },
               { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 420, y: 200 },
               { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 420, y: 215 },
@@ -2099,9 +2168,8 @@
               { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 275, y: 410 },
               { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Open Wing', x: 235, y: 480 },
               { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 280, y: 280 },
-              // Ball
               { id: 'ball_1', type: 'ball', x: 436, y: 159 },
-              // Defense Gold (Scrum unpacks, Def 9 committed by 8)
+              // Defense Gold
               { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 185 },
               { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 430, y: 200 },
               { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 430, y: 215 },
@@ -2123,7 +2191,7 @@
           {
             name: "Phase 3 - 8 to 9 to 11 Blindside Touchline Break",
             actors: [
-              // Attack Blue
+              // Attack Red
               { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 440, y: 185 },
               { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 440, y: 200 },
               { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 440, y: 215 },
@@ -2137,9 +2205,8 @@
               { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 300, y: 400 },
               { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Open Wing', x: 260, y: 470 },
               { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 340, y: 240 },
-              // Ball
               { id: 'ball_1', type: 'ball', x: 572, y: 69 },
-              // Defense Gold (Def 14 stepped inside, 15 sprinting across cover)
+              // Defense Gold
               { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 440, y: 185 },
               { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 440, y: 200 },
               { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 440, y: 215 },
@@ -2167,16 +2234,13 @@
           {
             name: "Phase 1 - 3-Man Forward Pod Setup",
             actors: [
-              // Attack Blue (13 players: 3-man forward pod [1, 2, 4] + secondary pack [3, 5, 8] + 7 backs)
-              // Pod 1
+              // Attack Red
               { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'Pod Prop 1', x: 430, y: 275 },
               { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Pod Lock 4', x: 440, y: 300 },
               { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Pod Hooker', x: 430, y: 325 },
-              // Secondary pack (cleaning/support)
               { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 360, y: 270 },
               { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 365, y: 300 },
               { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 360, y: 330 },
-              // Backline
               { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 380, y: 300, carrier: true },
               { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 390, y: 375 },
               { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 355, y: 425 },
@@ -2184,9 +2248,8 @@
               { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 395, y: 120 },
               { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 285, y: 520 },
               { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 290, y: 390 },
-              // Ball
               { id: 'ball_1', type: 'ball', x: 386, y: 305 },
-              // Defense Gold (13 players in structured defensive line)
+              // Defense Gold
               { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Forward 1', x: 490, y: 275 },
               { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 495, y: 300 },
               { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 490, y: 325 },
@@ -2208,7 +2271,7 @@
           {
             name: "Phase 2 - Lock 4 Screen Pass to 10 Out the Back",
             actors: [
-              // Attack Blue
+              // Attack Red
               { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'Pod Prop 1', x: 465, y: 275 },
               { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Pod Lock 4', x: 470, y: 300, carrier: true },
               { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Pod Hooker', x: 465, y: 325 },
@@ -2222,9 +2285,8 @@
               { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 410, y: 130 },
               { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 340, y: 525 },
               { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 350, y: 405 },
-              // Ball
               { id: 'ball_1', type: 'ball', x: 476, y: 304 },
-              // Defense Gold (Forwards bite hard on pod crash)
+              // Defense Gold
               { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Forward 1', x: 480, y: 275 },
               { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 480, y: 300 },
               { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 480, y: 325 },
@@ -2246,7 +2308,7 @@
           {
             name: "Phase 3 - 10 Shifts to Centres & Exploits Space",
             actors: [
-              // Attack Blue
+              // Attack Red
               { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'Pod Prop 1', x: 480, y: 275 },
               { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Pod Lock 4', x: 485, y: 300 },
               { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Pod Hooker', x: 480, y: 325 },
@@ -2260,9 +2322,8 @@
               { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 425, y: 140 },
               { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 440, y: 540 },
               { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 410, y: 425 },
-              // Ball
               { id: 'ball_1', type: 'ball', x: 517, y: 455 },
-              // Defense Gold (Caught on inside shoulder)
+              // Defense Gold
               { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Forward 1', x: 485, y: 280 },
               { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 490, y: 305 },
               { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 485, y: 330 },
@@ -2286,6 +2347,18 @@
     };
 
     function loadTacticalPreset(presetKey) {
+      if (presetKey.startsWith('gh_')) {
+        const idx = parseInt(presetKey.replace('gh_', ''), 10);
+        loadGitHubPlayByIndex(idx);
+        return;
+      }
+
+      if (presetKey.startsWith('local_')) {
+        const idx = parseInt(presetKey.replace('local_', ''), 10);
+        loadLocalCustomPlayByIndex(idx);
+        return;
+      }
+
       const preset = PLAYBOOK_PRESETS[presetKey];
       if (!preset) return;
       pauseAnimation();
@@ -2320,7 +2393,6 @@
       btnSecondarySave.onclick = () => document.getElementById('btnSavePlay').click();
     }
 
-    // Load Playbook JSON Modal & Drag/Drop
     const loadModal = document.getElementById('loadModal');
     const modalFileInput = document.getElementById('modalFileInput');
     const modalJsonTextarea = document.getElementById('modalJsonTextarea');
@@ -2354,7 +2426,7 @@
       }
       jumpToFrame(0);
       closeLoadModal();
-      showToast(`Playbook loaded successfully from ${sourceLabel}`);
+      showToast(`Playbook loaded successfully (${sourceLabel})`);
       return true;
     }
 
@@ -2387,7 +2459,6 @@
       }
     };
 
-    // Global Drag & Drop for JSON Files anywhere on the window
     window.addEventListener('dragover', (e) => {
       e.preventDefault();
       dropOverlay.classList.remove('hidden');
@@ -2422,7 +2493,6 @@
       }
     });
 
-    // Reset Whole Board
     document.getElementById('btnResetBoard').onclick = () => {
       pauseAnimation();
       state.frames = [{
@@ -2442,7 +2512,6 @@
       showToast("Whiteboard reset");
     };
 
-    // Save & Export JSON
     document.getElementById('btnSavePlay').onclick = () => {
       const playData = {
         title: document.getElementById('playTitleDisplay').innerText,
@@ -2454,13 +2523,12 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `rugby-play-${Date.now().toString().slice(-4)}.json`;
+      a.download = `u13-play-${Date.now().toString().slice(-4)}.json`;
       a.click();
       URL.revokeObjectURL(url);
       showToast("Playbook JSON saved & downloaded");
     };
 
-    // Export PNG Screenshot using HTML5 Canvas
     document.getElementById('btnExportImage').onclick = () => {
       const canvas = document.createElement('canvas');
       canvas.width = 1200;
@@ -2490,7 +2558,7 @@
           if (actor.type === 'player') {
             ctx.beginPath();
             ctx.arc(x, y, 18, 0, Math.PI * 2);
-            ctx.fillStyle = actor.team === 'A' ? '#2563eb' : '#f59e0b';
+            ctx.fillStyle = actor.team === 'A' ? '#dc2626' : '#f59e0b';
             ctx.fill();
             ctx.lineWidth = 3;
             ctx.strokeStyle = '#ffffff';
@@ -2508,7 +2576,7 @@
           }
         });
 
-        // 2. Draw Rugby Ball ALWAYS on top in export too
+        // 2. Draw Rugby Ball ALWAYS on top
         const ball = currentFrame.actors.find(a => a.type === 'ball');
         if (ball) {
           const bx = (ball.x / 1000) * 1200;
@@ -2529,11 +2597,11 @@
         ctx.font = 'bold 14px Inter, sans-serif';
         ctx.fillStyle = 'rgba(255,255,255,0.7)';
         ctx.textAlign = 'right';
-        ctx.fillText('RugbyTactix Pro Studio', 1170, 700);
+        ctx.fillText('RugbyTactix U13 Studio', 1170, 700);
 
         const a = document.createElement('a');
         a.href = canvas.toDataURL('image/png');
-        a.download = `rugby-tactic-phase-${state.currentFrameIndex + 1}.png`;
+        a.download = `u13-rugby-phase-${state.currentFrameIndex + 1}.png`;
         a.click();
         URLObj.revokeObjectURL(blobURL);
         showToast("PNG Snapshot exported");
@@ -2541,7 +2609,6 @@
       img.src = blobURL;
     };
 
-    // Keyboard Shortcuts
     window.addEventListener('keydown', (e) => {
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
 
@@ -2586,6 +2653,7 @@
       lucide.createIcons();
       renderRosterList();
       loadTacticalPreset('preset_strike');
+      loadTeamManifestPlays();
     };
   </script>
 </body>
