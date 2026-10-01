@@ -2,125 +2,77 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>RugbyTactix Pro - U13 Tactical Whiteboard & Animation Studio</title>
-  <!-- Tailwind CSS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RugbyTactix - U13 Tactics Whiteboard & Animation Studio</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
+  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Google Fonts Inter & Teko -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Teko:wght@500;700&display=swap" rel="stylesheet">
-  
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            display: ['Teko', 'sans-serif'],
-          },
-          colors: {
-            turf: {
-              light: '#2a7c30',
-              dark: '#216326',
-              field: '#1a5420',
-              border: '#113b16'
-            },
-            rugby: {
-              gold: '#f59e0b',
-              navy: '#1e3a8a',
-              blue: '#2563eb',
-              red: '#dc2626',
-              emerald: '#10b981'
-            }
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
-    .no-select {
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      -webkit-touch-callout: none;
+    /* Custom pitch and UI styling */
+    .pitch-shadow {
+      box-shadow: inset 0 0 120px rgba(0,0,0,0.45), 0 16px 40px -10px rgba(0,0,0,0.7);
     }
 
+    /* Marquee selection box */
+    #selectionBox {
+      display: none;
+      position: absolute;
+      border: 1.5px dashed #38bdf8;
+      background-color: rgba(56, 189, 248, 0.18);
+      pointer-events: none;
+      z-index: 45;
+    }
+
+    /* Custom scrollbars */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.7);
+      background: #0f172a;
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(100, 116, 139, 0.5);
-      border-radius: 9999px;
+      background: #334155;
+      border-radius: 3px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: rgba(148, 163, 184, 0.8);
-    }
-
-    .pitch-shadow {
-      box-shadow: inset 0 0 120px rgba(0,0,0,0.45), 0 16px 40px -10px rgba(0,0,0,0.7);
+      background: #475569;
     }
 
     @keyframes frame-glow {
       0%, 100% { border-color: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
       50% { border-color: #f87171; box-shadow: 0 0 18px rgba(248, 113, 113, 0.9); }
     }
-    .active-frame {
-      animation: frame-glow 1.5s infinite ease-in-out;
-    }
-
-    #contextMenu {
-      display: none;
-      position: absolute;
-      z-index: 100;
+    .active-frame-card {
+      animation: frame-glow 2s infinite ease-in-out;
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 h-screen w-screen overflow-hidden flex flex-col font-sans no-select">
+<body class="bg-slate-950 text-slate-100 flex flex-col h-screen overflow-hidden font-sans select-none">
 
-  <div id="dropOverlay" class="fixed inset-0 bg-emerald-950/85 backdrop-blur-sm border-4 border-dashed border-emerald-400 z-50 hidden flex flex-col items-center justify-center pointer-events-none transition-all duration-200">
-    <i data-lucide="file-up" class="w-16 h-16 text-emerald-300 animate-bounce mb-3"></i>
-    <p class="text-xl font-bold text-white">Drop Rugby Playbook JSON Here</p>
-    <p class="text-sm text-emerald-200 mt-1">Files load instantly into the tactics board & timeline</p>
-  </div>
-
+  <!-- Top Navigation Header -->
   <header class="h-16 bg-slate-900 border-b border-slate-800 px-3 sm:px-5 flex items-center justify-between z-30 shrink-0 select-none shadow-lg">
     <div class="flex items-center space-x-3">
+      <!-- Logo Branding (Cleaned up: No yellow badge, no subtitle description) -->
       <div class="flex items-center space-x-2">
         <div class="w-9 h-9 rounded-lg bg-red-600 flex items-center justify-center text-white shadow-md shadow-red-950/60 ring-1 ring-red-400/40">
           <i data-lucide="shield" class="w-5 h-5"></i>
         </div>
-        <div class="flex flex-col">
-          <span class="font-bold text-base tracking-wide text-white flex items-center gap-1.5 leading-none">
-            RUGBY<span class="text-red-500 font-extrabold">TACTIX</span>
-            <span class="text-[10px] uppercase tracking-wider bg-amber-500/20 border border-amber-500/40 text-amber-300 px-1.5 py-0.5 rounded font-mono font-bold">U13 (13v13)</span>
-          </span>
-          <span class="text-[11px] text-slate-300 font-mono flex items-center gap-1 truncate max-w-[240px]" id="playTitleDisplay">
-            U13 Backline Strike: 10-12 Loop (13v13)
-          </span>
-        </div>
+        <span class="font-black text-lg tracking-wider text-white flex items-center gap-1.5 leading-none">
+          RUGBY<span class="text-red-500">TACTIX</span>
+        </span>
+        <!-- Hidden title anchor for JS title state -->
+        <span id="playTitleDisplay" class="hidden">Custom Tactical Play</span>
       </div>
 
-      <div class="hidden xl:flex items-center ml-3 pl-3 border-l border-slate-800">
+      <!-- Desktop Playbook Dropdown Section -->
+      <div class="hidden xl:flex items-center ml-4 pl-4 border-l border-slate-800">
         <label class="text-xs text-slate-300 mr-2 flex items-center gap-1 font-semibold">
           <i data-lucide="book-open" class="w-3.5 h-3.5 text-emerald-400"></i> Playbook:
         </label>
         <select id="presetSelect" class="bg-slate-800 text-xs text-slate-100 font-medium border border-slate-700 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none cursor-pointer max-w-[280px]">
-          <optgroup label="⚡ Standard U13 Plays" id="builtInGroup">
-            <option value="preset_strike" selected>1. Backline Strike: 10-12 Loop</option>
-            <option value="preset_lineout">2. 6-Man Lineout: Front Peel</option>
-            <option value="preset_scrum">3. 6-Man Scrum: 8-9 Blindside Strike</option>
-            <option value="preset_pod">4. Midfield Forward Pod & Screen Pass</option>
-          </optgroup>
+          <option value="" disabled selected>Select Play...</option>
           <optgroup label="🌐 Team Plays (GitHub /plays)" id="githubPlaysGroup" class="hidden">
             <!-- Dynamically populated from /plays/manifest.json -->
           </optgroup>
@@ -129,189 +81,128 @@
           </optgroup>
         </select>
 
-        <!-- Reload/Sync Cloud Plays Button -->
+        <!-- Reload/Sync Plays from GitHub Manifest -->
         <button id="btnSyncManifest" class="ml-1.5 p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-emerald-400 transition" title="Refresh Team Plays from GitHub (/plays/manifest.json)">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        </button>
+
+        <!-- Quick Save to Browser Presets -->
+        <button id="btnSaveToLocal" class="ml-2 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 hover:text-amber-300 font-semibold text-xs flex items-center gap-1 transition" title="Save this play to your device dropdown">
+          <i data-lucide="star" class="w-3.5 h-3.5"></i>
+          <span>Save to Presets</span>
         </button>
       </div>
     </div>
 
-    <div class="flex items-center space-x-1 sm:space-x-1.5 bg-slate-800/90 p-1 rounded-xl border border-slate-700">
-      <button id="viewFullPitch" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white transition flex items-center gap-1.5 shadow" title="Full Rugby Pitch">
-        <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
-        <span class="hidden md:inline">Full Pitch</span>
-      </button>
-      <button id="viewHalfPitch" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1.5" title="Attacking Half">
-        <i data-lucide="square" class="w-3.5 h-3.5"></i>
-        <span class="hidden md:inline">Half Pitch</span>
-      </button>
-      <button id="view22Pitch" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1.5" title="Attacking 22m Red Zone">
-        <i data-lucide="target" class="w-3.5 h-3.5"></i>
-        <span class="hidden md:inline">22m Zone</span>
-      </button>
-    </div>
+    <!-- Pitch Camera Views & Primary Actions -->
+    <div class="flex items-center space-x-2 sm:space-x-3">
+      <!-- Camera View Angle Selector -->
+      <div class="flex bg-slate-800 p-0.5 rounded-lg border border-slate-700 text-xs">
+        <button id="viewFullPitch" class="px-2.5 py-1 rounded-md bg-emerald-600 text-white font-medium shadow transition" title="Full Pitch View">Full</button>
+        <button id="viewHalfPitch" class="px-2.5 py-1 rounded-md text-slate-300 hover:text-white font-medium transition" title="Half Pitch View">Half</button>
+        <button id="view22Pitch" class="px-2.5 py-1 rounded-md text-slate-300 hover:text-white font-medium transition" title="22m Red Zone View">22m</button>
+      </div>
 
-    <div class="flex items-center space-x-2">
-      <!-- High Visibility LOAD JSON Button -->
-      <button id="btnOpenLoadModal" class="px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-sm font-bold flex items-center gap-2 shadow-lg shadow-emerald-900/40 ring-2 ring-emerald-400 transition transform active:scale-95" title="Import or Load a JSON Playbook">
-        <i data-lucide="folder-open" class="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white stroke-[2.5]"></i>
-        <span class="tracking-wide uppercase">Load JSON</span>
+      <!-- Load JSON Modal Trigger -->
+      <button id="btnOpenLoadModal" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-950/60 ring-1 ring-emerald-400/50 transition active:scale-95">
+        <i data-lucide="folder-open" class="w-3.5 h-3.5"></i>
+        <span>LOAD JSON</span>
       </button>
 
-      <!-- Save Play to Local Preset Dropdown -->
-      <button id="btnSaveToDropdown" class="px-2.5 sm:px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-amber-400 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition" title="Save this play into your preset dropdown list">
-        <i data-lucide="bookmark-plus" class="w-4 h-4 text-amber-400"></i>
-        <span class="hidden lg:inline">Save to Presets</span>
+      <!-- Save / Export JSON Download -->
+      <button id="btnExportJSON" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/60 ring-1 ring-amber-300/60 transition active:scale-95" title="Export this play as a downloadable JSON file">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+        <span>SAVE JSON</span>
       </button>
 
-      <!-- Download JSON File Button -->
-      <button id="btnSavePlay" class="px-3 sm:px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-black text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-amber-950/40 ring-2 ring-amber-400 transition transform active:scale-95" title="Download & Save JSON Playbook">
-        <i data-lucide="download" class="w-4 h-4 sm:w-4.5 sm:h-4.5 text-slate-950 stroke-[2.5]"></i>
-        <span class="tracking-wide uppercase hidden sm:inline">Save JSON</span>
+      <!-- Snapshot PNG Image -->
+      <button id="btnExportImage" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition" title="Export Current Pitch as PNG">
+        <i data-lucide="camera" class="w-4 h-4"></i>
       </button>
 
-      <!-- PNG Snapshot Export -->
-      <button id="btnExportImage" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5 transition" title="Export PNG Snapshot">
-        <i data-lucide="camera" class="w-4 h-4 text-sky-400"></i>
-        <span class="hidden xl:inline">PNG</span>
-      </button>
-
-      <!-- Ghost Trails Toggle -->
-      <button id="toggleGhostTrails" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-emerald-600 border border-emerald-500 text-xs font-semibold text-white flex items-center gap-1.5 transition" title="Toggle Motion Path Vectors">
-        <i data-lucide="git-commit" class="w-4 h-4"></i>
-        <span class="hidden 2xl:inline">Trails</span>
-      </button>
-
-      <!-- Reset Field -->
-      <button id="btnResetBoard" class="p-2 rounded-xl bg-red-950/70 hover:bg-red-900 border border-red-800/80 text-xs text-red-200 flex items-center gap-1 transition" title="Reset Field">
+      <!-- Clear Pitch -->
+      <button id="btnClearPitch" class="p-2 rounded-lg bg-slate-800 hover:bg-red-950/60 border border-slate-700 hover:border-red-600/60 text-slate-300 hover:text-red-400 transition" title="Clear all players & drawings">
         <i data-lucide="trash-2" class="w-4 h-4"></i>
       </button>
     </div>
   </header>
 
-  <div class="bg-slate-900/90 border-b border-slate-800/80 px-3 sm:px-5 py-1.5 flex items-center justify-between text-xs xl:hidden z-20">
+  <!-- Mobile Sub-Header for Playbook Selection -->
+  <div class="bg-slate-900/90 border-b border-slate-800 px-3 sm:px-5 py-1.5 flex items-center justify-between text-xs xl:hidden z-20">
     <div class="flex items-center gap-2">
       <span class="text-slate-400 font-semibold flex items-center gap-1">
         <i data-lucide="bookmark" class="w-3.5 h-3.5 text-emerald-400"></i> Play:
       </span>
       <select id="presetSelectMobile" class="bg-slate-800 text-slate-200 text-xs rounded border border-slate-700 px-2 py-0.5 max-w-[190px] sm:max-w-xs">
-        <optgroup label="⚡ Standard U13 Plays" id="builtInGroupMobile">
-          <option value="preset_strike">1. Backline Strike: 10-12 Loop</option>
-          <option value="preset_lineout">2. 6-Man Lineout: Front Peel</option>
-          <option value="preset_scrum">3. 6-Man Scrum: 8-9 Blindside</option>
-          <option value="preset_pod">4. Forward Pod & Screen</option>
-        </optgroup>
+        <option value="" disabled selected>Select Play...</option>
         <optgroup label="🌐 Team Plays (GitHub)" id="githubPlaysGroupMobile" class="hidden"></optgroup>
         <optgroup label="⭐ My Saved Plays" id="localCustomGroupMobile" class="hidden"></optgroup>
       </select>
     </div>
     <div class="flex items-center gap-1.5">
-      <button id="btnSecondarySavePreset" class="px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-bold text-[11px] flex items-center gap-1">
-        <i data-lucide="bookmark-plus" class="w-3.5 h-3.5"></i> Preset
+      <button id="btnSyncManifestMobile" class="p-1 rounded bg-slate-800 border border-slate-700 text-slate-300" title="Sync Plays">
+        <i data-lucide="refresh-cw" class="w-3 h-3"></i>
       </button>
-      <button id="btnSecondaryLoad" class="px-2 py-1 rounded-md bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-[11px] flex items-center gap-1">
-        <i data-lucide="folder-open" class="w-3.5 h-3.5"></i> Load
-      </button>
-      <button id="btnSecondarySave" class="px-2 py-1 rounded-md bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-[11px] flex items-center gap-1">
-        <i data-lucide="download" class="w-3.5 h-3.5"></i> Save
+      <button id="btnSaveToLocalMobile" class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-400 font-medium text-[11px]" title="Save Play">
+        Save
       </button>
     </div>
   </div>
 
+  <!-- Workspace: Sidebar + Pitch Stage -->
   <div class="flex-1 flex overflow-hidden relative">
 
-    <!-- Left Roster & Pitch Management Sidebar -->
-    <aside id="rosterSidebar" class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col z-20 shrink-0 transition-all duration-300 ease-in-out relative">
-      <!-- Team Switcher Tabs (Red vs Gold) -->
-      <div class="p-2 border-b border-slate-800 grid grid-cols-2 gap-1 bg-slate-900/90">
-        <button id="tabTeamA" class="py-1.5 px-2 text-xs font-semibold rounded bg-red-600 text-white flex items-center justify-center gap-1.5 transition shadow-sm">
-          <span class="w-2.5 h-2.5 rounded-full bg-white"></span>
-          <span>Attack (Red)</span>
+    <!-- Left Sidebar: U13 Roster & Formations Deployment -->
+    <aside id="rosterSidebar" class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col z-20 transition-all duration-300 shrink-0 select-none relative shadow-xl">
+      <!-- Team Selector Tabs: Red (Attack) vs Gold (Defense) -->
+      <div class="flex border-b border-slate-800 bg-slate-950/60 p-1.5 gap-1.5">
+        <button id="tabTeamA" class="flex-1 py-1.5 px-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 bg-red-600 text-white shadow-md shadow-red-950/60 border border-red-500/40 transition">
+          <span class="w-2.5 h-2.5 rounded-full bg-white ring-1 ring-black"></span>
+          <span>Red (Attack)</span>
         </button>
-        <button id="tabTeamB" class="py-1.5 px-2 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center gap-1.5 transition">
-          <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-          <span>Defense (Gold)</span>
+        <button id="tabTeamB" class="flex-1 py-1.5 px-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 text-slate-400 hover:text-amber-400 hover:bg-slate-800/80 transition">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-400 ring-1 ring-black"></span>
+          <span>Gold (Def)</span>
         </button>
       </div>
 
-      <!-- Quick Dual-Team Formations Deployment -->
+      <!-- Quick U13 Dual-Team Formation Presets (Labels without numbers in brackets) -->
       <div class="px-3 py-2 border-b border-slate-800 bg-slate-900/50 flex flex-col gap-1.5 text-xs">
-        <div class="flex items-center justify-between text-slate-400 font-medium">
+        <div class="flex items-center justify-between text-slate-400 font-semibold text-[11px] tracking-wide uppercase">
           <span>Deploy U13 Formations</span>
         </div>
         <div class="grid grid-cols-3 gap-1">
-          <button id="btnDeployBackline" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] rounded text-slate-300 hover:text-white border border-slate-700/60 transition truncate" title="Deploy Backs (9, 10, 11, 12, 13, 14, 15)">
-            Backs (7)
+          <button id="btnDeployBackline" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded text-slate-200 hover:text-white border border-slate-700/80 transition truncate text-center" title="Deploy Backs (13v13: Red Attack & Gold Defense)">
+            Backs
           </button>
-          <button id="btnDeployScrum" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] rounded text-slate-300 hover:text-white border border-slate-700/60 transition truncate" title="Deploy 6-Man Forward Pack (1, 2, 3, 4, 5, 8)">
-            Scrum (6)
+          <button id="btnDeployScrum" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded text-slate-200 hover:text-white border border-slate-700/80 transition truncate text-center" title="Deploy 6-Man Scrum (13v13: Red Attack & Gold Defense)">
+            Scrum
           </button>
-          <button id="btnDeployLineout" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] rounded text-slate-300 hover:text-white border border-slate-700/60 transition truncate" title="Deploy 6-Man Lineout Pod">
-            Lineout (6)
-          </button>
-        </div>
-      </div>
-
-      <div class="p-2.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/40">
-        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Equipment</span>
-        <div class="flex items-center gap-2">
-          <!-- Rugby Ball Spawner -->
-          <button id="spawnBallBtn" class="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-md shadow-sm transition active:scale-95" title="Place or Recenter Rugby Ball">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-              <ellipse cx="12" cy="12" rx="10" ry="6" transform="rotate(-30 12 12)" fill="#f8fafc" stroke="#0f172a" stroke-width="1.5"/>
-              <path d="M5 15 C 9 9, 15 15, 19 9" stroke="#dc2626" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-            </svg>
-            Rugby Ball
-          </button>
-          <!-- Cone Spawner -->
-          <button id="spawnConeBtn" class="p-1 px-2 bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs rounded-md shadow-sm transition" title="Place Marker Cone">
-            ▲ Cone
+          <button id="btnDeployPenalty" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded text-slate-200 hover:text-white border border-slate-700/80 transition truncate text-center" title="Deploy Penalty (13v13: 10m Offside Defense & Deep Attack)">
+            Penalty
           </button>
         </div>
       </div>
 
-      <!-- Active Players on Field Quick Bench -->
-      <div class="px-3 py-1.5 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between text-xs">
-        <span class="text-slate-400 font-medium">On Pitch (<span id="activeCountDisplay">0</span>/13)</span>
-        <button id="btnClearAllPlayers" class="text-[10px] text-red-400 hover:text-red-300 hover:underline">Clear Team</button>
+      <!-- Ball & Markers Deployment Strip -->
+      <div class="px-3 py-2 border-b border-slate-800 bg-slate-950/40 flex items-center justify-between">
+        <button id="btnAddBall" class="flex-1 mr-2 px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 transition">
+          <span class="w-3.5 h-2.5 rounded-full bg-amber-200 border border-slate-900 inline-block -rotate-12"></span>
+          <span>Add Rugby Ball</span>
+        </button>
+        <button id="btnAddCone" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-orange-400 font-semibold text-xs flex items-center gap-1 transition" title="Add Training Cone">
+          <span>▲</span>
+          <span>Cone</span>
+        </button>
       </div>
 
-      <!-- Scrollable Roster 1 to 15 (No 6 & 7) -->
-      <div class="flex-1 overflow-y-auto p-2 space-y-1.5" id="rosterListContainer">
-        <!-- Roster items populated dynamically via JS -->
+      <!-- Roster Player Token List -->
+      <div class="flex-1 overflow-y-auto p-3 space-y-1.5" id="rosterListContainer">
+        <!-- Rendered via JS -->
       </div>
 
-      <div id="inspectorPanel" class="p-2.5 bg-slate-950/95 border-t border-slate-800 hidden flex-col gap-2 shadow-xl">
-        <div class="flex items-center justify-between text-xs font-bold text-slate-300">
-          <span class="flex items-center gap-1.5">
-            <i data-lucide="user-check" class="w-3.5 h-3.5 text-emerald-400"></i> Selected Token
-          </span>
-          <!-- Direct Delete / Remove Player Button -->
-          <button id="btnDeleteSelected" class="px-2 py-0.5 rounded bg-red-900/60 hover:bg-red-800 text-red-200 text-xs font-semibold flex items-center gap-1 transition" title="Remove Player from Pitch (Del / Backspace)">
-            <i data-lucide="trash-2" class="w-3 h-3"></i>
-            <span>Remove</span>
-          </button>
-        </div>
-        <div class="grid grid-cols-2 gap-2 text-xs">
-          <div>
-            <label class="text-[10px] text-slate-400 block mb-0.5">Jersey / Num</label>
-            <input id="inspectorLabel" type="text" maxlength="4" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-white font-mono text-center font-bold">
-          </div>
-          <div>
-            <label class="text-[10px] text-slate-400 block mb-0.5">Player Label</label>
-            <input id="inspectorName" type="text" maxlength="16" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-white">
-          </div>
-        </div>
-        <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-800">
-          <span class="text-[11px] text-slate-400">Ball Possession:</span>
-          <button id="btnAttachBall" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-[11px] flex items-center gap-1">
-            <i data-lucide="paperclip" class="w-3 h-3"></i> Make Carrier
-          </button>
-        </div>
-      </div>
-
-      <!-- Collapse Sidebar Toggle Button -->
-      <button id="btnToggleSidebar" class="absolute -right-3 top-20 bg-slate-800 border border-slate-700 text-slate-300 w-6 h-6 rounded-full flex items-center justify-center hover:bg-slate-700 shadow z-30">
+      <!-- Collapse Sidebar Toggle Button (Floats cleanly outside sidebar, updates icon on toggle) -->
+      <button id="btnToggleSidebar" class="absolute -right-7 top-16 bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 text-slate-200 w-7 h-7 rounded-full flex items-center justify-center shadow-2xl z-50 transition cursor-pointer" title="Toggle Sidebar">
         <i data-lucide="chevron-left" id="sidebarCollapseIcon" class="w-4 h-4"></i>
       </button>
     </aside>
@@ -319,76 +210,92 @@
     <!-- Pitch Stage & Animation Board -->
     <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-950 relative">
 
-      <div class="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-slate-900/95 backdrop-blur-md px-2 py-1.5 rounded-xl border border-slate-800/80 shadow-2xl">
-        <button id="toolSelect" class="tool-btn active-tool p-2 rounded-lg text-xs font-medium bg-emerald-600 text-white transition" title="Select / Move Players & Ball (V)">
-          <i data-lucide="mouse-pointer" class="w-4 h-4"></i>
+      <!-- Floating Annotation Toolbar -->
+      <div class="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-xl px-2.5 py-1.5 flex items-center space-x-1.5 shadow-2xl">
+        <button id="toolSelect" class="p-1.5 rounded-lg bg-red-600 text-white font-semibold flex items-center gap-1 text-xs transition" title="Select / Move Players (V) [Click-drag marquee box for multi-select]">
+          <i data-lucide="mouse-pointer-2" class="w-4 h-4"></i>
         </button>
-        <div class="h-4 w-px bg-slate-700 mx-1"></div>
-        <button id="toolRun" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Running Line / Carry (Solid Arrow)">
-          <i data-lucide="arrow-up-right" class="w-4 h-4 text-emerald-400"></i>
+
+        <div class="h-4 w-px bg-slate-700 mx-0.5"></div>
+
+        <button id="toolRun" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Player Run Arrow (R)">
+          <i data-lucide="arrow-right" class="w-4 h-4 text-emerald-400"></i>
         </button>
-        <button id="toolPass" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Passing Trajectory (Dashed Arrow)">
-          <i data-lucide="move-right" class="w-4 h-4 text-sky-400"></i>
+        <button id="toolPass" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Pass Trajectory (P)">
+          <i data-lucide="move-right" class="w-4 h-4 text-sky-400 stroke-dashed"></i>
         </button>
-        <button id="toolKick" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Kick / Box Kick (Curved Arc)">
-          <i data-lucide="spline" class="w-4 h-4 text-purple-400"></i>
+        <button id="toolKick" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Kick Trajectory (K)">
+          <i data-lucide="trending-up" class="w-4 h-4 text-yellow-400"></i>
         </button>
-        <button id="toolTackle" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Tackle / Defensive Line (Crossbar T-Line)">
-          <i data-lucide="minus" class="w-4 h-4 text-amber-400"></i>
+        <button id="toolTackle" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Tackle Line (T)">
+          <i data-lucide="shield-alert" class="w-4 h-4 text-red-400"></i>
         </button>
-        <button id="toolPen" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Freehand Pen Tool">
-          <i data-lucide="pencil" class="w-4 h-4 text-yellow-300"></i>
-        </button>
-        <div class="h-4 w-px bg-slate-700 mx-1"></div>
-        <div class="flex items-center gap-1 px-1">
-          <button class="color-btn w-5 h-5 rounded-full bg-yellow-400 ring-2 ring-white scale-110" data-color="#facc15" title="Yellow"></button>
-          <button class="color-btn w-5 h-5 rounded-full bg-white hover:scale-105" data-color="#ffffff" title="White"></button>
-          <button class="color-btn w-5 h-5 rounded-full bg-red-500 hover:scale-105" data-color="#ef4444" title="Red"></button>
-          <button class="color-btn w-5 h-5 rounded-full bg-sky-400 hover:scale-105" data-color="#38bdf8" title="Cyan/Sky"></button>
+
+        <div class="h-4 w-px bg-slate-700 mx-0.5"></div>
+
+        <!-- Annotation Palette -->
+        <div class="flex items-center space-x-1 pl-1">
+          <button class="w-4 h-4 rounded-full bg-yellow-400 ring-2 ring-white/80 color-swatch" data-color="#facc15"></button>
+          <button class="w-4 h-4 rounded-full bg-white ring-1 ring-slate-600 color-swatch" data-color="#ffffff"></button>
+          <button class="w-4 h-4 rounded-full bg-red-500 ring-1 ring-slate-600 color-swatch" data-color="#ef4444"></button>
+          <button class="w-4 h-4 rounded-full bg-sky-400 ring-1 ring-slate-600 color-swatch" data-color="#38bdf8"></button>
         </div>
-        <div class="h-4 w-px bg-slate-700 mx-1"></div>
-        <button id="btnClearDrawings" class="p-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-red-950/60 hover:text-red-300 transition" title="Clear Tactical Arrows on this Frame">
+
+        <div class="h-4 w-px bg-slate-700 mx-0.5"></div>
+
+        <button id="btnClearDrawings" class="p-1.5 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-800 transition" title="Clear current drawings">
           <i data-lucide="eraser" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <div id="pitchWrapper" class="flex-1 w-full h-full p-2 sm:p-4 flex items-center justify-center relative select-none">
+      <!-- Player Inspector Overlay -->
+      <div id="inspectorPanel" class="hidden absolute top-16 right-4 z-30 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl p-3 shadow-2xl flex flex-col gap-2 min-w-[210px]">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+          <span class="text-xs font-bold text-slate-200">Player Inspector</span>
+          <button id="btnCloseInspector" class="text-slate-400 hover:text-white text-xs font-bold">✕</button>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-[11px] text-slate-400 w-12">Number:</label>
+          <input type="text" id="inspectorLabel" class="w-16 bg-slate-800 border border-slate-700 rounded px-2 py-0.5 text-xs text-white font-bold" />
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-[11px] text-slate-400 w-12">Name:</label>
+          <input type="text" id="inspectorName" class="flex-1 bg-slate-800 border border-slate-700 rounded px-2 py-0.5 text-xs text-white" />
+        </div>
+        <div class="flex items-center gap-2 pt-1">
+          <button id="btnAttachBall" class="flex-1 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-semibold text-xs flex items-center justify-center gap-1">
+            <i data-lucide="paperclip" class="w-3 h-3"></i> Make Carrier
+          </button>
+          <button id="btnDeleteSelectedActor" class="p-1 rounded bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-red-400 hover:text-red-300 text-xs" title="Remove Player">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pitch Wrapper: Constrained properly to fit inside viewport without clipping -->
+      <div id="pitchWrapper" class="flex-1 w-full h-full p-2 sm:p-4 flex items-center justify-center relative select-none overflow-hidden">
+
+        <!-- Selection marquee rectangle -->
+        <div id="selectionBox"></div>
 
         <!-- Drag-Off Trash Drop Bin Indicator -->
         <div id="dragTrashZone" class="absolute bottom-6 right-8 bg-red-950/80 border-2 border-dashed border-red-500 rounded-xl px-4 py-3 flex items-center gap-2 text-red-200 z-30 opacity-0 pointer-events-none transition-all duration-200 shadow-2xl">
           <i data-lucide="trash-2" class="w-5 h-5 text-red-400 animate-bounce"></i>
           <span class="text-xs font-bold uppercase tracking-wider">Drag here to remove</span>
         </div>
-        
-        <!-- Pitch Board Holder -->
-        <div id="pitchBoard" class="relative rounded-2xl overflow-hidden pitch-shadow border-4 border-emerald-950 transition-all duration-300" style="width: 100%; max-width: 1100px; aspect-ratio: 100 / 60;">
-          
-          <!-- Pitch SVG Base & Field Graphics -->
-          <svg id="pitchSvg" class="w-full h-full absolute inset-0 block" viewBox="0 0 1000 600" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="grassStripes" x1="0" y1="0" x2="1000" y2="0" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="#246d2a"/>
-                <stop offset="10%" stop-color="#246d2a"/>
-                <stop offset="10%" stop-color="#1e5c23"/>
-                <stop offset="20%" stop-color="#1e5c23"/>
-                <stop offset="20%" stop-color="#246d2a"/>
-                <stop offset="30%" stop-color="#246d2a"/>
-                <stop offset="30%" stop-color="#1e5c23"/>
-                <stop offset="40%" stop-color="#1e5c23"/>
-                <stop offset="40%" stop-color="#246d2a"/>
-                <stop offset="50%" stop-color="#246d2a"/>
-                <stop offset="50%" stop-color="#1e5c23"/>
-                <stop offset="60%" stop-color="#1e5c23"/>
-                <stop offset="60%" stop-color="#246d2a"/>
-                <stop offset="70%" stop-color="#246d2a"/>
-                <stop offset="70%" stop-color="#1e5c23"/>
-                <stop offset="80%" stop-color="#1e5c23"/>
-                <stop offset="80%" stop-color="#246d2a"/>
-                <stop offset="90%" stop-color="#246d2a"/>
-                <stop offset="90%" stop-color="#1e5c23"/>
-                <stop offset="100%" stop-color="#1e5c23"/>
-              </linearGradient>
 
+        <!-- Pitch Board Holder: Scaled to fit perfectly in viewport -->
+        <div id="pitchBoard" class="relative rounded-2xl overflow-hidden pitch-shadow border-4 border-emerald-950 transition-all duration-300 max-w-full max-h-full" style="aspect-ratio: 100 / 60; width: 100%; max-width: 1100px;">
+
+          <!-- Vector Pitch Lines (Rugby Union 1000 x 600 coordinate grid) -->
+          <svg id="pitchSvg" class="w-full h-full block bg-emerald-700" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <!-- Grass striping pattern -->
+              <pattern id="grassStripes" width="80" height="600" patternUnits="userSpaceOnUse">
+                <rect width="40" height="600" fill="#047857" />
+                <rect x="40" width="40" height="600" fill="#059669" />
+              </pattern>
+              <!-- Drawing Arrowhead Markers -->
               <marker id="arrow-run" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                 <path d="M 0 1 L 10 5 L 0 9 z" fill="#facc15" />
               </marker>
@@ -396,80 +303,85 @@
                 <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8" />
               </marker>
               <marker id="arrow-kick" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M 0 1 L 10 5 L 0 9 z" fill="#c084fc" />
-              </marker>
-              <marker id="arrow-custom" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M 0 1 L 10 5 L 0 9 z" fill="white" />
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#facc15" />
               </marker>
             </defs>
 
-            <rect width="1000" height="600" fill="url(#grassStripes)"/>
+            <!-- Grass surface -->
+            <rect width="1000" height="600" fill="url(#grassStripes)" />
 
-            <g id="pitchMarkings" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.9">
-              <rect x="40" y="40" width="920" height="520" stroke-width="3"/>
-              <line x1="120" y1="40" x2="120" y2="560" stroke-width="4"/>
-              <line x1="880" y1="40" x2="880" y2="560" stroke-width="4"/>
+            <!-- Pitch Markings (White, 2.5px stroke) -->
+            <!-- Perimeter Boundary -->
+            <rect x="10" y="20" width="980" height="560" fill="none" stroke="#ffffff" stroke-width="2.5" />
 
-              <text x="80" y="310" fill="#ffffff" fill-opacity="0.22" font-size="28" font-family="'Teko', sans-serif" font-weight="700" letter-spacing="4" transform="rotate(-90 80 310)" text-anchor="middle">IN-GOAL</text>
-              <text x="920" y="310" fill="#ffffff" fill-opacity="0.22" font-size="28" font-family="'Teko', sans-serif" font-weight="700" letter-spacing="4" transform="rotate(90 920 310)" text-anchor="middle">IN-GOAL</text>
+            <!-- Dead Ball Lines (x=20 and x=980) & Touchlines (y=30 and y=570) -->
+            <rect x="20" y="30" width="960" height="540" fill="none" stroke="#ffffff" stroke-width="2.5" />
 
-              <line x1="500" y1="40" x2="500" y2="560" stroke-width="3"/>
-              <circle cx="500" cy="300" r="4" fill="#ffffff"/>
+            <!-- In-Goal Zones Shading -->
+            <rect x="20" y="30" width="80" height="540" fill="rgba(0,0,0,0.08)" />
+            <rect x="900" y="30" width="80" height="540" fill="rgba(0,0,0,0.08)" />
 
-              <line x1="296" y1="40" x2="296" y2="560" stroke-width="3"/>
-              <line x1="704" y1="40" x2="704" y2="560" stroke-width="3"/>
-              <text x="296" y="30" fill="#ffffff" fill-opacity="0.8" font-size="14" font-weight="700" text-anchor="middle">22m</text>
-              <text x="704" y="30" fill="#ffffff" fill-opacity="0.8" font-size="14" font-weight="700" text-anchor="middle">22m</text>
-              <text x="500" y="30" fill="#ffffff" fill-opacity="0.9" font-size="14" font-weight="700" text-anchor="middle">50m</text>
+            <!-- Try Lines (Goal Lines at x=100 and x=900) -->
+            <line x1="100" y1="30" x2="100" y2="570" stroke="#ffffff" stroke-width="3.5" />
+            <line x1="900" y1="30" x2="900" y2="570" stroke="#ffffff" stroke-width="3.5" />
 
-              <line x1="420" y1="40" x2="420" y2="560" stroke-width="2" stroke-dasharray="10 10" stroke-opacity="0.85"/>
-              <line x1="580" y1="40" x2="580" y2="560" stroke-width="2" stroke-dasharray="10 10" stroke-opacity="0.85"/>
+            <!-- 22m Lines (Solid at x=276 and x=724) -->
+            <line x1="276" y1="30" x2="276" y2="570" stroke="#ffffff" stroke-width="2.5" />
+            <line x1="724" y1="30" x2="724" y2="570" stroke="#ffffff" stroke-width="2.5" />
 
-              <line x1="120" y1="75" x2="880" y2="75" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.6"/>
-              <line x1="120" y1="525" x2="880" y2="525" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.6"/>
+            <!-- 10m Dashed Lines (Dashed at x=420 and x=580) -->
+            <line x1="420" y1="30" x2="420" y2="570" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 8" />
+            <line x1="580" y1="30" x2="580" y2="570" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 8" />
 
-              <line x1="120" y1="145" x2="880" y2="145" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.6"/>
-              <line x1="120" y1="455" x2="880" y2="455" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.6"/>
+            <!-- Halfway Line (Solid at x=500) -->
+            <line x1="500" y1="30" x2="500" y2="570" stroke="#ffffff" stroke-width="3" />
+            <circle cx="500" cy="300" r="4" fill="#ffffff" />
 
-              <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
-                <line x1="120" y1="272" x2="120" y2="328"/>
-                <circle cx="120" cy="272" r="4.5" fill="#facc15" stroke="#ffffff" stroke-width="1.5"/>
-                <circle cx="120" cy="328" r="4.5" fill="#facc15" stroke="#ffffff" stroke-width="1.5"/>
-                <line x1="880" y1="272" x2="880" y2="328"/>
-                <circle cx="880" cy="272" r="4.5" fill="#facc15" stroke="#ffffff" stroke-width="1.5"/>
-                <circle cx="880" cy="328" r="4.5" fill="#facc15" stroke="#ffffff" stroke-width="1.5"/>
-              </g>
-            </g>
+            <!-- 5m and 15m Dashed Touchlines and Scrum Markings -->
+            <!-- 5m from touch (y=70 and y=530) -->
+            <line x1="100" y1="70" x2="900" y2="70" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="5 7" stroke-opacity="0.75" />
+            <line x1="100" y1="530" x2="900" y2="530" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="5 7" stroke-opacity="0.75" />
 
-            <g id="ghostTrailsLayer" pointer-events="none"></g>
-            <g id="drawingsLayer" pointer-events="stroke"></g>
-            <path id="activeDrawingPath" d="" fill="none" stroke-width="3" stroke="#facc15" stroke-linecap="round" pointer-events="none"/>
+            <!-- 15m from touch (y=150 and y=450) -->
+            <line x1="100" y1="150" x2="900" y2="150" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="5 7" stroke-opacity="0.75" />
+            <line x1="100" y1="450" x2="900" y2="450" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="5 7" stroke-opacity="0.75" />
+
+            <!-- 5m from Try Line Dashed Marks -->
+            <line x1="140" y1="65" x2="140" y2="535" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="5 7" stroke-opacity="0.6" />
+            <line x1="860" y1="65" x2="860" y2="535" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="5 7" stroke-opacity="0.6" />
+
+            <!-- H-Shaped Rugby Goal Posts -->
+            <!-- Left Try-line Posts -->
+            <circle cx="100" cy="272" r="5" fill="#f8fafc" stroke="#0f172a" stroke-width="1.5" />
+            <circle cx="100" cy="328" r="5" fill="#f8fafc" stroke="#0f172a" stroke-width="1.5" />
+            <line x1="100" y1="272" x2="100" y2="328" stroke="#f8fafc" stroke-width="2" />
+            <!-- Right Try-line Posts -->
+            <circle cx="900" cy="272" r="5" fill="#f8fafc" stroke="#0f172a" stroke-width="1.5" />
+            <circle cx="900" cy="328" r="5" fill="#f8fafc" stroke="#0f172a" stroke-width="1.5" />
+            <line x1="900" y1="272" x2="900" y2="328" stroke="#f8fafc" stroke-width="2" />
+
+            <!-- SVG Ghost Motion Trails Layer -->
+            <g id="ghostTrailsLayer" opacity="0.6"></g>
+
+            <!-- SVG Tactical Drawings Layer -->
+            <g id="drawingsLayer"></g>
+
+            <!-- Active In-progress Drawing Path -->
+            <path id="activeDrawingPath" fill="none" stroke="#facc15" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
 
-          <!-- Interactive Players Layer (Z-Index 10) -->
+          <!-- Interactive Players Layer -->
           <div id="actorsContainer" class="absolute inset-0 pointer-events-none z-10"></div>
 
-          <!-- Dedicated Top-Level Ball Layer (Z-Index 30) - ALWAYS VISIBLE ON TOP -->
+          <!-- TOP BALL LAYER (Strictly ensures ball is always on top of players and markings) -->
           <div id="ballTopLayer" class="absolute inset-0 pointer-events-none z-30"></div>
         </div>
-
       </div>
 
-      <div id="contextMenu" class="bg-slate-900 border border-slate-700 rounded-lg shadow-2xl p-1 text-xs text-slate-200 min-w-[160px]">
-        <div class="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800" id="contextPlayerTitle">Player</div>
-        <button id="contextToggleCarrier" class="w-full text-left px-2.5 py-1.5 hover:bg-slate-800 rounded flex items-center gap-2">
-          <i data-lucide="paperclip" class="w-3.5 h-3.5 text-yellow-400"></i>
-          <span>Toggle Ball Carrier</span>
-        </button>
-        <button id="contextRemovePlayer" class="w-full text-left px-2.5 py-1.5 hover:bg-red-950/80 text-red-300 rounded flex items-center gap-2">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-          <span>Remove from Pitch</span>
-        </button>
-      </div>
-
-      <!-- Bottom Frame Timeline & Animation Bar -->
-      <footer class="h-28 sm:h-32 bg-slate-900 border-t border-slate-800 flex flex-col z-30 shrink-0 select-none shadow-2xl">
-        <div class="h-10 px-3 sm:px-6 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between">
+      <!-- Bottom Frame Timeline & Animation Bar (Enhanced height & visibility) -->
+      <footer class="h-36 sm:h-40 bg-slate-900 border-t border-slate-800 flex flex-col z-30 shrink-0 select-none shadow-2xl">
+        <!-- Timeline Controls Header Strip -->
+        <div class="h-10 px-3 sm:px-6 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between shrink-0">
           <div class="flex items-center space-x-2">
             <button id="btnPlayPause" class="w-8 h-8 rounded-lg bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow transition active:scale-95" title="Play / Pause Animation (Space)">
               <i data-lucide="play" id="playIcon" class="w-4 h-4 ml-0.5"></i>
@@ -499,15 +411,6 @@
             <button id="btnToggleLoop" class="p-1.5 rounded-md bg-emerald-900/40 text-emerald-300 hover:bg-slate-800 transition" title="Toggle Looping">
               <i data-lucide="repeat" class="w-3.5 h-3.5"></i>
             </button>
-
-            <div class="hidden md:flex items-center space-x-1 text-slate-400">
-              <span class="text-[11px]">Ease:</span>
-              <select id="transitionStyle" class="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded px-1.5 py-0.5 focus:outline-none">
-                <option value="easeInOut">Smooth</option>
-                <option value="linear">Linear</option>
-                <option value="easeIn">Accelerate</option>
-              </select>
-            </div>
           </div>
 
           <div class="flex items-center space-x-1.5">
@@ -522,57 +425,53 @@
           </div>
         </div>
 
-        <div class="flex-1 overflow-x-auto flex items-center px-4 space-x-3 py-2" id="keyframeTimelineTrack"></div>
+        <!-- Scrollable Steps Track (Ensures thumbnails and labels are 100% visible) -->
+        <div class="flex-1 overflow-x-auto flex items-center px-4 space-x-3 py-2.5 min-h-[92px]" id="keyframeTimelineTrack"></div>
       </footer>
-
     </main>
   </div>
 
-  <div id="loadModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <!-- Load JSON Modal Dialog -->
+  <div id="loadModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 shadow-2xl flex flex-col gap-4">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div class="flex items-center gap-2">
-          <i data-lucide="upload-cloud" class="w-5 h-5 text-emerald-400"></i>
-          <h3 class="font-bold text-white text-base">Load Playbook JSON</h3>
-        </div>
-        <button id="btnCloseLoadModal" class="text-slate-400 hover:text-white p-1 rounded">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="folder-open" class="w-5 h-5 text-emerald-400"></i> Load Tactical Playbook JSON
+        </h3>
+        <button id="btnCloseLoadModal" class="text-slate-400 hover:text-white font-bold text-lg">✕</button>
       </div>
 
-      <div class="flex flex-col gap-2">
-        <label class="text-xs font-semibold text-slate-300">Option 1: Choose File from Computer</label>
-        <label class="border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition bg-slate-950/40">
-          <i data-lucide="file-code" class="w-8 h-8 text-slate-400 mb-2"></i>
-          <span class="text-xs text-slate-300 font-medium">Click to browse or drag file here</span>
-          <span class="text-[10px] text-slate-500 mt-0.5">Supports .json RugbyTactix playbook files</span>
-          <input type="file" id="modalFileInput" accept=".json,application/json" class="hidden">
-        </label>
+      <!-- File upload drop area -->
+      <div id="dropZone" class="border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center bg-slate-950/50">
+        <i data-lucide="file-code" class="w-10 h-10 text-emerald-400 mb-2"></i>
+        <p class="text-sm font-semibold text-slate-200">Drag & Drop `.json` playbook here</p>
+        <p class="text-xs text-slate-400 mt-1">or click to browse your files</p>
+        <input type="file" id="fileInput" accept=".json" class="hidden" />
       </div>
 
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-semibold text-slate-300">Option 2: Paste JSON Content Directly</label>
-        <textarea id="modalJsonTextarea" rows="4" placeholder='{"title": "My Play", "frames": [...] }' class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs font-mono text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
+      <div class="relative flex py-1 items-center">
+        <div class="flex-grow border-t border-slate-800"></div>
+        <span class="flex-shrink mx-3 text-xs text-slate-500 uppercase tracking-widest font-bold">OR PASTE RAW JSON</span>
+        <div class="flex-grow border-t border-slate-800"></div>
       </div>
 
-      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-        <button id="btnCancelLoad" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300">
-          Cancel
-        </button>
-        <button id="btnSubmitJsonPaste" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow">
-          Import & Open Playbook
-        </button>
+      <textarea id="rawJsonInput" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500" placeholder="Paste play JSON code directly..."></textarea>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="btnCancelLoad" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">Cancel</button>
+        <button id="btnConfirmLoad" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg">Load Play</button>
       </div>
     </div>
   </div>
 
-  <div id="toast" class="fixed bottom-36 right-6 bg-slate-900 border border-slate-700 text-white text-xs px-4 py-2.5 rounded-lg shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 z-50">
-    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400" id="toastIcon"></i>
-    <span id="toastMsg">Action completed</span>
+  <!-- Toast Notification Pill -->
+  <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-slate-900 border border-slate-700 text-white text-xs font-medium px-4 py-2 rounded-full shadow-2xl transition-all duration-300 opacity-0 translate-y-20 pointer-events-none flex items-center gap-2">
+    <i data-lucide="info" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastMsg">Ready</span>
   </div>
 
   <script>
-    // Standard U13 Rugby Union Positional Template (13-a-side: No Flankers 6 & 7)
+    // U13 Rugby Union Positional Template (13-a-side: Flankers 6 & 7 excluded)
     const RUGBY_POSITIONS = [
       { num: 1, name: 'Loosehead Prop', short: '1', role: 'prop', team: 'A' },
       { num: 2, name: 'Hooker', short: '2', role: 'hooker', team: 'A' },
@@ -589,14 +488,14 @@
       { num: 15, name: 'Fullback', short: '15', role: 'fullback', team: 'A' }
     ];
 
+    // Core Tactical Application State
     const state = {
       activeRosterTeam: 'A', // 'A' (Attack Red) or 'B' (Defense Gold)
       currentTool: 'select',
       currentColor: '#facc15',
       pitchView: 'full',
       selectedActorId: null,
-      contextActorId: null,
-      showGhostTrails: true,
+      selectedActorIds: new Set(),
       githubManifestPlays: [],
 
       frames: [
@@ -618,8 +517,11 @@
       frameDurationMs: 1400
     };
 
+    // DOM Elements Cache
     const pitchSvg = document.getElementById('pitchSvg');
     const pitchBoard = document.getElementById('pitchBoard');
+    const pitchWrapper = document.getElementById('pitchWrapper');
+    const selectionBox = document.getElementById('selectionBox');
     const actorsContainer = document.getElementById('actorsContainer');
     const ballTopLayer = document.getElementById('ballTopLayer');
     const ghostTrailsLayer = document.getElementById('ghostTrailsLayer');
@@ -636,16 +538,22 @@
     const toast = document.getElementById('toast');
     const toastMsg = document.getElementById('toastMsg');
     const dragTrashZone = document.getElementById('dragTrashZone');
-    const contextMenu = document.getElementById('contextMenu');
 
+    // Drawing & Interaction State
     let isDrawing = false;
     let drawingStartPt = null;
     let currentFreehandPoints = [];
 
     let draggedActorId = null;
-    let dragOffset = { x: 0, y: 0 };
     let isDragging = false;
+    let initialDragCoords = null;
+    let initialActorPositions = new Map();
 
+    // Area selection marquee state
+    let isMarqueeSelecting = false;
+    let marqueeStartClient = { x: 0, y: 0 };
+
+    // Coordinate Conversion Functions
     function getPitchCoords(e) {
       const rect = pitchSvg.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -671,316 +579,13 @@
       return { pX, pY };
     }
 
-    async function loadTeamManifestPlays() {
-      // Look for plays/manifest.json, manifest.json, or ./plays/manifest.json
-      const candidatePaths = ['plays/manifest.json', 'manifest.json', './plays/manifest.json'];
-      let foundData = null;
-      let matchedPath = '';
-
-      for (const path of candidatePaths) {
-        try {
-          const resp = await fetch(path, { cache: 'no-store' });
-          if (resp.ok) {
-            foundData = await resp.json();
-            matchedPath = path;
-            break;
-          }
-        } catch (e) {
-          // Offline or local file:// protocol
-        }
-      }
-
-      const desktopGroup = document.getElementById('githubPlaysGroup');
-      const mobileGroup = document.getElementById('githubPlaysGroupMobile');
-
-      if (foundData && Array.isArray(foundData) && foundData.length > 0) {
-        state.githubManifestPlays = foundData;
-        desktopGroup.innerHTML = '';
-        mobileGroup.innerHTML = '';
-
-        foundData.forEach((item, idx) => {
-          const val = `gh_${idx}`;
-          const title = item.title || item.name || `Team Play ${idx + 1}`;
-          
-          const opt1 = document.createElement('option');
-          opt1.value = val;
-          opt1.innerText = `📁 ${title}`;
-          desktopGroup.appendChild(opt1);
-
-          const opt2 = document.createElement('option');
-          opt2.value = val;
-          opt2.innerText = `📁 ${title}`;
-          mobileGroup.appendChild(opt2);
-        });
-
-        desktopGroup.classList.remove('hidden');
-        mobileGroup.classList.remove('hidden');
-        showToast(`Loaded ${foundData.length} team plays from GitHub (${matchedPath})`);
-      } else {
-        desktopGroup.classList.add('hidden');
-        mobileGroup.classList.add('hidden');
-      }
-
-      refreshLocalCustomPresets();
-    }
-
-    function refreshLocalCustomPresets() {
-      const saved = JSON.parse(localStorage.getItem('rugby_custom_plays') || '[]');
-      const desktopGroup = document.getElementById('localCustomGroup');
-      const mobileGroup = document.getElementById('localCustomGroupMobile');
-
-      desktopGroup.innerHTML = '';
-      mobileGroup.innerHTML = '';
-
-      if (saved.length > 0) {
-        saved.forEach((item, idx) => {
-          const val = `local_${idx}`;
-          const title = item.title || `Saved Play ${idx + 1}`;
-
-          const opt1 = document.createElement('option');
-          opt1.value = val;
-          opt1.innerText = `⭐ ${title}`;
-          desktopGroup.appendChild(opt1);
-
-          const opt2 = document.createElement('option');
-          opt2.value = val;
-          opt2.innerText = `⭐ ${title}`;
-          mobileGroup.appendChild(opt2);
-        });
-
-        desktopGroup.classList.remove('hidden');
-        mobileGroup.classList.remove('hidden');
-      } else {
-        desktopGroup.classList.add('hidden');
-        mobileGroup.classList.add('hidden');
-      }
-    }
-
-    async function loadGitHubPlayByIndex(index) {
-      const entry = state.githubManifestPlays[index];
-      if (!entry) return;
-
-      const filePath = entry.file || entry.path;
-      if (!filePath) {
-        showToast("Error: No file path defined in manifest");
-        return;
-      }
-
-      try {
-        showToast(`Fetching ${entry.title || filePath}...`);
-        const resp = await fetch(filePath, { cache: 'no-store' });
-        if (!resp.ok) throw new Error(`HTTP error ${resp.status}`);
-        const parsed = await resp.json();
-        applyImportedPlaybook(parsed, entry.title || filePath);
-      } catch (err) {
-        console.error(err);
-        showToast(`Failed to load "${filePath}". Check repository path.`);
-      }
-    }
-
-    function loadLocalCustomPlayByIndex(index) {
-      const saved = JSON.parse(localStorage.getItem('rugby_custom_plays') || '[]');
-      const play = saved[index];
-      if (!play) return;
-      applyImportedPlaybook(play, play.title || "Device Preset");
-    }
-
-    function savePlayToDevicePresets() {
-      const defaultName = document.getElementById('playTitleDisplay').innerText.trim();
-      const playName = prompt("Enter a name for this custom preset:", defaultName);
-      if (!playName) return;
-
-      const customPlay = {
-        title: playName,
-        date: new Date().toISOString(),
-        frames: state.frames
-      };
-
-      const saved = JSON.parse(localStorage.getItem('rugby_custom_plays') || '[]');
-      const existingIdx = saved.findIndex(p => p.title.toLowerCase() === playName.toLowerCase());
-      if (existingIdx >= 0) {
-        saved[existingIdx] = customPlay;
-      } else {
-        saved.push(customPlay);
-      }
-
-      localStorage.setItem('rugby_custom_plays', JSON.stringify(saved));
-      refreshLocalCustomPresets();
-      
-      const select = document.getElementById('presetSelect');
-      const mobileSelect = document.getElementById('presetSelectMobile');
-      const val = `local_${existingIdx >= 0 ? existingIdx : saved.length - 1}`;
-      select.value = val;
-      if (mobileSelect) mobileSelect.value = val;
-
-      showToast(`Saved "${playName}" into Preset Dropdown!`);
-    }
-
-    document.getElementById('btnSaveToDropdown').onclick = savePlayToDevicePresets;
-    document.getElementById('btnSecondarySavePreset').onclick = savePlayToDevicePresets;
-    document.getElementById('btnSyncManifest').onclick = () => {
-      loadTeamManifestPlays();
-    };
-
-    function renderRosterList() {
-      const container = document.getElementById('rosterListContainer');
-      container.innerHTML = '';
-      const currentTeam = state.activeRosterTeam;
-      const isAttack = currentTeam === 'A';
-      
-      // Accessibility contrast safeguards: Red on Green with bold borders
-      const bgBadgeColor = isAttack ? 'bg-red-600 ring-1 ring-white shadow' : 'bg-amber-500';
-      const textBadgeColor = isAttack ? 'text-white' : 'text-slate-950 font-bold';
-
-      const currentFrame = state.frames[state.currentFrameIndex];
-      const activePlayers = currentFrame.actors.filter(a => a.type === 'player' && a.team === currentTeam);
-      document.getElementById('activeCountDisplay').innerText = activePlayers.length;
-
-      RUGBY_POSITIONS.forEach(pos => {
-        const onFieldPlayer = currentFrame.actors.find(a => a.type === 'player' && a.team === currentTeam && a.num === pos.num);
-
-        const card = document.createElement('div');
-        card.className = `flex items-center justify-between p-1.5 rounded-lg border text-xs transition ${
-          onFieldPlayer 
-            ? 'bg-slate-800/80 border-slate-700 text-slate-200' 
-            : 'bg-slate-800/40 border-slate-800 text-slate-400 hover:border-slate-700 hover:bg-slate-800'
-        }`;
-        
-        card.innerHTML = `
-          <div class="flex items-center space-x-2">
-            <span class="w-6 h-6 rounded-full ${bgBadgeColor} ${textBadgeColor} flex items-center justify-center font-mono text-[11px] font-bold">
-              ${pos.short}
-            </span>
-            <div class="flex flex-col">
-              <span class="font-medium truncate max-w-[120px]">${pos.name}</span>
-              <span class="text-[10px] text-slate-400 capitalize">${pos.role}</span>
-            </div>
-          </div>
-          ${onFieldPlayer ? `
-            <div class="flex items-center gap-1">
-              <button class="select-player-btn text-[10px] px-1.5 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-200" title="Select on pitch">
-                Select
-              </button>
-              <button class="remove-player-btn p-1 rounded bg-red-950/60 hover:bg-red-800 text-red-300" title="Remove #${pos.num} from pitch">
-                <i data-lucide="x" class="w-3 h-3"></i>
-              </button>
-            </div>
-          ` : `
-            <button class="deploy-player-btn text-[11px] px-2 py-0.5 rounded font-medium ${isAttack ? 'bg-red-600 hover:bg-red-500' : 'bg-amber-600 hover:bg-amber-500'} text-white">
-              Deploy
-            </button>
-          `}
-        `;
-
-        if (!onFieldPlayer) {
-          card.querySelector('.deploy-player-btn').onclick = () => deployPlayerToCenter(pos.num, pos.name, currentTeam);
-        } else {
-          card.querySelector('.select-player-btn').onclick = () => selectActor(onFieldPlayer.id);
-          card.querySelector('.remove-player-btn').onclick = () => removePlayerById(onFieldPlayer.id);
-        }
-
-        container.appendChild(card);
-      });
-      lucide.createIcons();
-    }
-
-    function removePlayerById(actorId) {
-      const currentFrame = state.frames[state.currentFrameIndex];
-      const playerToRemove = currentFrame.actors.find(a => a.id === actorId);
-      
-      if (playerToRemove && playerToRemove.carrier) {
-        const ball = currentFrame.actors.find(a => a.type === 'ball');
-        if (ball) ball.carrier = null;
-      }
-
-      currentFrame.actors = currentFrame.actors.filter(a => a.id !== actorId);
-      if (state.selectedActorId === actorId) {
-        state.selectedActorId = null;
-        inspectorPanel.classList.add('hidden');
-      }
-
-      renderActors();
-      renderRosterList();
-      renderGhostTrails();
-      renderKeyframeTimeline();
-      showToast("Player removed from field");
-    }
-
-    document.getElementById('btnClearAllPlayers').onclick = () => {
-      const currentFrame = state.frames[state.currentFrameIndex];
-      const currentTeam = state.activeRosterTeam;
-      currentFrame.actors = currentFrame.actors.filter(a => !(a.type === 'player' && a.team === currentTeam));
-      state.selectedActorId = null;
-      inspectorPanel.classList.add('hidden');
-      renderActors();
-      renderRosterList();
-      renderGhostTrails();
-      renderKeyframeTimeline();
-      showToast(`Cleared Team ${currentTeam === 'A' ? 'Red' : 'Gold'} players`);
-    };
-
-    function deployPlayerToCenter(num, name, team) {
-      const offset = (num * 20) % 200;
-      const teamX = team === 'A' ? 420 - offset : 560 + offset;
-      const teamY = 200 + ((num % 6) * 45);
-
-      const newActor = {
-        id: 'p_' + team + '_' + num + '_' + Date.now().toString().slice(-4),
-        type: 'player',
-        team: team,
-        num: num,
-        name: name,
-        x: Math.round(teamX),
-        y: Math.round(teamY),
-        carrier: false
-      };
-
-      state.frames[state.currentFrameIndex].actors.push(newActor);
-      renderActors();
-      renderRosterList();
-      renderGhostTrails();
-      showToast(`Placed #${num} ${name}`);
-    }
-
-    document.getElementById('spawnBallBtn').onclick = () => {
-      const currentFrame = state.frames[state.currentFrameIndex];
-      const existingBall = currentFrame.actors.find(a => a.type === 'ball');
-      if (existingBall) {
-        existingBall.x = 500;
-        existingBall.y = 300;
-        currentFrame.actors.forEach(a => { if (a.type === 'player') a.carrier = false; });
-        showToast("Ball placed at halfway center");
-      } else {
-        currentFrame.actors.push({
-          id: 'ball_' + Date.now().toString().slice(-4),
-          type: 'ball',
-          x: 500,
-          y: 300
-        });
-        showToast("Rugby ball added to pitch");
-      }
-      renderActors();
-      renderGhostTrails();
-    };
-
-    document.getElementById('spawnConeBtn').onclick = () => {
-      const currentFrame = state.frames[state.currentFrameIndex];
-      currentFrame.actors.push({
-        id: 'cone_' + Date.now().toString().slice(-4),
-        type: 'cone',
-        x: 480 + (Math.random() * 40),
-        y: 280 + (Math.random() * 40)
-      });
-      renderActors();
-      showToast("Marker cone placed");
-    };
-
+    // Render Players & Ball onto Pitch
     function renderActors(interpolatedActors = null) {
       actorsContainer.innerHTML = '';
       ballTopLayer.innerHTML = '';
 
       const currentFrame = state.frames[state.currentFrameIndex];
-      const actorsToRender = interpolatedActors || currentFrame.actors;
+      const actorsToRender = interpolatedActors || (currentFrame ? currentFrame.actors : []);
 
       actorsToRender.forEach(actor => {
         if (actor.type === 'ball') return;
@@ -993,17 +598,17 @@
         el.dataset.id = actor.id;
 
         if (actor.type === 'player') {
-          const isSelected = state.selectedActorId === actor.id;
+          const isSelected = state.selectedActorIds.has(actor.id) || state.selectedActorId === actor.id;
           const isAttack = actor.team === 'A';
           
-          // Enhanced luminance contrast for Red vs Gold (Red on Green accessibility)
+          // Enhanced luminance contrast for Red vs Gold (Accessible for Red/Green color-blindness)
           const teamColorClass = isAttack 
             ? 'bg-red-600 border-2 border-white text-white shadow-red-950/80 ring-2 ring-black/70' 
             : 'bg-amber-500 border-2 border-slate-950 text-slate-950 font-black shadow-amber-950/60 ring-2 ring-black/40';
 
           el.innerHTML = `
             <div class="relative group">
-              ${isSelected ? '<div class="absolute -inset-2 rounded-full border-2 border-emerald-400 animate-pulse pointer-events-none"></div>' : ''}
+              ${isSelected ? '<div class="absolute -inset-2 rounded-full border-2 border-emerald-400 bg-emerald-400/20 animate-pulse pointer-events-none"></div>' : ''}
               ${actor.carrier ? '<div class="absolute -inset-2.5 rounded-full border-2 border-dashed border-yellow-300 animate-spin" style="animation-duration: 5s;"></div>' : ''}
 
               <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full ${teamColorClass} flex items-center justify-center font-bold text-xs sm:text-sm shadow-xl transform transition group-hover:scale-110">
@@ -1011,7 +616,7 @@
               </div>
 
               <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap px-1.5 py-0.2 rounded bg-slate-950/90 border border-slate-700/80 text-[9px] font-semibold text-slate-200 pointer-events-none">
-                ${actor.name.split(' ')[0]}
+                ${(actor.name || '').split(' ')[0]}
               </div>
 
               <button class="player-quick-del-btn absolute -top-2 -right-2 w-4 h-4 bg-red-600 hover:bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold shadow opacity-0 group-hover:opacity-100 transition" title="Delete Player">
@@ -1028,15 +633,9 @@
             };
           }
 
-          el.oncontextmenu = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            openContextMenu(e, actor.id);
-          };
-
         } else if (actor.type === 'cone') {
           el.innerHTML = `
-            <div class="w-4 h-4 text-orange-500 drop-shadow-md flex items-center justify-center font-bold">
+            <div class="w-4 h-4 text-orange-500 drop-shadow-md flex items-center justify-center font-bold text-sm">
               ▲
             </div>
           `;
@@ -1058,7 +657,7 @@
         ballEl.style.top = `${coords.pY}%`;
         ballEl.dataset.id = ballActor.id;
 
-        const isSelected = state.selectedActorId === ballActor.id;
+        const isSelected = state.selectedActorIds.has(ballActor.id) || state.selectedActorId === ballActor.id;
 
         ballEl.innerHTML = `
           <div class="relative group cursor-grab">
@@ -1083,24 +682,47 @@
       }
     }
 
+    // Actor Dragging & Multi-Selection Drag
     function handleActorDragStart(e, actorId) {
       if (state.isPlaying) return;
       if (state.currentTool !== 'select') return;
       e.stopPropagation();
 
-      closeContextMenu();
+      // Check for Shift key multi-selection toggle
+      if (e.shiftKey) {
+        if (state.selectedActorIds.has(actorId)) {
+          state.selectedActorIds.delete(actorId);
+          if (state.selectedActorId === actorId) {
+            state.selectedActorId = state.selectedActorIds.size > 0 ? Array.from(state.selectedActorIds)[0] : null;
+          }
+        } else {
+          state.selectedActorIds.add(actorId);
+          state.selectedActorId = actorId;
+        }
+        renderActors();
+        return;
+      }
+
+      // If clicked actor is not already in selected group, make it the single selection
+      if (!state.selectedActorIds.has(actorId)) {
+        state.selectedActorIds.clear();
+        state.selectedActorIds.add(actorId);
+        selectActor(actorId);
+      }
+
       draggedActorId = actorId;
       isDragging = true;
-      selectActor(actorId);
 
       const currentFrame = state.frames[state.currentFrameIndex];
-      const actor = currentFrame.actors.find(a => a.id === actorId);
-      const coords = getPitchCoords(e);
+      const startPt = getPitchCoords(e);
+      initialDragCoords = startPt;
 
-      if (actor) {
-        dragOffset.x = coords.x - actor.x;
-        dragOffset.y = coords.y - actor.y;
-      }
+      // Store initial positions of all currently selected actors for synchronized group move
+      initialActorPositions.clear();
+      state.selectedActorIds.forEach(id => {
+        const a = currentFrame.actors.find(act => act.id === id);
+        if (a) initialActorPositions.set(id, { x: a.x, y: a.y });
+      });
 
       dragTrashZone.classList.remove('opacity-0', 'pointer-events-none');
       dragTrashZone.classList.add('opacity-100');
@@ -1112,24 +734,30 @@
     }
 
     function handleActorDragMove(e) {
-      if (!isDragging || !draggedActorId) return;
+      if (!isDragging || !draggedActorId || !initialDragCoords) return;
       if (e.cancelable && e.type === 'touchmove') e.preventDefault();
 
       const currentFrame = state.frames[state.currentFrameIndex];
-      const actor = currentFrame.actors.find(a => a.id === draggedActorId);
-      if (!actor) return;
+      const currentCoords = getPitchCoords(e);
+      const deltaX = currentCoords.x - initialDragCoords.x;
+      const deltaY = currentCoords.y - initialDragCoords.y;
 
-      const coords = getPitchCoords(e);
-      actor.x = Math.max(10, Math.min(990, coords.x - dragOffset.x));
-      actor.y = Math.max(10, Math.min(590, coords.y - dragOffset.y));
+      // Move all selected actors together
+      initialActorPositions.forEach((initPos, id) => {
+        const actor = currentFrame.actors.find(a => a.id === id);
+        if (actor) {
+          actor.x = Math.max(10, Math.min(990, initPos.x + deltaX));
+          actor.y = Math.max(10, Math.min(590, initPos.y + deltaY));
 
-      if (actor.carrier) {
-        const ball = currentFrame.actors.find(a => a.type === 'ball');
-        if (ball) {
-          ball.x = actor.x + 9;
-          ball.y = actor.y + 9;
+          if (actor.carrier) {
+            const ball = currentFrame.actors.find(a => a.type === 'ball');
+            if (ball) {
+              ball.x = actor.x + 9;
+              ball.y = actor.y + 9;
+            }
+          }
         }
-      }
+      });
 
       renderActors();
       renderGhostTrails();
@@ -1149,13 +777,18 @@
         clientY >= trashRect.top &&
         clientY <= trashRect.bottom
       ) {
-        removePlayerById(draggedActorId);
+        // Remove all selected actors if dropped on trash
+        const idsToRemove = Array.from(state.selectedActorIds);
+        idsToRemove.forEach(id => removePlayerById(id));
+        state.selectedActorIds.clear();
       }
 
       dragTrashZone.classList.remove('opacity-100');
       dragTrashZone.classList.add('opacity-0', 'pointer-events-none');
 
       draggedActorId = null;
+      initialDragCoords = null;
+      initialActorPositions.clear();
 
       window.removeEventListener('mousemove', handleActorDragMove);
       window.removeEventListener('touchmove', handleActorDragMove);
@@ -1167,8 +800,9 @@
 
     function selectActor(id) {
       state.selectedActorId = id;
+      state.selectedActorIds.add(id);
       const currentFrame = state.frames[state.currentFrameIndex];
-      const actor = currentFrame.actors.find(a => a.id === id);
+      const actor = currentFrame ? currentFrame.actors.find(a => a.id === id) : null;
 
       if (actor && actor.type === 'player') {
         inspectorPanel.classList.remove('hidden');
@@ -1186,105 +820,59 @@
       renderActors();
     }
 
-    function openContextMenu(e, actorId) {
-      state.contextActorId = actorId;
+    function removePlayerById(id) {
       const currentFrame = state.frames[state.currentFrameIndex];
-      const actor = currentFrame.actors.find(a => a.id === actorId);
-      if (!actor) return;
+      if (!currentFrame) return;
 
-      document.getElementById('contextPlayerTitle').innerText = `#${actor.num} ${actor.name}`;
-      contextMenu.style.left = `${e.pageX + 5}px`;
-      contextMenu.style.top = `${e.pageY + 5}px`;
-      contextMenu.style.display = 'block';
-    }
-
-    function closeContextMenu() {
-      contextMenu.style.display = 'none';
-      state.contextActorId = null;
-    }
-
-    window.addEventListener('click', (e) => {
-      if (!e.target.closest('#contextMenu')) {
-        closeContextMenu();
-      }
-    });
-
-    document.getElementById('contextRemovePlayer').onclick = () => {
-      if (state.contextActorId) {
-        removePlayerById(state.contextActorId);
-        closeContextMenu();
-      }
-    };
-
-    document.getElementById('contextToggleCarrier').onclick = () => {
-      if (state.contextActorId) {
-        toggleCarrierForActor(state.contextActorId);
-        closeContextMenu();
-      }
-    };
-
-    function toggleCarrierForActor(actorId) {
-      const currentFrame = state.frames[state.currentFrameIndex];
-      const actor = currentFrame.actors.find(a => a.id === actorId);
-      if (!actor || actor.type !== 'player') return;
-
-      actor.carrier = !actor.carrier;
-      if (actor.carrier) {
-        currentFrame.actors.forEach(a => { if (a.id !== actor.id) a.carrier = false; });
-        let ball = currentFrame.actors.find(a => a.type === 'ball');
-        if (!ball) {
-          ball = { id: 'ball_main', type: 'ball', x: actor.x + 9, y: actor.y + 9 };
-          currentFrame.actors.push(ball);
-        } else {
-          ball.x = actor.x + 9;
-          ball.y = actor.y + 9;
-        }
-        showToast(`Ball snapped to #${actor.num} ${actor.name}`);
-      }
-      selectActor(actor.id);
-      renderActors();
-      renderGhostTrails();
-    }
-
-    inspectorLabel.oninput = (e) => {
-      const currentFrame = state.frames[state.currentFrameIndex];
-      const actor = currentFrame.actors.find(a => a.id === state.selectedActorId);
-      if (actor) {
-        actor.num = e.target.value;
-        renderActors();
-        renderRosterList();
-      }
-    };
-
-    inspectorName.oninput = (e) => {
-      const currentFrame = state.frames[state.currentFrameIndex];
-      const actor = currentFrame.actors.find(a => a.id === state.selectedActorId);
-      if (actor) {
-        actor.name = e.target.value;
-        renderActors();
-        renderRosterList();
-      }
-    };
-
-    btnAttachBall.onclick = () => {
-      if (state.selectedActorId) toggleCarrierForActor(state.selectedActorId);
-    };
-
-    document.getElementById('btnDeleteSelected').onclick = () => {
-      if (state.selectedActorId) removePlayerById(state.selectedActorId);
-    };
-
-    pitchSvg.onmousedown = handleDrawStart;
-    pitchSvg.ontouchstart = handleDrawStart;
-
-    function handleDrawStart(e) {
-      if (state.isPlaying) return;
-      if (state.currentTool === 'select') {
+      currentFrame.actors = currentFrame.actors.filter(a => a.id !== id);
+      state.selectedActorIds.delete(id);
+      if (state.selectedActorId === id) {
         state.selectedActorId = null;
         inspectorPanel.classList.add('hidden');
-        renderActors();
+      }
+      renderActors();
+      renderRosterList();
+      renderGhostTrails();
+      renderKeyframeTimeline();
+    }
+
+    // Pitch Canvas Click & Area Marquee Selection
+    pitchSvg.onmousedown = handleDrawOrMarqueeStart;
+    pitchSvg.ontouchstart = handleDrawOrMarqueeStart;
+
+    function handleDrawOrMarqueeStart(e) {
+      if (state.isPlaying) return;
+
+      // Select Tool: background click clears selection or starts marquee drag box
+      if (state.currentTool === 'select') {
+        if (!e.shiftKey) {
+          state.selectedActorIds.clear();
+          state.selectedActorId = null;
+          inspectorPanel.classList.add('hidden');
+          renderActors();
+        }
+
+        // Start marquee area selection
+        isMarqueeSelecting = true;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        marqueeStartClient = { x: clientX, y: clientY };
+
+        const wrapperRect = pitchWrapper.getBoundingClientRect();
+        selectionBox.style.left = `${clientX - wrapperRect.left}px`;
+        selectionBox.style.top = `${clientY - wrapperRect.top}px`;
+        selectionBox.style.width = '0px';
+        selectionBox.style.height = '0px';
+        selectionBox.style.display = 'block';
+
+        window.addEventListener('mousemove', handleMarqueeMove);
+        window.addEventListener('touchmove', handleMarqueeMove, { passive: false });
+        window.addEventListener('mouseup', handleMarqueeEnd);
+        window.addEventListener('touchend', handleMarqueeEnd);
         return;
       }
+
+      // Drawing Tools
       isDrawing = true;
       drawingStartPt = getPitchCoords(e);
       currentFreehandPoints = [drawingStartPt];
@@ -1295,342 +883,794 @@
       window.addEventListener('touchend', handleDrawEnd);
     }
 
-    function handleDrawMove(e) {
-      if (!isDrawing) return;
+    function handleMarqueeMove(e) {
+      if (!isMarqueeSelecting) return;
       if (e.cancelable && e.type === 'touchmove') e.preventDefault();
-      const currentPt = getPitchCoords(e);
 
-      if (state.currentTool === 'pen') {
-        currentFreehandPoints.push(currentPt);
-        const pathStr = currentFreehandPoints.reduce((acc, pt, idx) => {
-          return idx === 0 ? `M ${pt.x} ${pt.y}` : `${acc} L ${pt.x} ${pt.y}`;
-        }, '');
-        activeDrawingPath.setAttribute('d', pathStr);
-        activeDrawingPath.setAttribute('stroke', state.currentColor);
-        activeDrawingPath.removeAttribute('stroke-dasharray');
-      } else {
-        const d = `M ${drawingStartPt.x} ${drawingStartPt.y} L ${currentPt.x} ${currentPt.y}`;
-        activeDrawingPath.setAttribute('d', d);
-        activeDrawingPath.setAttribute('stroke', state.currentColor);
-        
-        if (state.currentTool === 'pass') {
-          activeDrawingPath.setAttribute('stroke-dasharray', '8 6');
-        } else if (state.currentTool === 'kick') {
-          const midX = (drawingStartPt.x + currentPt.x) / 2;
-          const midY = (drawingStartPt.y + currentPt.y) / 2 - 40;
-          activeDrawingPath.setAttribute('d', `M ${drawingStartPt.x} ${drawingStartPt.y} Q ${midX} ${midY} ${currentPt.x} ${currentPt.y}`);
-          activeDrawingPath.removeAttribute('stroke-dasharray');
-        } else {
-          activeDrawingPath.removeAttribute('stroke-dasharray');
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const wrapperRect = pitchWrapper.getBoundingClientRect();
+
+      const left = Math.min(clientX, marqueeStartClient.x) - wrapperRect.left;
+      const top = Math.min(clientY, marqueeStartClient.y) - wrapperRect.top;
+      const width = Math.abs(clientX - marqueeStartClient.x);
+      const height = Math.abs(clientY - marqueeStartClient.y);
+
+      selectionBox.style.left = `${left}px`;
+      selectionBox.style.top = `${top}px`;
+      selectionBox.style.width = `${width}px`;
+      selectionBox.style.height = `${height}px`;
+    }
+
+    function handleMarqueeEnd(e) {
+      if (!isMarqueeSelecting) return;
+      isMarqueeSelecting = false;
+      selectionBox.style.display = 'none';
+
+      window.removeEventListener('mousemove', handleMarqueeMove);
+      window.removeEventListener('touchmove', handleMarqueeMove);
+      window.removeEventListener('mouseup', handleMarqueeEnd);
+      window.removeEventListener('touchend', handleMarqueeEnd);
+
+      const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+      const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+
+      const minX = Math.min(clientX, marqueeStartClient.x);
+      const maxX = Math.max(clientX, marqueeStartClient.x);
+      const minY = Math.min(clientY, marqueeStartClient.y);
+      const maxY = Math.max(clientY, marqueeStartClient.y);
+
+      // Only perform area selection if drag box is larger than 6px
+      if (maxX - minX > 6 || maxY - minY > 6) {
+        const currentFrame = state.frames[state.currentFrameIndex];
+        const pitchRect = pitchSvg.getBoundingClientRect();
+
+        currentFrame.actors.forEach(actor => {
+          const coords = pitchToPercent(actor.x, actor.y);
+          const screenX = pitchRect.left + (coords.pX / 100) * pitchRect.width;
+          const screenY = pitchRect.top + (coords.pY / 100) * pitchRect.height;
+
+          if (screenX >= minX && screenX <= maxX && screenY >= minY && screenY <= maxY) {
+            state.selectedActorIds.add(actor.id);
+            state.selectedActorId = actor.id;
+          }
+        });
+
+        renderActors();
+        if (state.selectedActorIds.size > 0) {
+          showToast(`${state.selectedActorIds.size} players selected`);
         }
+      }
+    }
+
+    // Tactical Drawing Engine
+    function handleDrawMove(e) {
+      if (!isDrawing || !drawingStartPt) return;
+      const pt = getPitchCoords(e);
+
+      if (state.currentTool === 'run' || state.currentTool === 'pass' || state.currentTool === 'tackle') {
+        activeDrawingPath.setAttribute('d', `M ${drawingStartPt.x} ${drawingStartPt.y} L ${pt.x} ${pt.y}`);
+        activeDrawingPath.setAttribute('stroke', state.currentColor);
+        activeDrawingPath.setAttribute('stroke-dasharray', state.currentTool === 'pass' ? '8 6' : 'none');
+      } else if (state.currentTool === 'kick') {
+        const midX = (drawingStartPt.x + pt.x) / 2;
+        const midY = Math.min(drawingStartPt.y, pt.y) - 60;
+        activeDrawingPath.setAttribute('d', `M ${drawingStartPt.x} ${drawingStartPt.y} Q ${midX} ${midY} ${pt.x} ${pt.y}`);
+        activeDrawingPath.setAttribute('stroke', state.currentColor);
+        activeDrawingPath.setAttribute('stroke-dasharray', '4 4');
       }
     }
 
     function handleDrawEnd(e) {
       if (!isDrawing) return;
       isDrawing = false;
+      const endPt = getPitchCoords(e);
+
+      const currentFrame = state.frames[state.currentFrameIndex];
+      if (drawingStartPt && (Math.hypot(endPt.x - drawingStartPt.x, endPt.y - drawingStartPt.y) > 15)) {
+        currentFrame.drawings.push({
+          tool: state.currentTool,
+          color: state.currentColor,
+          start: drawingStartPt,
+          end: endPt
+        });
+      }
+
       activeDrawingPath.setAttribute('d', '');
+      drawingStartPt = null;
 
       window.removeEventListener('mousemove', handleDrawMove);
       window.removeEventListener('touchmove', handleDrawMove);
       window.removeEventListener('mouseup', handleDrawEnd);
       window.removeEventListener('touchend', handleDrawEnd);
 
-      const currentFrame = state.frames[state.currentFrameIndex];
-      const endPt = currentFreehandPoints[currentFreehandPoints.length - 1] || drawingStartPt;
-
-      const dist = Math.hypot(endPt.x - drawingStartPt.x, endPt.y - drawingStartPt.y);
-      if (state.currentTool !== 'pen' && dist < 12) return;
-
-      const newDrawing = {
-        id: 'draw_' + Date.now().toString().slice(-5),
-        tool: state.currentTool,
-        color: state.currentColor,
-        points: currentFreehandPoints,
-        startX: drawingStartPt.x,
-        startY: drawingStartPt.y,
-        endX: endPt.x,
-        endY: endPt.y
-      };
-
-      currentFrame.drawings.push(newDrawing);
       renderDrawings();
     }
 
     function renderDrawings() {
       drawingsLayer.innerHTML = '';
       const currentFrame = state.frames[state.currentFrameIndex];
+      if (!currentFrame || !currentFrame.drawings) return;
 
       currentFrame.drawings.forEach(d => {
-        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('stroke', d.color);
+        path.setAttribute('stroke-width', '3');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke-linecap', 'round');
 
-        if (d.tool === 'pen') {
-          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          const pathStr = d.points.reduce((acc, pt, idx) => idx === 0 ? `M ${pt.x} ${pt.y}` : `${acc} L ${pt.x} ${pt.y}`, '');
-          path.setAttribute('d', pathStr);
-          path.setAttribute('stroke', d.color);
-          path.setAttribute('stroke-width', '3');
-          path.setAttribute('fill', 'none');
-          path.setAttribute('stroke-linecap', 'round');
-          path.setAttribute('stroke-linejoin', 'round');
-          g.appendChild(path);
-        } else if (d.tool === 'run') {
-          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          line.setAttribute('x1', d.startX);
-          line.setAttribute('y1', d.startY);
-          line.setAttribute('x2', d.endX);
-          line.setAttribute('y2', d.endY);
-          line.setAttribute('stroke', d.color);
-          line.setAttribute('stroke-width', '3.5');
-          line.setAttribute('marker-end', 'url(#arrow-run)');
-          g.appendChild(line);
+        if (d.tool === 'run') {
+          path.setAttribute('d', `M ${d.start.x} ${d.start.y} L ${d.end.x} ${d.end.y}`);
+          path.setAttribute('marker-end', 'url(#arrow-run)');
         } else if (d.tool === 'pass') {
-          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          line.setAttribute('x1', d.startX);
-          line.setAttribute('y1', d.startY);
-          line.setAttribute('x2', d.endX);
-          line.setAttribute('y2', d.endY);
-          line.setAttribute('stroke', d.color);
-          line.setAttribute('stroke-width', '3');
-          line.setAttribute('stroke-dasharray', '8 6');
-          line.setAttribute('marker-end', 'url(#arrow-pass)');
-          g.appendChild(line);
+          path.setAttribute('d', `M ${d.start.x} ${d.start.y} L ${d.end.x} ${d.end.y}`);
+          path.setAttribute('stroke-dasharray', '8 6');
+          path.setAttribute('marker-end', 'url(#arrow-pass)');
         } else if (d.tool === 'kick') {
-          const midX = (d.startX + d.endX) / 2;
-          const midY = (d.startY + d.endY) / 2 - 45;
-          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          path.setAttribute('d', `M ${d.startX} ${d.startY} Q ${midX} ${midY} ${d.endX} ${d.endY}`);
-          path.setAttribute('stroke', d.color);
-          path.setAttribute('stroke-width', '3');
-          path.setAttribute('fill', 'none');
+          const midX = (d.start.x + d.end.x) / 2;
+          const midY = Math.min(d.start.y, d.end.y) - 60;
+          path.setAttribute('d', `M ${d.start.x} ${d.start.y} Q ${midX} ${midY} ${d.end.x} ${d.end.y}`);
+          path.setAttribute('stroke-dasharray', '4 4');
           path.setAttribute('marker-end', 'url(#arrow-kick)');
-          g.appendChild(path);
         } else if (d.tool === 'tackle') {
-          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          line.setAttribute('x1', d.startX);
-          line.setAttribute('y1', d.startY);
-          line.setAttribute('x2', d.endX);
-          line.setAttribute('y2', d.endY);
-          line.setAttribute('stroke', d.color);
-          line.setAttribute('stroke-width', '3');
-          
-          const angle = Math.atan2(d.endY - d.startY, d.endX - d.startX);
-          const barLen = 14;
-          const bar = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          bar.setAttribute('x1', d.endX + Math.sin(angle) * barLen);
-          bar.setAttribute('y1', d.endY - Math.cos(angle) * barLen);
-          bar.setAttribute('x2', d.endX - Math.sin(angle) * barLen);
-          bar.setAttribute('y2', d.endY + Math.cos(angle) * barLen);
-          bar.setAttribute('stroke', d.color);
-          bar.setAttribute('stroke-width', '4');
-
-          g.appendChild(line);
-          g.appendChild(bar);
+          path.setAttribute('d', `M ${d.start.x} ${d.start.y} L ${d.end.x} ${d.end.y}`);
+          path.setAttribute('stroke', '#ef4444');
+          path.setAttribute('stroke-width', '4');
         }
 
-        drawingsLayer.appendChild(g);
+        drawingsLayer.appendChild(path);
       });
     }
 
-    document.getElementById('btnClearDrawings').onclick = () => {
-      state.frames[state.currentFrameIndex].drawings = [];
-      renderDrawings();
-      showToast("Tactical drawings cleared");
-    };
-
+    // Ghost Motion Trails (Between Steps)
     function renderGhostTrails() {
       ghostTrailsLayer.innerHTML = '';
-      if (!state.showGhostTrails) return;
+      if (!state.showGhostTrails || state.frames.length <= 1) return;
 
-      const prevFrame = state.frames[state.currentFrameIndex - 1];
-      const currFrame = state.frames[state.currentFrameIndex];
-      if (!prevFrame) return;
+      const currentIdx = state.currentFrameIndex;
+      if (currentIdx === 0) return;
 
-      currFrame.actors.forEach(currActor => {
-        const prevActor = prevFrame.actors.find(a => a.id === currActor.id || (a.type === 'player' && a.num === currActor.num && a.team === currActor.team));
-        if (prevActor) {
-          const dist = Math.hypot(currActor.x - prevActor.x, currActor.y - prevActor.y);
-          if (dist > 15) {
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', prevActor.x);
-            line.setAttribute('y1', prevActor.y);
-            line.setAttribute('x2', currActor.x);
-            line.setAttribute('y2', currActor.y);
-            line.setAttribute('stroke', currActor.type === 'ball' ? '#facc15' : (currActor.team === 'A' ? '#ef4444' : '#f59e0b'));
-            line.setAttribute('stroke-width', currActor.type === 'ball' ? '2.5' : '2');
-            line.setAttribute('stroke-dasharray', '5 4');
-            line.setAttribute('stroke-opacity', '0.75');
-            line.setAttribute('marker-end', 'url(#arrow-custom)');
+      const prevFrame = state.frames[currentIdx - 1];
+      const currFrame = state.frames[currentIdx];
 
-            const ghostCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            ghostCircle.setAttribute('cx', prevActor.x);
-            ghostCircle.setAttribute('cy', prevActor.y);
-            ghostCircle.setAttribute('r', currActor.type === 'ball' ? '5' : '9');
-            ghostCircle.setAttribute('fill', 'none');
-            ghostCircle.setAttribute('stroke', currActor.type === 'ball' ? '#facc15' : (currActor.team === 'A' ? '#ef4444' : '#f59e0b'));
-            ghostCircle.setAttribute('stroke-width', '1.5');
-            ghostCircle.setAttribute('stroke-opacity', '0.5');
+      currFrame.actors.forEach(curr => {
+        const prev = prevFrame.actors.find(a => a.id === curr.id);
+        if (!prev) return;
 
-            ghostTrailsLayer.appendChild(line);
-            ghostTrailsLayer.appendChild(ghostCircle);
-          }
+        const dist = Math.hypot(curr.x - prev.x, curr.y - prev.y);
+        if (dist > 15) {
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', `M ${prev.x} ${prev.y} L ${curr.x} ${curr.y}`);
+          path.setAttribute('stroke', curr.team === 'A' ? '#ef4444' : '#f59e0b');
+          path.setAttribute('stroke-width', '2');
+          path.setAttribute('stroke-dasharray', '4 4');
+          path.setAttribute('fill', 'none');
+          ghostTrailsLayer.appendChild(path);
+
+          const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          dot.setAttribute('cx', prev.x);
+          dot.setAttribute('cy', prev.y);
+          dot.setAttribute('r', '4');
+          dot.setAttribute('fill', curr.team === 'A' ? '#ef4444' : '#f59e0b');
+          dot.setAttribute('opacity', '0.5');
+          ghostTrailsLayer.appendChild(dot);
         }
       });
     }
 
-    document.getElementById('toggleGhostTrails').onclick = (e) => {
-      state.showGhostTrails = !state.showGhostTrails;
-      e.currentTarget.classList.toggle('bg-emerald-600', state.showGhostTrails);
-      e.currentTarget.classList.toggle('text-white', state.showGhostTrails);
+    // Camera Views (Full Pitch, Half Pitch, 22m Red Zone - Scaled to fit viewport without clipping)
+    function setPitchView(mode) {
+      state.pitchView = mode;
+      const btnFull = document.getElementById('viewFullPitch');
+      const btnHalf = document.getElementById('viewHalfPitch');
+      const btn22 = document.getElementById('view22Pitch');
+
+      [btnFull, btnHalf, btn22].forEach(b => {
+        b.classList.remove('bg-emerald-600', 'text-white');
+        b.classList.add('text-slate-300');
+      });
+
+      if (mode === 'full') {
+        btnFull.classList.add('bg-emerald-600', 'text-white');
+        pitchSvg.setAttribute('viewBox', '0 0 1000 600');
+        pitchBoard.style.aspectRatio = '100 / 60';
+        pitchBoard.style.width = '100%';
+        pitchBoard.style.height = 'auto';
+        pitchBoard.style.maxWidth = '1100px';
+      } else if (mode === 'half') {
+        btnHalf.classList.add('bg-emerald-600', 'text-white');
+        pitchSvg.setAttribute('viewBox', '480 30 500 540');
+        // Scaled to fit comfortably inside the viewport height
+        pitchBoard.style.aspectRatio = '50 / 54';
+        pitchBoard.style.width = 'auto';
+        pitchBoard.style.height = '100%';
+        pitchBoard.style.maxWidth = '680px';
+      } else if (mode === '22') {
+        btn22.classList.add('bg-emerald-600', 'text-white');
+        pitchSvg.setAttribute('viewBox', '680 30 300 540');
+        // Scaled to fit comfortably inside the viewport height
+        pitchBoard.style.aspectRatio = '30 / 54';
+        pitchBoard.style.width = 'auto';
+        pitchBoard.style.height = '100%';
+        pitchBoard.style.maxWidth = '480px';
+      }
+
+      renderActors();
+      renderDrawings();
       renderGhostTrails();
-      showToast(state.showGhostTrails ? "Motion trails enabled" : "Motion trails disabled");
+    }
+
+    document.getElementById('viewFullPitch').onclick = () => setPitchView('full');
+    document.getElementById('viewHalfPitch').onclick = () => setPitchView('half');
+    document.getElementById('view22Pitch').onclick = () => setPitchView('22');
+
+    // Sidebar Toggle (Floats outside, updates icon)
+    const rosterSidebar = document.getElementById('rosterSidebar');
+    const sidebarCollapseIcon = document.getElementById('sidebarCollapseIcon');
+    let sidebarOpen = true;
+
+    document.getElementById('btnToggleSidebar').onclick = () => {
+      sidebarOpen = !sidebarOpen;
+      if (sidebarOpen) {
+        rosterSidebar.style.marginLeft = '0px';
+        sidebarCollapseIcon.setAttribute('data-lucide', 'chevron-left');
+        document.getElementById('btnToggleSidebar').setAttribute('title', 'Collapse Sidebar');
+      } else {
+        rosterSidebar.style.marginLeft = '-16rem';
+        sidebarCollapseIcon.setAttribute('data-lucide', 'chevron-right');
+        document.getElementById('btnToggleSidebar').setAttribute('title', 'Expand Sidebar');
+      }
+      lucide.createIcons();
     };
 
+    // Sidebar Roster Rendering (13 positions for Red Attack & Gold Defense)
+    function renderRosterList() {
+      const container = document.getElementById('rosterListContainer');
+      container.innerHTML = '';
+      const team = state.activeRosterTeam;
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const activeIds = new Set((currentFrame ? currentFrame.actors : []).map(a => a.id));
+
+      RUGBY_POSITIONS.forEach(pos => {
+        const actorId = `p_${team}_${pos.num}`;
+        const isOnPitch = activeIds.has(actorId);
+
+        const card = document.createElement('div');
+        card.className = `p-2 rounded-lg border text-xs flex items-center justify-between transition cursor-pointer ${
+          isOnPitch 
+            ? 'bg-slate-800/80 border-emerald-500/50 text-slate-200' 
+            : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+        }`;
+
+        const isAttack = team === 'A';
+        const teamColorBadge = isAttack 
+          ? 'bg-red-600 border border-white text-white font-bold' 
+          : 'bg-amber-500 border border-slate-900 text-slate-950 font-black';
+
+        card.innerHTML = `
+          <div class="flex items-center space-x-2">
+            <span class="w-6 h-6 rounded-full ${teamColorBadge} flex items-center justify-center text-xs shadow">
+              ${pos.num}
+            </span>
+            <div class="flex flex-col">
+              <span class="font-bold text-slate-200 leading-tight">${pos.name}</span>
+              <span class="text-[10px] text-slate-500">${pos.role}</span>
+            </div>
+          </div>
+          <button class="px-2 py-1 rounded text-[10px] font-bold transition ${
+            isOnPitch 
+              ? 'bg-red-950/60 text-red-400 hover:bg-red-900 border border-red-800/50' 
+              : 'bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-slate-700'
+          }">
+            ${isOnPitch ? 'Remove' : '+ Add'}
+          </button>
+        `;
+
+        card.onclick = () => {
+          if (isOnPitch) {
+            removePlayerById(actorId);
+          } else {
+            addPlayerToPitch(pos, team);
+          }
+        };
+
+        container.appendChild(card);
+      });
+    }
+
+    function addPlayerToPitch(pos, team) {
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const actorId = `p_${team}_${pos.num}`;
+      
+      const spawnX = team === 'A' ? 380 : 540;
+      const spawnY = 120 + (pos.num * 28);
+
+      currentFrame.actors.push({
+        id: actorId,
+        type: 'player',
+        team: team,
+        num: pos.num,
+        name: pos.name,
+        x: Math.min(850, Math.max(150, spawnX)),
+        y: Math.min(520, Math.max(80, spawnY)),
+        carrier: false
+      });
+
+      renderActors();
+      renderRosterList();
+      renderGhostTrails();
+      renderKeyframeTimeline();
+    }
+
+    // Dual-Team 13v13 Formations: Red (Attack) and Gold (Defense) snap together
+    function deployFormationPreset(type) {
+      const currentFrame = state.frames[state.currentFrameIndex];
+      currentFrame.actors = [];
+
+      if (type === 'backs') {
+        // Attack Red (13 players): 6-man forward pod/ruck + 7-man backline
+        const redPlayers = [
+          { num: 1, name: 'LH Prop', x: 410, y: 285 },
+          { num: 2, name: 'Hooker', x: 410, y: 300 },
+          { num: 3, name: 'TH Prop', x: 410, y: 315 },
+          { num: 4, name: 'Lock 4', x: 388, y: 290 },
+          { num: 5, name: 'Lock 5', x: 388, y: 310 },
+          { num: 8, name: 'No 8', x: 365, y: 300 },
+          { num: 9, name: 'Scrum Half', x: 395, y: 260 },
+          { num: 10, name: 'Fly Half', x: 345, y: 340, carrier: true },
+          { num: 12, name: 'Inside Centre', x: 305, y: 395 },
+          { num: 13, name: 'Outside Centre', x: 265, y: 450 },
+          { num: 11, name: 'Left Wing', x: 400, y: 110 },
+          { num: 14, name: 'Right Wing', x: 220, y: 515 },
+          { num: 15, name: 'Fullback', x: 235, y: 375 }
+        ];
+
+        // Defense Gold (13 players): 6 forwards at ruck + 7 backs in drift line
+        const goldPlayers = [
+          { num: 1, name: 'Def Prop 1', x: 440, y: 285 },
+          { num: 2, name: 'Def Hooker', x: 440, y: 300 },
+          { num: 3, name: 'Def Prop 3', x: 440, y: 315 },
+          { num: 4, name: 'Def Lock 4', x: 460, y: 285 },
+          { num: 5, name: 'Def Lock 5', x: 460, y: 315 },
+          { num: 8, name: 'Def No 8', x: 475, y: 300 },
+          { num: 9, name: 'Def Scrum Half', x: 445, y: 250 },
+          { num: 10, name: 'Def Fly Half', x: 475, y: 340 },
+          { num: 12, name: 'Def Centre 12', x: 480, y: 395 },
+          { num: 13, name: 'Def Centre 13', x: 485, y: 450 },
+          { num: 11, name: 'Def Wing 11', x: 495, y: 515 },
+          { num: 14, name: 'Def Wing 14', x: 485, y: 110 },
+          { num: 15, name: 'Def Fullback', x: 560, y: 380 }
+        ];
+
+        redPlayers.forEach(p => {
+          currentFrame.actors.push({
+            id: `p_A_${p.num}`,
+            type: 'player',
+            team: 'A',
+            num: p.num,
+            name: p.name,
+            x: p.x,
+            y: p.y,
+            carrier: !!p.carrier
+          });
+        });
+
+        goldPlayers.forEach(p => {
+          currentFrame.actors.push({
+            id: `p_B_${p.num}`,
+            type: 'player',
+            team: 'B',
+            num: p.num,
+            name: p.name,
+            x: p.x,
+            y: p.y,
+            carrier: false
+          });
+        });
+
+        currentFrame.actors.push({
+          id: 'ball_main',
+          type: 'ball',
+          x: 354,
+          y: 345
+        });
+
+        showToast("Deployed Backs Formation (13v13: Red Attack & Gold Defense)");
+
+      } else if (type === 'scrum') {
+        // U13 6-Man Scrum (3-2-1): Props 1 & 3, Hooker 2, Locks 4 & 5, No 8 at base
+        const redScrum = [
+          { num: 1, name: 'LH Prop', x: 485, y: 282 },
+          { num: 2, name: 'Hooker', x: 485, y: 300 },
+          { num: 3, name: 'TH Prop', x: 485, y: 318 },
+          { num: 4, name: 'Lock 4', x: 462, y: 288 },
+          { num: 5, name: 'Lock 5', x: 462, y: 312 },
+          { num: 8, name: 'Number Eight', x: 438, y: 300, carrier: true },
+          { num: 9, name: 'Scrum Half', x: 450, y: 260 },
+          { num: 10, name: 'Fly Half', x: 380, y: 350 },
+          { num: 12, name: 'Inside Centre', x: 340, y: 405 },
+          { num: 13, name: 'Outside Centre', x: 300, y: 460 },
+          { num: 11, name: 'Left Wing', x: 420, y: 95 },
+          { num: 14, name: 'Right Wing', x: 255, y: 520 },
+          { num: 15, name: 'Fullback', x: 260, y: 375 }
+        ];
+
+        const goldScrum = [
+          { num: 1, name: 'Def LH Prop', x: 515, y: 282 },
+          { num: 2, name: 'Def Hooker', x: 515, y: 300 },
+          { num: 3, name: 'Def TH Prop', x: 515, y: 318 },
+          { num: 4, name: 'Def Lock 4', x: 538, y: 288 },
+          { num: 5, name: 'Def Lock 5', x: 538, y: 312 },
+          { num: 8, name: 'Def No Eight', x: 562, y: 300 },
+          { num: 9, name: 'Def Scrum Half', x: 495, y: 255 },
+          { num: 10, name: 'Def Fly Half', x: 550, y: 350 },
+          { num: 12, name: 'Def Centre 12', x: 555, y: 405 },
+          { num: 13, name: 'Def Centre 13', x: 560, y: 460 },
+          { num: 11, name: 'Def Wing 11', x: 570, y: 520 },
+          { num: 14, name: 'Def Wing 14', x: 540, y: 95 },
+          { num: 15, name: 'Def Fullback', x: 630, y: 380 }
+        ];
+
+        redScrum.forEach(p => {
+          currentFrame.actors.push({
+            id: `p_A_${p.num}`,
+            type: 'player',
+            team: 'A',
+            num: p.num,
+            name: p.name,
+            x: p.x,
+            y: p.y,
+            carrier: !!p.carrier
+          });
+        });
+
+        goldScrum.forEach(p => {
+          currentFrame.actors.push({
+            id: `p_B_${p.num}`,
+            type: 'player',
+            team: 'B',
+            num: p.num,
+            name: p.name,
+            x: p.x,
+            y: p.y,
+            carrier: false
+          });
+        });
+
+        currentFrame.actors.push({
+          id: 'ball_main',
+          type: 'ball',
+          x: 444,
+          y: 304
+        });
+
+        showToast("Deployed 6-Man Scrum (13v13: Red Attack & Gold Defense)");
+
+      } else if (type === 'penalty') {
+        // Penalty setup:
+        // Defence (Gold) in a straight line 10m back evenly spread across pitch (y 65 to 545), with 15 swept back
+        const goldPenalty = [
+          { num: 11, name: 'Def Wing 11', x: 580, y: 65 },
+          { num: 1, name: 'Def Prop 1', x: 580, y: 110 },
+          { num: 4, name: 'Def Lock 4', x: 580, y: 155 },
+          { num: 2, name: 'Def Hooker', x: 580, y: 200 },
+          { num: 9, name: 'Def Scrum Half', x: 580, y: 245 },
+          { num: 10, name: 'Def Fly Half', x: 580, y: 290 },
+          { num: 8, name: 'Def No 8', x: 580, y: 335 },
+          { num: 5, name: 'Def Lock 5', x: 580, y: 380 },
+          { num: 3, name: 'Def Prop 3', x: 580, y: 425 },
+          { num: 12, name: 'Def Centre 12', x: 580, y: 470 },
+          { num: 13, name: 'Def Centre 13', x: 580, y: 510 },
+          { num: 14, name: 'Def Wing 14', x: 580, y: 545 },
+          { num: 15, name: 'Def Fullback', x: 650, y: 300 }
+        ];
+
+        // Attack (Red): 10m away at mark (x=460) with tap-taker 9 + staggered deep formation
+        const redPenalty = [
+          { num: 9, name: 'Scrum Half', x: 460, y: 290, carrier: true },
+          { num: 10, name: 'Fly Half', x: 410, y: 335 },
+          { num: 11, name: 'Left Wing', x: 420, y: 75 },
+          { num: 1, name: 'LH Prop', x: 430, y: 140 },
+          { num: 4, name: 'Lock 4', x: 415, y: 185 },
+          { num: 2, name: 'Hooker', x: 430, y: 230 },
+          { num: 8, name: 'No 8', x: 395, y: 280 },
+          { num: 5, name: 'Lock 5', x: 415, y: 385 },
+          { num: 3, name: 'TH Prop', x: 430, y: 425 },
+          { num: 12, name: 'Inside Centre', x: 375, y: 440 },
+          { num: 13, name: 'Outside Centre', x: 340, y: 490 },
+          { num: 14, name: 'Right Wing', x: 360, y: 540 },
+          { num: 15, name: 'Fullback', x: 310, y: 360 }
+        ];
+
+        redPenalty.forEach(p => {
+          currentFrame.actors.push({
+            id: `p_A_${p.num}`,
+            type: 'player',
+            team: 'A',
+            num: p.num,
+            name: p.name,
+            x: p.x,
+            y: p.y,
+            carrier: !!p.carrier
+          });
+        });
+
+        goldPenalty.forEach(p => {
+          currentFrame.actors.push({
+            id: `p_B_${p.num}`,
+            type: 'player',
+            team: 'B',
+            num: p.num,
+            name: p.name,
+            x: p.x,
+            y: p.y,
+            carrier: false
+          });
+        });
+
+        currentFrame.actors.push({
+          id: 'ball_main',
+          type: 'ball',
+          x: 466,
+          y: 294
+        });
+
+        showToast("Deployed Penalty Formation (13v13: 10m Offside Defense & Deep Attack)");
+      }
+
+      state.selectedActorIds.clear();
+      state.selectedActorId = null;
+      renderActors();
+      renderRosterList();
+      renderGhostTrails();
+      renderKeyframeTimeline();
+    }
+
+    document.getElementById('btnDeployBackline').onclick = () => deployFormationPreset('backs');
+    document.getElementById('btnDeployScrum').onclick = () => deployFormationPreset('scrum');
+    document.getElementById('btnDeployPenalty').onclick = () => deployFormationPreset('penalty');
+
+    // Add Ball and Cone
+    document.getElementById('btnAddBall').onclick = () => {
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const existing = currentFrame.actors.find(a => a.type === 'ball');
+      if (existing) {
+        existing.x = 500;
+        existing.y = 300;
+      } else {
+        currentFrame.actors.push({
+          id: 'ball_main',
+          type: 'ball',
+          x: 500,
+          y: 300
+        });
+      }
+      renderActors();
+      showToast("Rugby ball placed at centre pitch");
+    };
+
+    document.getElementById('btnAddCone').onclick = () => {
+      const currentFrame = state.frames[state.currentFrameIndex];
+      currentFrame.actors.push({
+        id: `cone_${Date.now()}`,
+        type: 'cone',
+        x: 480 + (Math.random() * 40),
+        y: 280 + (Math.random() * 40)
+      });
+      renderActors();
+    };
+
+    // Sidebar Team Tabs
+    document.getElementById('tabTeamA').onclick = () => {
+      state.activeRosterTeam = 'A';
+      document.getElementById('tabTeamA').className = 'flex-1 py-1.5 px-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 bg-red-600 text-white shadow-md border border-red-500/40 transition';
+      document.getElementById('tabTeamB').className = 'flex-1 py-1.5 px-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 text-slate-400 hover:text-amber-400 hover:bg-slate-800/80 transition';
+      renderRosterList();
+    };
+
+    document.getElementById('tabTeamB').onclick = () => {
+      state.activeRosterTeam = 'B';
+      document.getElementById('tabTeamB').className = 'flex-1 py-1.5 px-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 font-black shadow-md border border-amber-400/40 transition';
+      document.getElementById('tabTeamA').className = 'flex-1 py-1.5 px-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800/80 transition';
+      renderRosterList();
+    };
+
+    // Inspector Panel Controls
+    document.getElementById('btnCloseInspector').onclick = () => {
+      inspectorPanel.classList.add('hidden');
+      state.selectedActorId = null;
+      renderActors();
+    };
+
+    inspectorLabel.oninput = (e) => {
+      if (!state.selectedActorId) return;
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const actor = currentFrame.actors.find(a => a.id === state.selectedActorId);
+      if (actor) {
+        actor.num = e.target.value;
+        renderActors();
+      }
+    };
+
+    inspectorName.oninput = (e) => {
+      if (!state.selectedActorId) return;
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const actor = currentFrame.actors.find(a => a.id === state.selectedActorId);
+      if (actor) {
+        actor.name = e.target.value;
+        renderActors();
+      }
+    };
+
+    btnAttachBall.onclick = () => {
+      if (!state.selectedActorId) return;
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const actor = currentFrame.actors.find(a => a.id === state.selectedActorId);
+      if (!actor || actor.type !== 'player') return;
+
+      actor.carrier = !actor.carrier;
+
+      let ball = currentFrame.actors.find(a => a.type === 'ball');
+      if (actor.carrier) {
+        if (!ball) {
+          ball = { id: 'ball_main', type: 'ball', x: actor.x + 9, y: actor.y + 9 };
+          currentFrame.actors.push(ball);
+        } else {
+          ball.x = actor.x + 9;
+          ball.y = actor.y + 9;
+        }
+      }
+
+      selectActor(actor.id);
+      renderActors();
+    };
+
+    document.getElementById('btnDeleteSelectedActor').onclick = () => {
+      if (state.selectedActorIds.size > 0) {
+        const ids = Array.from(state.selectedActorIds);
+        ids.forEach(id => removePlayerById(id));
+      } else if (state.selectedActorId) {
+        removePlayerById(state.selectedActorId);
+      }
+    };
+
+    // Keyframe Animation & Timeline System
     function renderKeyframeTimeline() {
       keyframeTimelineTrack.innerHTML = '';
 
       state.frames.forEach((frame, idx) => {
-        const isActive = idx === state.currentFrameIndex;
+        const isCurrent = idx === state.currentFrameIndex;
         const card = document.createElement('div');
-        card.className = `flex-shrink-0 w-28 sm:w-32 h-16 sm:h-20 rounded-xl p-1.5 flex flex-col justify-between border cursor-pointer transition select-none ${
-          isActive 
-            ? 'bg-slate-800 border-red-500 shadow-md ring-2 ring-red-500/40 text-white' 
-            : 'bg-slate-900 border-slate-700/80 hover:border-slate-600 text-slate-400 hover:text-slate-200'
+        card.className = `relative flex-shrink-0 w-28 h-20 rounded-xl p-2 cursor-pointer border-2 transition-all flex flex-col justify-between ${
+          isCurrent 
+            ? 'bg-slate-800 border-red-500 shadow-lg shadow-red-950/60 active-frame-card' 
+            : 'bg-slate-900 border-slate-700/80 hover:border-slate-500 text-slate-400'
         }`;
 
         card.innerHTML = `
           <div class="flex items-center justify-between">
-            <span class="text-[10px] font-mono font-bold uppercase tracking-wider ${isActive ? 'text-red-400' : 'text-slate-500'}">
+            <span class="text-[10px] font-black uppercase tracking-wider ${isCurrent ? 'text-red-400' : 'text-slate-400'}">
               Phase ${idx + 1}
             </span>
             ${state.frames.length > 1 ? `
-              <button class="delete-frame-btn text-slate-500 hover:text-red-400 p-0.5 rounded transition" data-index="${idx}" title="Delete phase">
-                <i data-lucide="x" class="w-3 h-3"></i>
-              </button>
+              <button class="delete-frame-btn text-slate-500 hover:text-red-400 text-xs px-1 font-bold" title="Delete Phase">✕</button>
             ` : ''}
           </div>
-
-          <div class="w-full flex-1 my-1 bg-turf-field/60 rounded border border-emerald-900/60 relative overflow-hidden flex items-center justify-center">
-            <div class="absolute inset-y-0 left-1/2 w-px bg-white/20"></div>
-            <span class="text-[9px] font-semibold text-emerald-200/90 tracking-tight">
-              ${frame.actors.length} actors
-            </span>
+          <div class="text-[10px] text-slate-400 truncate font-medium">
+            ${frame.name || `Step ${idx + 1}`}
           </div>
-
-          <div class="flex items-center justify-between text-[9px] text-slate-400">
-            <span class="truncate max-w-[75px]">${frame.name || `Phase ${idx + 1}`}</span>
-            <span>${(idx * 1.5).toFixed(1)}s</span>
+          <div class="text-[9px] text-slate-500 flex items-center justify-between">
+            <span>${frame.actors.filter(a => a.type === 'player').length} players</span>
+            <span>${frame.drawings ? frame.drawings.length : 0} lines</span>
           </div>
         `;
 
         card.onclick = (e) => {
-          if (e.target.closest('.delete-frame-btn')) return;
-          jumpToFrame(idx);
-        };
-
-        const delBtn = card.querySelector('.delete-frame-btn');
-        if (delBtn) {
-          delBtn.onclick = (e) => {
+          if (e.target.closest('.delete-frame-btn')) {
             e.stopPropagation();
             deleteFrame(idx);
-          };
-        }
+            return;
+          }
+          jumpToFrame(idx);
+        };
 
         keyframeTimelineTrack.appendChild(card);
       });
 
       frameStatusText.innerText = `Phase ${state.currentFrameIndex + 1} of ${state.frames.length}`;
-      lucide.createIcons();
     }
 
     function jumpToFrame(index) {
-      if (state.isPlaying) pauseAnimation();
+      if (index < 0 || index >= state.frames.length) return;
+      pauseAnimation();
       state.currentFrameIndex = index;
-      state.selectedActorId = null;
       renderActors();
       renderDrawings();
       renderGhostTrails();
-      renderRosterList();
       renderKeyframeTimeline();
+      renderRosterList();
     }
 
-    function addKeyframe(duplicate = false) {
-      const currentFrame = state.frames[state.currentFrameIndex];
-      const clonedActors = JSON.parse(JSON.stringify(currentFrame.actors));
-      
+    function addFrame() {
+      pauseAnimation();
+      const current = state.frames[state.currentFrameIndex];
+      const clonedActors = JSON.parse(JSON.stringify(current.actors));
+
       const newFrame = {
         id: Date.now(),
         name: `Phase ${state.frames.length + 1}`,
         actors: clonedActors,
-        drawings: duplicate ? JSON.parse(JSON.stringify(currentFrame.drawings)) : []
+        drawings: []
       };
 
       state.frames.splice(state.currentFrameIndex + 1, 0, newFrame);
       state.currentFrameIndex++;
-      renderKeyframeTimeline();
       jumpToFrame(state.currentFrameIndex);
-      showToast(duplicate ? "Step duplicated" : "New step added");
+      showToast(`Added Phase ${state.currentFrameIndex + 1}`);
     }
 
-    function deleteFrame(index) {
+    function duplicateFrame() {
+      pauseAnimation();
+      const current = state.frames[state.currentFrameIndex];
+      const cloned = JSON.parse(JSON.stringify(current));
+      cloned.id = Date.now();
+      cloned.name = `${current.name} (Copy)`;
+
+      state.frames.splice(state.currentFrameIndex + 1, 0, cloned);
+      state.currentFrameIndex++;
+      jumpToFrame(state.currentFrameIndex);
+      showToast(`Duplicated Phase`);
+    }
+
+    function deleteFrame(idx) {
       if (state.frames.length <= 1) return;
-      state.frames.splice(index, 1);
-      if (state.currentFrameIndex >= state.frames.length) {
-        state.currentFrameIndex = state.frames.length - 1;
-      }
+      pauseAnimation();
+      state.frames.splice(idx, 1);
+      state.currentFrameIndex = Math.min(state.currentFrameIndex, state.frames.length - 1);
       jumpToFrame(state.currentFrameIndex);
-      showToast("Phase removed");
     }
 
-    document.getElementById('btnAddFrame').onclick = () => addKeyframe(false);
-    document.getElementById('btnDuplicateFrame').onclick = () => addKeyframe(true);
-    document.getElementById('btnPrevFrame').onclick = () => {
-      if (state.currentFrameIndex > 0) jumpToFrame(state.currentFrameIndex - 1);
-    };
-    document.getElementById('btnNextFrame').onclick = () => {
-      if (state.currentFrameIndex < state.frames.length - 1) jumpToFrame(state.currentFrameIndex + 1);
-    };
+    document.getElementById('btnAddFrame').onclick = addFrame;
+    document.getElementById('btnDuplicateFrame').onclick = duplicateFrame;
+    document.getElementById('btnPrevFrame').onclick = () => jumpToFrame(state.currentFrameIndex - 1);
+    document.getElementById('btnNextFrame').onclick = () => jumpToFrame(state.currentFrameIndex + 1);
 
-    function startAnimation() {
-      if (state.frames.length < 2) {
-        showToast("Add at least 2 steps to animate");
-        return;
-      }
-      state.isPlaying = true;
-      playIcon.setAttribute('data-lucide', 'pause');
-      lucide.createIcons();
-      state.lastTimestamp = performance.now();
-      requestAnimationFrame(animationLoop);
-    }
-
-    function pauseAnimation() {
-      state.isPlaying = false;
-      playIcon.setAttribute('data-lucide', 'play');
-      lucide.createIcons();
-      if (state.animFrameReq) cancelAnimationFrame(state.animFrameReq);
-      renderActors();
-    }
-
+    // Smooth Keyframe Animation Player
     function togglePlay() {
       if (state.isPlaying) {
         pauseAnimation();
       } else {
-        if (state.currentFrameIndex >= state.frames.length - 1) {
-          state.currentFrameIndex = 0;
-          state.animationProgress = 0;
-        }
         startAnimation();
       }
     }
 
-    btnPlayPause.onclick = togglePlay;
+    function startAnimation() {
+      if (state.frames.length <= 1) {
+        showToast("Add at least 2 phases to animate!");
+        return;
+      }
+      state.isPlaying = true;
+      playIcon.setAttribute('data-lucide', 'pause');
+      btnPlayPause.classList.replace('bg-red-600', 'bg-amber-500');
+      lucide.createIcons();
 
-    function easeInOutQuad(t) {
-      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      state.lastTimestamp = performance.now();
+      state.animFrameReq = requestAnimationFrame(animationLoop);
     }
-    function easeInQuad(t) {
-      return t * t;
+
+    function pauseAnimation() {
+      state.isPlaying = false;
+      if (state.animFrameReq) {
+        cancelAnimationFrame(state.animFrameReq);
+        state.animFrameReq = null;
+      }
+      playIcon.setAttribute('data-lucide', 'play');
+      btnPlayPause.classList.replace('bg-amber-500', 'bg-red-600');
+      lucide.createIcons();
+      renderActors();
     }
+
+    btnPlayPause.onclick = togglePlay;
 
     function animationLoop(timestamp) {
       if (!state.isPlaying) return;
@@ -1651,964 +1691,345 @@
           } else {
             state.currentFrameIndex = state.frames.length - 1;
             pauseAnimation();
-            renderKeyframeTimeline();
             return;
           }
         }
         renderKeyframeTimeline();
       }
 
+      // Interpolate positions between current and next phase
       const frameA = state.frames[state.currentFrameIndex];
-      const nextIndex = (state.currentFrameIndex + 1) % state.frames.length;
-      const frameB = state.frames[nextIndex];
+      const nextIdx = (state.currentFrameIndex + 1) % state.frames.length;
+      const frameB = state.frames[nextIdx];
 
-      const easeType = document.getElementById('transitionStyle').value;
-      let easedT = state.animationProgress;
-      if (easeType === 'easeInOut') easedT = easeInOutQuad(state.animationProgress);
-      else if (easeType === 'easeIn') easedT = easeInQuad(state.animationProgress);
-
-      const interpolatedActors = frameA.actors.map(actorA => {
-        const actorB = frameB.actors.find(b => b.id === actorA.id || (b.type === 'player' && b.num === actorA.num && b.team === actorA.team));
-        if (!actorB) return actorA;
-
-        return {
-          ...actorA,
-          x: actorA.x + (actorB.x - actorA.x) * easedT,
-          y: actorA.y + (actorB.y - actorA.y) * easedT
-        };
-      });
+      const t = easeInOutQuad(state.animationProgress);
+      const interpolatedActors = interpolateFrameActors(frameA.actors, frameB.actors, t);
 
       renderActors(interpolatedActors);
       state.animFrameReq = requestAnimationFrame(animationLoop);
+    }
+
+    function easeInOutQuad(t) {
+      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    }
+
+    function interpolateFrameActors(actorsA, actorsB, t) {
+      const mapB = new Map(actorsB.map(a => [a.id, a]));
+      return actorsA.map(a => {
+        const target = mapB.get(a.id);
+        if (!target) return a;
+        return {
+          ...a,
+          x: a.x + (target.x - a.x) * t,
+          y: a.y + (target.y - a.y) * t
+        };
+      });
     }
 
     document.getElementById('playbackSpeed').onchange = (e) => {
       state.playbackSpeed = parseFloat(e.target.value);
     };
 
-    document.getElementById('btnToggleLoop').onclick = (e) => {
+    document.getElementById('btnToggleLoop').onclick = () => {
       state.loop = !state.loop;
-      e.currentTarget.classList.toggle('bg-emerald-900/40', state.loop);
-      e.currentTarget.classList.toggle('text-emerald-300', state.loop);
-      e.currentTarget.classList.toggle('text-slate-500', !state.loop);
+      document.getElementById('btnToggleLoop').classList.toggle('text-emerald-300', state.loop);
+      document.getElementById('btnToggleLoop').classList.toggle('text-slate-500', !state.loop);
       showToast(state.loop ? "Looping enabled" : "Looping disabled");
     };
 
-    function setPitchView(mode) {
-      state.pitchView = mode;
-      const btnFull = document.getElementById('viewFullPitch');
-      const btnHalf = document.getElementById('viewHalfPitch');
-      const btn22 = document.getElementById('view22Pitch');
-
-      [btnFull, btnHalf, btn22].forEach(b => {
-        b.classList.remove('bg-emerald-600', 'text-white');
-        b.classList.add('text-slate-300');
-      });
-
-      if (mode === 'full') {
-        btnFull.classList.add('bg-emerald-600', 'text-white');
-        pitchSvg.setAttribute('viewBox', '0 0 1000 600');
-        pitchBoard.style.aspectRatio = '100 / 60';
-      } else if (mode === 'half') {
-        btnHalf.classList.add('bg-emerald-600', 'text-white');
-        pitchSvg.setAttribute('viewBox', '480 30 500 540');
-        pitchBoard.style.aspectRatio = '50 / 54';
-      } else if (mode === '22') {
-        btn22.classList.add('bg-emerald-600', 'text-white');
-        pitchSvg.setAttribute('viewBox', '680 30 300 540');
-        pitchBoard.style.aspectRatio = '30 / 54';
-      }
-
-      renderActors();
-      renderDrawings();
-      renderGhostTrails();
-    }
-
-    document.getElementById('viewFullPitch').onclick = () => setPitchView('full');
-    document.getElementById('viewHalfPitch').onclick = () => setPitchView('half');
-    document.getElementById('view22Pitch').onclick = () => setPitchView('22');
-
-    document.getElementById('tabTeamA').onclick = (e) => {
-      state.activeRosterTeam = 'A';
-      e.currentTarget.className = 'py-1.5 px-2 text-xs font-semibold rounded bg-red-600 text-white flex items-center justify-center gap-1.5 transition shadow-sm';
-      document.getElementById('tabTeamB').className = 'py-1.5 px-2 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center gap-1.5 transition';
-      renderRosterList();
-    };
-
-    document.getElementById('tabTeamB').onclick = (e) => {
-      state.activeRosterTeam = 'B';
-      e.currentTarget.className = 'py-1.5 px-2 text-xs font-semibold rounded bg-amber-500 text-slate-950 font-bold flex items-center justify-center gap-1.5 transition';
-      document.getElementById('tabTeamA').className = 'py-1.5 px-2 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center gap-1.5 transition';
-      renderRosterList();
-    };
-
-    const rosterSidebar = document.getElementById('rosterSidebar');
-    const sidebarCollapseIcon = document.getElementById('sidebarCollapseIcon');
-    let sidebarOpen = true;
-    document.getElementById('btnToggleSidebar').onclick = () => {
-      sidebarOpen = !sidebarOpen;
-      if (sidebarOpen) {
-        rosterSidebar.style.marginLeft = '0px';
-        sidebarCollapseIcon.setAttribute('data-lucide', 'chevron-left');
-      } else {
-        rosterSidebar.style.marginLeft = '-16rem';
-        sidebarCollapseIcon.setAttribute('data-lucide', 'chevron-right');
-      }
-      lucide.createIcons();
-    };
-
-    const toolButtons = {
-      select: document.getElementById('toolSelect'),
-      run: document.getElementById('toolRun'),
-      pass: document.getElementById('toolPass'),
-      kick: document.getElementById('toolKick'),
-      tackle: document.getElementById('toolTackle'),
-      pen: document.getElementById('toolPen')
-    };
-
+    // Annotation Tools & Swatches
     function setActiveTool(tool) {
       state.currentTool = tool;
-      Object.keys(toolButtons).forEach(key => {
-        const btn = toolButtons[key];
-        if (key === tool) {
-          btn.className = 'tool-btn active-tool p-2 rounded-lg text-xs font-medium bg-emerald-600 text-white shadow transition';
+      const toolButtons = [
+        { id: 'toolSelect', name: 'select' },
+        { id: 'toolRun', name: 'run' },
+        { id: 'toolPass', name: 'pass' },
+        { id: 'toolKick', name: 'kick' },
+        { id: 'toolTackle', name: 'tackle' }
+      ];
+
+      toolButtons.forEach(b => {
+        const el = document.getElementById(b.id);
+        if (b.name === tool) {
+          el.className = 'p-1.5 rounded-lg bg-red-600 text-white font-semibold flex items-center gap-1 text-xs transition';
         } else {
-          btn.className = 'tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition';
+          el.className = 'p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition';
         }
       });
-      pitchBoard.style.cursor = tool === 'select' ? 'default' : 'crosshair';
     }
 
-    Object.keys(toolButtons).forEach(tool => {
-      toolButtons[tool].onclick = () => setActiveTool(tool);
-    });
+    document.getElementById('toolSelect').onclick = () => setActiveTool('select');
+    document.getElementById('toolRun').onclick = () => setActiveTool('run');
+    document.getElementById('toolPass').onclick = () => setActiveTool('pass');
+    document.getElementById('toolKick').onclick = () => setActiveTool('kick');
+    document.getElementById('toolTackle').onclick = () => setActiveTool('tackle');
 
-    document.querySelectorAll('.color-btn').forEach(btn => {
+    document.querySelectorAll('.color-swatch').forEach(btn => {
       btn.onclick = () => {
-        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('ring-2', 'ring-white', 'scale-110'));
-        btn.classList.add('ring-2', 'ring-white', 'scale-110');
+        document.querySelectorAll('.color-swatch').forEach(s => s.classList.replace('ring-2', 'ring-1'));
+        btn.classList.replace('ring-1', 'ring-2');
         state.currentColor = btn.dataset.color;
       };
     });
 
-    function deployFormationPreset(type) {
-      const currentFrame = state.frames[state.currentFrameIndex];
-      const team = state.activeRosterTeam;
-      const xMod = team === 'A' ? 1 : -1;
-      const baseX = team === 'A' ? 380 : 620;
-
-      if (type === 'backline') {
-        currentFrame.actors = currentFrame.actors.filter(a => !(a.team === team && [9,10,11,12,13,14,15].includes(a.num)));
-        const backline = [
-          { num: 9, name: 'Scrum Half', x: baseX, y: 300 },
-          { num: 10, name: 'Fly Half', x: baseX - (35 * xMod), y: 340, carrier: team === 'A' },
-          { num: 12, name: 'Inside Centre', x: baseX - (70 * xMod), y: 390 },
-          { num: 13, name: 'Outside Centre', x: baseX - (105 * xMod), y: 440 },
-          { num: 11, name: 'Left Wing', x: baseX, y: 110 },
-          { num: 14, name: 'Right Wing', x: baseX - (130 * xMod), y: 500 },
-          { num: 15, name: 'Fullback', x: baseX - (145 * xMod), y: 380 }
-        ];
-        backline.forEach(b => {
-          currentFrame.actors.push({
-            id: 'p_' + team + '_' + b.num + '_' + Date.now().toString().slice(-4),
-            type: 'player',
-            team: team,
-            num: b.num,
-            name: b.name,
-            x: b.x,
-            y: b.y,
-            carrier: !!b.carrier
-          });
-        });
-        showToast(`Deployed ${team === 'A' ? 'Attack (Red)' : 'Defense (Gold)'} U13 Backline (7)`);
-      } else if (type === 'scrum') {
-        // U13 6-player scrum: 3-2-1 formation (1, 2, 3 front row; 4, 5 second row; 8 at base)
-        currentFrame.actors = currentFrame.actors.filter(a => !(a.team === team && [1,2,3,4,5,8].includes(a.num)));
-        const forwards = [
-          { num: 1, name: 'Loosehead Prop', x: baseX, y: 285 },
-          { num: 2, name: 'Hooker', x: baseX, y: 300 },
-          { num: 3, name: 'Tighthead Prop', x: baseX, y: 315 },
-          { num: 4, name: 'Lock 4', x: baseX - (22 * xMod), y: 292 },
-          { num: 5, name: 'Lock 5', x: baseX - (22 * xMod), y: 308 },
-          { num: 8, name: 'Number Eight', x: baseX - (44 * xMod), y: 300 }
-        ];
-        forwards.forEach(f => {
-          currentFrame.actors.push({
-            id: 'p_' + team + '_' + f.num + '_' + Date.now().toString().slice(-4),
-            type: 'player',
-            team: team,
-            num: f.num,
-            name: f.name,
-            x: f.x,
-            y: f.y
-          });
-        });
-        showToast(`Deployed ${team === 'A' ? 'Attack (Red)' : 'Defense (Gold)'} U13 Scrum Pack (3-2-1)`);
-      } else if (type === 'lineout') {
-        // U13 6-player lineout: Hooker 2 throwing + 1, 3, 4, 5, 8
-        currentFrame.actors = currentFrame.actors.filter(a => !(a.team === team && [1,2,3,4,5,8].includes(a.num)));
-        const lineout = [
-          { num: 2, name: 'Hooker', x: baseX, y: 55 },
-          { num: 1, name: 'Prop 1', x: baseX, y: 100 },
-          { num: 4, name: 'Lock 4', x: baseX, y: 130 },
-          { num: 3, name: 'Prop 3', x: baseX, y: 155 },
-          { num: 5, name: 'Lock 5', x: baseX, y: 185 },
-          { num: 8, name: 'Number Eight', x: baseX, y: 215 }
-        ];
-        lineout.forEach(l => {
-          currentFrame.actors.push({
-            id: 'p_' + team + '_' + l.num + '_' + Date.now().toString().slice(-4),
-            type: 'player',
-            team: team,
-            num: l.num,
-            name: l.name,
-            x: l.x,
-            y: l.y
-          });
-        });
-        showToast(`Deployed ${team === 'A' ? 'Attack (Red)' : 'Defense (Gold)'} 6-Man Lineout`);
-      }
-
-      renderActors();
-      renderRosterList();
-      renderGhostTrails();
-    }
-
-    document.getElementById('btnDeployBackline').onclick = () => deployFormationPreset('backline');
-    document.getElementById('btnDeployScrum').onclick = () => deployFormationPreset('scrum');
-    document.getElementById('btnDeployLineout').onclick = () => deployFormationPreset('lineout');
-
-    const PLAYBOOK_PRESETS = {
-      preset_strike: {
-        title: "Backline Strike & Loop (13v13 U13)",
-        frames: [
-          {
-            name: "Phase 1 - Midfield Ruck Platform & Launch",
-            actors: [
-              // Attack Red (13 players)
-              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 385, y: 285 },
-              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 395, y: 298 },
-              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 385, y: 312 },
-              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 365, y: 288 },
-              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 365, y: 310 },
-              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 350, y: 298 },
-              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 375, y: 260 },
-              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 330, y: 335, carrier: true },
-              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 295, y: 390 },
-              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 255, y: 440 },
-              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 390, y: 115 },
-              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 215, y: 505 },
-              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 220, y: 370 },
-              { id: 'ball_1', type: 'ball', x: 338, y: 340 },
-              // Defense Gold (13 players)
-              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 420, y: 285 },
-              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 415, y: 298 },
-              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 420, y: 312 },
-              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 440, y: 280 },
-              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 440, y: 315 },
-              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 450, y: 298 },
-              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 435, y: 255 },
-              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 460, y: 340 },
-              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 465, y: 390 },
-              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 470, y: 440 },
-              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 485, y: 505 },
-              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 480, y: 120 },
-              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 550, y: 380 }
-            ],
-            drawings: [
-              { tool: 'pass', color: '#38bdf8', startX: 375, startY: 260, endX: 330, endY: 335 }
-            ]
-          },
-          {
-            name: "Phase 2 - 10 Passes to 12 & Loops Around",
-            actors: [
-              // Attack Red
-              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 405, y: 290 },
-              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 410, y: 305 },
-              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 405, y: 320 },
-              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 390, y: 295 },
-              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 390, y: 318 },
-              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 380, y: 308 },
-              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 400, y: 280 },
-              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 390, y: 405, carrier: false },
-              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 400, y: 385, carrier: true },
-              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 345, y: 450 },
-              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 415, y: 135 },
-              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 310, y: 510 },
-              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 300, y: 420 },
-              { id: 'ball_1', type: 'ball', x: 408, y: 389 },
-              // Defense Gold
-              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 290 },
-              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 425, y: 305 },
-              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 430, y: 320 },
-              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 445, y: 295 },
-              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 450, y: 320 },
-              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 460, y: 310 },
-              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 440, y: 275 },
-              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 435, y: 355 },
-              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 420, y: 385 },
-              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 435, y: 440 },
-              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 450, y: 505 },
-              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 470, y: 130 },
-              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 520, y: 410 }
-            ],
-            drawings: [
-              { tool: 'pass', color: '#38bdf8', startX: 400, startY: 385, endX: 390, endY: 405 }
-            ]
-          },
-          {
-            name: "Phase 3 - 10 Wraps & Releases Overlap Out Wide",
-            actors: [
-              // Attack Red
-              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 430, y: 300 },
-              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 435, y: 315 },
-              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 430, y: 330 },
-              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 420, y: 310 },
-              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 425, y: 335 },
-              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 430, y: 350 },
-              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 430, y: 300 },
-              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 475, y: 430, carrier: true },
-              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 435, y: 385, carrier: false },
-              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 500, y: 470 },
-              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 440, y: 160 },
-              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 490, y: 520 },
-              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 440, y: 460 },
-              { id: 'ball_1', type: 'ball', x: 483, y: 435 },
-              // Defense Gold
-              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 445, y: 300 },
-              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 440, y: 315 },
-              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 445, y: 330 },
-              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 455, y: 310 },
-              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 460, y: 330 },
-              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 465, y: 345 },
-              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 450, y: 295 },
-              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 445, y: 365 },
-              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 440, y: 390 },
-              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 460, y: 445 },
-              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 480, y: 495 },
-              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 465, y: 150 },
-              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 505, y: 435 }
-            ],
-            drawings: [
-              { tool: 'run', color: '#facc15', startX: 475, startY: 430, endX: 590, endY: 485 }
-            ]
-          }
-        ]
-      },
-
-      preset_lineout: {
-        title: "6-Man Lineout to Backs Strike (13v13 U13)",
-        frames: [
-          {
-            name: "Phase 1 - 6-Man Lineout Set on 5m",
-            actors: [
-              // Attack Red
-              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 410, y: 55, carrier: true },
-              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 410, y: 95 },
-              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 410, y: 125 },
-              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 410, y: 155 },
-              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 410, y: 185 },
-              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 410, y: 215 },
-              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 375, y: 155 },
-              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 310, y: 260 },
-              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 275, y: 320 },
-              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 240, y: 380 },
-              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 380, y: 90 },
-              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 205, y: 460 },
-              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 200, y: 310 },
-              { id: 'ball_1', type: 'ball', x: 416, y: 55 },
-              // Defense Gold
-              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 440, y: 70 },
-              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 95 },
-              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 430, y: 125 },
-              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 430, y: 155 },
-              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 430, y: 185 },
-              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 430, y: 215 },
-              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 460, y: 155 },
-              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 500, y: 260 },
-              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 500, y: 320 },
-              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 500, y: 380 },
-              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 505, y: 460 },
-              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 475, y: 90 },
-              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 575, y: 320 }
-            ],
-            drawings: [
-              { tool: 'pass', color: '#38bdf8', startX: 410, startY: 55, endX: 410, endY: 125 }
-            ]
-          },
-          {
-            name: "Phase 2 - Jumper Won at 4 & Dish to 9",
-            actors: [
-              // Attack Red
-              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 420, y: 70 },
-              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 410, y: 110 },
-              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 410, y: 125, carrier: true },
-              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 410, y: 140 },
-              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 415, y: 180 },
-              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 415, y: 210 },
-              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 400, y: 135 },
-              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 350, y: 260 },
-              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 310, y: 325 },
-              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 275, y: 390 },
-              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 395, y: 90 },
-              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 240, y: 470 },
-              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 235, y: 330 },
-              { id: 'ball_1', type: 'ball', x: 415, y: 128 },
-              // Defense Gold
-              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 445, y: 75 },
-              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 425, y: 110 },
-              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 425, y: 125 },
-              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 425, y: 140 },
-              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 425, y: 180 },
-              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 425, y: 210 },
-              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 450, y: 145 },
-              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 480, y: 260 },
-              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 480, y: 320 },
-              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 480, y: 380 },
-              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 490, y: 460 },
-              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 465, y: 90 },
-              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 555, y: 320 }
-            ],
-            drawings: [
-              { tool: 'pass', color: '#38bdf8', startX: 410, startY: 125, endX: 400, endY: 135 }
-            ]
-          },
-          {
-            name: "Phase 3 - 9 Fires Rapid Ball to 10 on the Charge",
-            actors: [
-              // Attack Red
-              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 435, y: 85 },
-              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 420, y: 115 },
-              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 420, y: 130 },
-              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 420, y: 145 },
-              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 425, y: 180 },
-              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 430, y: 205 },
-              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 415, y: 150 },
-              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 430, y: 265, carrier: true },
-              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 400, y: 330 },
-              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 370, y: 400 },
-              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 410, y: 90 },
-              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 340, y: 480 },
-              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 335, y: 350 },
-              { id: 'ball_1', type: 'ball', x: 437, y: 270 },
-              // Defense Gold
-              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 450, y: 85 },
-              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 115 },
-              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 430, y: 130 },
-              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 430, y: 145 },
-              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 435, y: 180 },
-              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 440, y: 205 },
-              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 440, y: 160 },
-              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 460, y: 265 },
-              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 455, y: 325 },
-              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 455, y: 385 },
-              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 470, y: 465 },
-              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 455, y: 95 },
-              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 535, y: 325 }
-            ],
-            drawings: [
-              { tool: 'pass', color: '#38bdf8', startX: 415, startY: 150, endX: 430, endY: 265 }
-            ]
-          }
-        ]
-      },
-
-      preset_scrum: {
-        title: "3-2-1 Scrum Strike: Blindside 8-9 (13v13 U13)",
-        frames: [
-          {
-            name: "Phase 1 - 3-2-1 Packs Engaged on 15m Mark",
-            actors: [
-              // Attack Red
-              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 410, y: 185 },
-              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 410, y: 200 },
-              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 410, y: 215 },
-              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 388, y: 192 },
-              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 388, y: 208 },
-              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 366, y: 200, carrier: true },
-              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 375, y: 165 },
-              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Blind Wing', x: 340, y: 95 },
-              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 330, y: 295 },
-              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 295, y: 350 },
-              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 260, y: 410 },
-              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Open Wing', x: 220, y: 480 },
-              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 240, y: 310 },
-              { id: 'ball_1', type: 'ball', x: 372, y: 204 },
-              // Defense Gold
-              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 185 },
-              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 430, y: 200 },
-              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 430, y: 215 },
-              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 452, y: 192 },
-              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 452, y: 208 },
-              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 474, y: 200 },
-              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 410, y: 160 },
-              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Blind Wing', x: 450, y: 95 },
-              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 460, y: 295 },
-              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 460, y: 355 },
-              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 460, y: 415 },
-              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Open Wing', x: 470, y: 480 },
-              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 540, y: 250 }
-            ],
-            drawings: []
-          },
-          {
-            name: "Phase 2 - No 8 Picks Blind & Commits Defending 9",
-            actors: [
-              // Attack Red
-              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 420, y: 185 },
-              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 420, y: 200 },
-              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 420, y: 215 },
-              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 405, y: 192 },
-              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 405, y: 208 },
-              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 430, y: 155, carrier: true },
-              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 445, y: 125 },
-              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Blind Wing', x: 410, y: 80 },
-              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 350, y: 295 },
-              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 310, y: 350 },
-              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 275, y: 410 },
-              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Open Wing', x: 235, y: 480 },
-              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 280, y: 280 },
-              { id: 'ball_1', type: 'ball', x: 436, y: 159 },
-              // Defense Gold
-              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 185 },
-              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 430, y: 200 },
-              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 430, y: 215 },
-              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 445, y: 192 },
-              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 445, y: 208 },
-              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 455, y: 180 },
-              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 435, y: 150 },
-              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Blind Wing', x: 455, y: 90 },
-              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 460, y: 295 },
-              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 460, y: 355 },
-              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 460, y: 415 },
-              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Open Wing', x: 470, y: 480 },
-              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 515, y: 210 }
-            ],
-            drawings: [
-              { tool: 'pass', color: '#38bdf8', startX: 430, startY: 155, endX: 445, endY: 125 }
-            ]
-          },
-          {
-            name: "Phase 3 - 8 to 9 to 11 Blindside Touchline Break",
-            actors: [
-              // Attack Red
-              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 440, y: 185 },
-              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 440, y: 200 },
-              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 440, y: 215 },
-              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 430, y: 190 },
-              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 430, y: 210 },
-              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 470, y: 160 },
-              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 515, y: 115 },
-              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Blind Wing', x: 565, y: 65, carrier: true },
-              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 375, y: 285 },
-              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 335, y: 340 },
-              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 300, y: 400 },
-              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Open Wing', x: 260, y: 470 },
-              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 340, y: 240 },
-              { id: 'ball_1', type: 'ball', x: 572, y: 69 },
-              // Defense Gold
-              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 440, y: 185 },
-              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 440, y: 200 },
-              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 440, y: 215 },
-              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 450, y: 190 },
-              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 450, y: 210 },
-              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 480, y: 170 },
-              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 485, y: 140 },
-              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Blind Wing', x: 505, y: 85 },
-              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 450, y: 285 },
-              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 450, y: 345 },
-              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 450, y: 405 },
-              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Open Wing', x: 460, y: 470 },
-              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 520, y: 160 }
-            ],
-            drawings: [
-              { tool: 'run', color: '#facc15', startX: 565, startY: 65, endX: 720, endY: 55 }
-            ]
-          }
-        ]
-      },
-
-      preset_pod: {
-        title: "Forward Pod & Backline Release (13v13 U13)",
-        frames: [
-          {
-            name: "Phase 1 - 3-Man Forward Pod Setup",
-            actors: [
-              // Attack Red
-              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'Pod Prop 1', x: 430, y: 275 },
-              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Pod Lock 4', x: 440, y: 300 },
-              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Pod Hooker', x: 430, y: 325 },
-              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 360, y: 270 },
-              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 365, y: 300 },
-              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 360, y: 330 },
-              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 380, y: 300, carrier: true },
-              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 390, y: 375 },
-              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 355, y: 425 },
-              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 320, y: 475 },
-              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 395, y: 120 },
-              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 285, y: 520 },
-              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 290, y: 390 },
-              { id: 'ball_1', type: 'ball', x: 386, y: 305 },
-              // Defense Gold
-              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Forward 1', x: 490, y: 275 },
-              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 495, y: 300 },
-              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 490, y: 325 },
-              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 475, y: 250 },
-              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 475, y: 220 },
-              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 480, y: 350 },
-              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 460, y: 280 },
-              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 485, y: 380 },
-              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 480, y: 430 },
-              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 480, y: 480 },
-              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 490, y: 525 },
-              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 470, y: 130 },
-              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 550, y: 390 }
-            ],
-            drawings: [
-              { tool: 'pass', color: '#38bdf8', startX: 380, startY: 300, endX: 440, endY: 300 }
-            ]
-          },
-          {
-            name: "Phase 2 - Lock 4 Screen Pass to 10 Out the Back",
-            actors: [
-              // Attack Red
-              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'Pod Prop 1', x: 465, y: 275 },
-              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Pod Lock 4', x: 470, y: 300, carrier: true },
-              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Pod Hooker', x: 465, y: 325 },
-              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 420, y: 270 },
-              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 425, y: 300 },
-              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 420, y: 330 },
-              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 405, y: 300 },
-              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 445, y: 385 },
-              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 410, y: 435 },
-              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 375, y: 485 },
-              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 410, y: 130 },
-              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 340, y: 525 },
-              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 350, y: 405 },
-              { id: 'ball_1', type: 'ball', x: 476, y: 304 },
-              // Defense Gold
-              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Forward 1', x: 480, y: 275 },
-              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 480, y: 300 },
-              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 480, y: 325 },
-              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 470, y: 250 },
-              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 470, y: 220 },
-              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 475, y: 350 },
-              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 465, y: 275 },
-              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 470, y: 380 },
-              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 475, y: 430 },
-              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 475, y: 480 },
-              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 485, y: 525 },
-              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 470, y: 135 },
-              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 535, y: 410 }
-            ],
-            drawings: [
-              { tool: 'pass', color: '#38bdf8', startX: 470, startY: 300, endX: 445, endY: 385 }
-            ]
-          },
-          {
-            name: "Phase 3 - 10 Shifts to Centres & Exploits Space",
-            actors: [
-              // Attack Red
-              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'Pod Prop 1', x: 480, y: 275 },
-              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Pod Lock 4', x: 485, y: 300 },
-              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Pod Hooker', x: 480, y: 325 },
-              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 450, y: 270 },
-              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 455, y: 300 },
-              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 450, y: 330 },
-              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 425, y: 310 },
-              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 485, y: 395 },
-              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 510, y: 450, carrier: true },
-              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 475, y: 505 },
-              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 425, y: 140 },
-              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 440, y: 540 },
-              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 410, y: 425 },
-              { id: 'ball_1', type: 'ball', x: 517, y: 455 },
-              // Defense Gold
-              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Forward 1', x: 485, y: 280 },
-              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 490, y: 305 },
-              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 485, y: 330 },
-              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 475, y: 260 },
-              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 475, y: 230 },
-              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 485, y: 350 },
-              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 470, y: 285 },
-              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 480, y: 385 },
-              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 490, y: 440 },
-              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 490, y: 490 },
-              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 495, y: 535 },
-              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 475, y: 145 },
-              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 520, y: 440 }
-            ],
-            drawings: [
-              { tool: 'run', color: '#facc15', startX: 510, startY: 450, endX: 630, endY: 490 }
-            ]
-          }
-        ]
-      }
-    };
-
-    function loadTacticalPreset(presetKey) {
-      if (presetKey.startsWith('gh_')) {
-        const idx = parseInt(presetKey.replace('gh_', ''), 10);
-        loadGitHubPlayByIndex(idx);
-        return;
-      }
-
-      if (presetKey.startsWith('local_')) {
-        const idx = parseInt(presetKey.replace('local_', ''), 10);
-        loadLocalCustomPlayByIndex(idx);
-        return;
-      }
-
-      const preset = PLAYBOOK_PRESETS[presetKey];
-      if (!preset) return;
-      pauseAnimation();
-      state.frames = JSON.parse(JSON.stringify(preset.frames));
-      state.currentFrameIndex = 0;
-      document.getElementById('playTitleDisplay').innerText = preset.title;
-      jumpToFrame(0);
-      showToast(`Loaded: ${preset.title}`);
-    }
-
-    document.getElementById('presetSelect').onchange = (e) => {
-      loadTacticalPreset(e.target.value);
-      const mob = document.getElementById('presetSelectMobile');
-      if (mob) mob.value = e.target.value;
-    };
-
-    const presetSelectMobile = document.getElementById('presetSelectMobile');
-    if (presetSelectMobile) {
-      presetSelectMobile.onchange = (e) => {
-        loadTacticalPreset(e.target.value);
-        document.getElementById('presetSelect').value = e.target.value;
-      };
-    }
-
-    const btnSecondaryLoad = document.getElementById('btnSecondaryLoad');
-    if (btnSecondaryLoad) {
-      btnSecondaryLoad.onclick = openLoadModal;
-    }
-
-    const btnSecondarySave = document.getElementById('btnSecondarySave');
-    if (btnSecondarySave) {
-      btnSecondarySave.onclick = () => document.getElementById('btnSavePlay').click();
-    }
-
-    const loadModal = document.getElementById('loadModal');
-    const modalFileInput = document.getElementById('modalFileInput');
-    const modalJsonTextarea = document.getElementById('modalJsonTextarea');
-    const dropOverlay = document.getElementById('dropOverlay');
-
-    function openLoadModal() {
-      loadModal.classList.remove('hidden');
-      modalJsonTextarea.value = '';
-    }
-
-    function closeLoadModal() {
-      loadModal.classList.add('hidden');
-    }
-
-    document.getElementById('btnOpenLoadModal').onclick = openLoadModal;
-    document.getElementById('btnCloseLoadModal').onclick = closeLoadModal;
-    document.getElementById('btnCancelLoad').onclick = closeLoadModal;
-
-    function applyImportedPlaybook(parsed, sourceLabel = "JSON file") {
-      if (!parsed || !Array.isArray(parsed.frames) || parsed.frames.length === 0) {
-        showToast("Invalid JSON: 'frames' array is required");
-        return false;
-      }
-      pauseAnimation();
-      state.frames = parsed.frames;
-      state.currentFrameIndex = 0;
-      if (parsed.title) {
-        document.getElementById('playTitleDisplay').innerText = parsed.title;
-      } else {
-        document.getElementById('playTitleDisplay').innerText = "Imported Playbook";
-      }
-      jumpToFrame(0);
-      closeLoadModal();
-      showToast(`Playbook loaded successfully (${sourceLabel})`);
-      return true;
-    }
-
-    modalFileInput.onchange = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const parsed = JSON.parse(event.target.result);
-          applyImportedPlaybook(parsed, file.name);
-        } catch (err) {
-          showToast("Error: File is not valid JSON syntax");
-        }
-      };
-      reader.readAsText(file);
-    };
-
-    document.getElementById('btnSubmitJsonPaste').onclick = () => {
-      const text = modalJsonTextarea.value.trim();
-      if (!text) {
-        showToast("Please paste JSON text or select a file");
-        return;
-      }
-      try {
-        const parsed = JSON.parse(text);
-        applyImportedPlaybook(parsed, "pasted text");
-      } catch (err) {
-        showToast("Syntax error in pasted JSON text");
-      }
-    };
-
-    window.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropOverlay.classList.remove('hidden');
-    });
-
-    window.addEventListener('dragleave', (e) => {
-      if (e.relatedTarget === null) {
-        dropOverlay.classList.add('hidden');
-      }
-    });
-
-    window.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropOverlay.classList.add('hidden');
-
-      if (e.dataTransfer && e.dataTransfer.files.length > 0) {
-        const file = e.dataTransfer.files[0];
-        if (file.name.endsWith('.json') || file.type === 'application/json') {
-          const reader = new FileReader();
-          reader.onload = (evt) => {
-            try {
-              const parsed = JSON.parse(evt.target.result);
-              applyImportedPlaybook(parsed, file.name);
-            } catch (err) {
-              showToast("Dropped file is not valid JSON");
-            }
-          };
-          reader.readAsText(file);
-        } else {
-          showToast("Please drop a valid .json playbook file");
-        }
-      }
-    });
-
-    document.getElementById('btnResetBoard').onclick = () => {
-      pauseAnimation();
-      state.frames = [{
-        id: 1,
-        name: 'Phase 1 - Initial Set',
-        actors: [],
-        drawings: []
-      }];
-      state.currentFrameIndex = 0;
-      state.selectedActorId = null;
-      inspectorPanel.classList.add('hidden');
-      renderActors();
+    document.getElementById('btnClearDrawings').onclick = () => {
+      const current = state.frames[state.currentFrameIndex];
+      if (current) current.drawings = [];
       renderDrawings();
-      renderGhostTrails();
-      renderRosterList();
       renderKeyframeTimeline();
-      showToast("Whiteboard reset");
     };
 
-    document.getElementById('btnSavePlay').onclick = () => {
-      const playData = {
-        title: document.getElementById('playTitleDisplay').innerText,
-        date: new Date().toISOString(),
+    document.getElementById('btnClearPitch').onclick = () => {
+      if (confirm("Clear all players and tactical drawings from this phase?")) {
+        const current = state.frames[state.currentFrameIndex];
+        current.actors = [];
+        current.drawings = [];
+        state.selectedActorIds.clear();
+        state.selectedActorId = null;
+        renderActors();
+        renderDrawings();
+        renderRosterList();
+        renderGhostTrails();
+        renderKeyframeTimeline();
+      }
+    };
+
+    // Local Storage & GitHub Manifest Playbook Loading
+    function savePlayToLocalPresets() {
+      const currentTitle = document.getElementById('playTitleDisplay').innerText.trim() || 'My Play';
+      const playName = prompt("Enter a name for this custom preset:", currentTitle);
+      if (!playName) return;
+
+      const customPlay = {
+        title: playName,
+        frames: state.frames,
+        timestamp: Date.now()
+      };
+
+      try {
+        const saved = JSON.parse(localStorage.getItem('rugby_custom_plays') || '[]');
+        const existingIdx = saved.findIndex(p => p.title.toLowerCase() === playName.toLowerCase());
+        if (existingIdx >= 0) {
+          saved[existingIdx] = customPlay;
+        } else {
+          saved.push(customPlay);
+        }
+        localStorage.setItem('rugby_custom_plays', JSON.stringify(saved));
+        populateLocalPresetsDropdown();
+        showToast(`Saved "${playName}" to device presets!`);
+      } catch (err) {
+        showToast("Storage error: Unable to save locally.");
+      }
+    }
+
+    function populateLocalPresetsDropdown() {
+      const grp = document.getElementById('localCustomGroup');
+      const grpMobile = document.getElementById('localCustomGroupMobile');
+      grp.innerHTML = '';
+      grpMobile.innerHTML = '';
+
+      try {
+        const saved = JSON.parse(localStorage.getItem('rugby_custom_plays') || '[]');
+        if (saved.length > 0) {
+          grp.classList.remove('hidden');
+          grpMobile.classList.remove('hidden');
+
+          saved.forEach((p, idx) => {
+            const opt = document.createElement('option');
+            opt.value = `local_${idx}`;
+            opt.innerText = p.title;
+            grp.appendChild(opt);
+
+            const optMob = opt.cloneNode(true);
+            grpMobile.appendChild(optMob);
+          });
+        } else {
+          grp.classList.add('hidden');
+          grpMobile.classList.add('hidden');
+        }
+      } catch (e) {
+        grp.classList.add('hidden');
+        grpMobile.classList.add('hidden');
+      }
+    }
+
+    async function loadTeamManifestPlays() {
+      const grp = document.getElementById('githubPlaysGroup');
+      const grpMobile = document.getElementById('githubPlaysGroupMobile');
+      grp.innerHTML = '';
+      grpMobile.innerHTML = '';
+
+      try {
+        // Attempt to fetch manifest from plays folder
+        const res = await fetch('plays/manifest.json');
+        if (!res.ok) throw new Error('No plays manifest found');
+        const plays = await res.json();
+        state.githubManifestPlays = plays;
+
+        if (Array.isArray(plays) && plays.length > 0) {
+          grp.classList.remove('hidden');
+          grpMobile.classList.remove('hidden');
+
+          plays.forEach((p, idx) => {
+            const opt = document.createElement('option');
+            opt.value = `gh_${idx}`;
+            opt.innerText = p.title;
+            grp.appendChild(opt);
+
+            const optMob = opt.cloneNode(true);
+            grpMobile.appendChild(optMob);
+          });
+          showToast(`Loaded ${plays.length} team plays from GitHub`);
+        }
+      } catch (e) {
+        grp.classList.add('hidden');
+        grpMobile.classList.add('hidden');
+      }
+    }
+
+    async function handlePresetChange(val) {
+      if (!val) return;
+
+      if (val.startsWith('local_')) {
+        const idx = parseInt(val.replace('local_', ''), 10);
+        const saved = JSON.parse(localStorage.getItem('rugby_custom_plays') || '[]');
+        const play = saved[idx];
+        if (play) loadPlayData(play);
+      } else if (val.startsWith('gh_')) {
+        const idx = parseInt(val.replace('gh_', ''), 10);
+        const item = state.githubManifestPlays[idx];
+        if (item && item.file) {
+          try {
+            showToast(`Loading "${item.title}"...`);
+            const res = await fetch(item.file);
+            const play = await res.json();
+            play.title = item.title;
+            loadPlayData(play);
+          } catch (err) {
+            alert(`Could not load play file: ${item.file}`);
+          }
+        }
+      }
+    }
+
+    function loadPlayData(play) {
+      pauseAnimation();
+      state.frames = JSON.parse(JSON.stringify(play.frames || [play]));
+      state.currentFrameIndex = 0;
+      document.getElementById('playTitleDisplay').innerText = play.title || 'Loaded Play';
+      jumpToFrame(0);
+      showToast(`Loaded Play: ${play.title || 'Custom Play'}`);
+    }
+
+    document.getElementById('presetSelect').onchange = (e) => handlePresetChange(e.target.value);
+    document.getElementById('presetSelectMobile').onchange = (e) => handlePresetChange(e.target.value);
+    document.getElementById('btnSyncManifest').onclick = loadTeamManifestPlays;
+    document.getElementById('btnSyncManifestMobile').onclick = loadTeamManifestPlays;
+    document.getElementById('btnSaveToLocal').onclick = savePlayToLocalPresets;
+    document.getElementById('btnSaveToLocalMobile').onclick = savePlayToLocalPresets;
+
+    // Save JSON Export
+    document.getElementById('btnExportJSON').onclick = () => {
+      const data = {
+        title: document.getElementById('playTitleDisplay').innerText.trim() || 'U13 Play',
+        timestamp: Date.now(),
         frames: state.frames
       };
-      const jsonStr = JSON.stringify(playData, null, 2);
-      const blob = new Blob([jsonStr], { type: 'application/json' });
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `u13-play-${Date.now().toString().slice(-4)}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      showToast("Playbook JSON saved & downloaded");
+      showToast("Playbook JSON exported successfully");
     };
 
+    // Load JSON Modal Logic
+    const loadModal = document.getElementById('loadModal');
+    const fileInput = document.getElementById('fileInput');
+    const dropZone = document.getElementById('dropZone');
+
+    document.getElementById('btnOpenLoadModal').onclick = () => loadModal.classList.remove('hidden');
+    document.getElementById('btnCloseLoadModal').onclick = () => loadModal.classList.add('hidden');
+    document.getElementById('btnCancelLoad').onclick = () => loadModal.classList.add('hidden');
+
+    dropZone.onclick = () => fileInput.click();
+
+    fileInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) parseAndLoadFile(file);
+    };
+
+    dropZone.ondragover = (e) => {
+      e.preventDefault();
+      dropZone.classList.add('border-emerald-500');
+    };
+    dropZone.ondragleave = () => dropZone.classList.remove('border-emerald-500');
+    dropZone.ondrop = (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-emerald-500');
+      const file = e.dataTransfer.files[0];
+      if (file) parseAndLoadFile(file);
+    };
+
+    document.getElementById('btnConfirmLoad').onclick = () => {
+      const text = document.getElementById('rawJsonInput').value.trim();
+      if (!text) return;
+      try {
+        const parsed = JSON.parse(text);
+        loadPlayData(parsed);
+        loadModal.classList.add('hidden');
+        document.getElementById('rawJsonInput').value = '';
+      } catch (err) {
+        alert("Invalid JSON format. Please check the code.");
+      }
+    };
+
+    function parseAndLoadFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          loadPlayData(parsed);
+          loadModal.classList.add('hidden');
+        } catch (err) {
+          alert("Invalid playbook file.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Export PNG Snapshot
     document.getElementById('btnExportImage').onclick = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 1200;
-      canvas.height = 720;
-      const ctx = canvas.getContext('2d');
-
-      ctx.fillStyle = '#1b5e20';
-      ctx.fillRect(0, 0, 1200, 720);
-
-      const svgData = new XMLSerializer().serializeToString(pitchSvg);
-      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const svgString = new XMLSerializer().serializeToString(pitchSvg);
+      const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
       const URLObj = window.URL || window.webkitURL || window;
       const blobURL = URLObj.createObjectURL(svgBlob);
 
-      const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, 1200, 720);
+      const image = new Image();
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1200;
+        canvas.height = 720;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#064e3b';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-        const currentFrame = state.frames[state.currentFrameIndex];
-        
-        // 1. Draw Players First
-        currentFrame.actors.forEach(actor => {
-          if (actor.type === 'ball') return;
-          const x = (actor.x / 1000) * 1200;
-          const y = (actor.y / 600) * 720;
-
-          if (actor.type === 'player') {
-            ctx.beginPath();
-            ctx.arc(x, y, 18, 0, Math.PI * 2);
-            ctx.fillStyle = actor.team === 'A' ? '#dc2626' : '#f59e0b';
-            ctx.fill();
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = '#ffffff';
-            ctx.stroke();
-
-            ctx.fillStyle = actor.team === 'A' ? '#ffffff' : '#0f172a';
-            ctx.font = 'bold 15px Inter, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(actor.num, x, y);
-
-            ctx.font = '11px Inter, sans-serif';
-            ctx.fillStyle = '#f8fafc';
-            ctx.fillText(actor.name.split(' ')[0], x, y + 26);
-          }
-        });
-
-        // 2. Draw Rugby Ball ALWAYS on top
-        const ball = currentFrame.actors.find(a => a.type === 'ball');
-        if (ball) {
-          const bx = (ball.x / 1000) * 1200;
-          const by = (ball.y / 600) * 720;
-          ctx.save();
-          ctx.translate(bx, by);
-          ctx.rotate(-0.25);
-          ctx.beginPath();
-          ctx.ellipse(0, 0, 16, 10, 0, 0, Math.PI * 2);
-          ctx.fillStyle = '#ffffff';
-          ctx.fill();
-          ctx.lineWidth = 2.5;
-          ctx.strokeStyle = '#7f1d1d';
-          ctx.stroke();
-          ctx.restore();
-        }
-
-        ctx.font = 'bold 14px Inter, sans-serif';
-        ctx.fillStyle = 'rgba(255,255,255,0.7)';
-        ctx.textAlign = 'right';
-        ctx.fillText('RugbyTactix U13 Studio', 1170, 700);
-
+        const png = canvas.toDataURL('image/png');
         const a = document.createElement('a');
-        a.href = canvas.toDataURL('image/png');
-        a.download = `u13-rugby-phase-${state.currentFrameIndex + 1}.png`;
+        a.download = `tactics-phase-${state.currentFrameIndex + 1}.png`;
+        a.href = png;
         a.click();
         URLObj.revokeObjectURL(blobURL);
-        showToast("PNG Snapshot exported");
+        showToast("Exported PNG snapshot");
       };
-      img.src = blobURL;
+      image.src = blobURL;
     };
 
+    // Keyboard Shortcuts
     window.addEventListener('keydown', (e) => {
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
 
@@ -2632,7 +2053,11 @@
       } else if (e.code === 'KeyT') {
         setActiveTool('tackle');
       } else if (e.code === 'Delete' || e.code === 'Backspace') {
-        if (state.selectedActorId) {
+        if (state.selectedActorIds.size > 0) {
+          const ids = Array.from(state.selectedActorIds);
+          ids.forEach(id => removePlayerById(id));
+          state.selectedActorIds.clear();
+        } else if (state.selectedActorId) {
           removePlayerById(state.selectedActorId);
         }
       }
@@ -2649,10 +2074,12 @@
       }, 2400);
     }
 
+    // Application Initialization
     window.onload = () => {
       lucide.createIcons();
       renderRosterList();
-      loadTacticalPreset('preset_strike');
+      deployFormationPreset('backs');
+      populateLocalPresetsDropdown();
       loadTeamManifestPlays();
     };
   </script>
