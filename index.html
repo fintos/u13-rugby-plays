@@ -1,0 +1,2592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>RugbyTactix Pro - Tactical Rugby Whiteboard & Animation Studio</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts Inter & Teko -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Teko:wght@500;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Teko', 'sans-serif'],
+          },
+          colors: {
+            turf: {
+              light: '#2a7c30',
+              dark: '#216326',
+              field: '#1a5420',
+              border: '#113b16'
+            },
+            rugby: {
+              gold: '#f59e0b',
+              navy: '#1e3a8a',
+              blue: '#2563eb',
+              red: '#dc2626',
+              emerald: '#10b981'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .no-select {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.7);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.5);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.8);
+    }
+
+    .pitch-shadow {
+      box-shadow: inset 0 0 120px rgba(0,0,0,0.45), 0 16px 40px -10px rgba(0,0,0,0.7);
+    }
+
+    @keyframes frame-glow {
+      0%, 100% { border-color: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); }
+      50% { border-color: #60a5fa; box-shadow: 0 0 18px rgba(96, 165, 250, 0.9); }
+    }
+    .active-frame {
+      animation: frame-glow 1.5s infinite ease-in-out;
+    }
+
+    /* Context Menu styling */
+    #contextMenu {
+      display: none;
+      position: absolute;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-screen w-screen overflow-hidden flex flex-col font-sans no-select">
+
+  <!-- Fullscreen Drag & Drop Zone for JSON Playbook Files -->
+  <div id="dropOverlay" class="fixed inset-0 bg-emerald-950/85 backdrop-blur-sm border-4 border-dashed border-emerald-400 z-50 hidden flex flex-col items-center justify-center pointer-events-none transition-all duration-200">
+    <i data-lucide="file-up" class="w-16 h-16 text-emerald-300 animate-bounce mb-3"></i>
+    <p class="text-xl font-bold text-white">Drop Rugby Playbook JSON Here</p>
+    <p class="text-sm text-emerald-200 mt-1">Files load instantly into the tactics board & timeline</p>
+  </div>
+
+  <!-- Top App Navigation & Controls Header -->
+  <header class="h-16 bg-slate-900 border-b border-slate-800 px-3 sm:px-5 flex items-center justify-between z-30 shrink-0 select-none shadow-lg">
+    <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-2">
+        <div class="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-950/60 ring-1 ring-emerald-400/40">
+          <i data-lucide="shield" class="w-5 h-5"></i>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-bold text-base tracking-wide text-white flex items-center gap-1.5 leading-none">
+            RUGBY<span class="text-emerald-400 font-extrabold">TACTIX</span>
+            <span class="text-[10px] uppercase tracking-wider bg-amber-500/20 border border-amber-500/40 text-amber-300 px-1.5 py-0.5 rounded font-mono font-bold">U13s (13v13)</span>
+          </span>
+          <span class="text-[11px] text-slate-300 font-mono flex items-center gap-1 truncate max-w-[240px]" id="playTitleDisplay">
+            U13 Backline Strike: 10-12 Loop (13v13)
+          </span>
+        </div>
+      </div>
+
+      <!-- Presets Selector -->
+      <div class="hidden xl:flex items-center ml-3 pl-3 border-l border-slate-800">
+        <label class="text-xs text-slate-300 mr-2 flex items-center gap-1 font-semibold">
+          <i data-lucide="bookmark" class="w-3.5 h-3.5 text-emerald-400"></i> U13 Plays:
+        </label>
+        <select id="presetSelect" class="bg-slate-800 text-xs text-slate-100 font-medium border border-slate-700 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none cursor-pointer">
+          <option value="" disabled>Select U13 Set Play (13v13 No 6 & 7)...</option>
+          <option value="preset_strike" selected>1. Backline Strike: 10-12 Loop (13v13)</option>
+          <option value="preset_lineout">2. 6-Man Lineout: Front Peel (13v13)</option>
+          <option value="preset_scrum">3. 6-Man Scrum: 8-9 Blindside Strike (13v13)</option>
+          <option value="preset_pod">4. Midfield Forward Pod & Screen Pass (13v13)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Pitch Camera View Selector -->
+    <div class="flex items-center space-x-1 sm:space-x-1.5 bg-slate-800/90 p-1 rounded-xl border border-slate-700">
+      <button id="viewFullPitch" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white transition flex items-center gap-1.5 shadow" title="Full Rugby Pitch">
+        <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+        <span class="hidden md:inline">Full Pitch</span>
+      </button>
+      <button id="viewHalfPitch" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1.5" title="Attacking Half">
+        <i data-lucide="square" class="w-3.5 h-3.5"></i>
+        <span class="hidden md:inline">Half Pitch</span>
+      </button>
+      <button id="view22Pitch" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1.5" title="Attacking 22m Red Zone">
+        <i data-lucide="target" class="w-3.5 h-3.5"></i>
+        <span class="hidden md:inline">22m Zone</span>
+      </button>
+    </div>
+
+    <!-- Primary Action Center: Highly Visible LOAD JSON & Playbook Controls -->
+    <div class="flex items-center space-x-2">
+      <!-- High Visibility LOAD JSON Button -->
+      <button id="btnOpenLoadModal" class="px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-sm font-bold flex items-center gap-2 shadow-lg shadow-emerald-900/40 ring-2 ring-emerald-400 transition transform active:scale-95" title="Import or Load a JSON Playbook">
+        <i data-lucide="folder-open" class="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white stroke-[2.5]"></i>
+        <span class="tracking-wide uppercase">Load JSON</span>
+      </button>
+
+      <!-- High Visibility SAVE JSON Button -->
+      <button id="btnSavePlay" class="px-3 sm:px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-black text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-amber-950/40 ring-2 ring-amber-400 transition transform active:scale-95" title="Download & Save JSON Playbook">
+        <i data-lucide="download" class="w-4 h-4 sm:w-4.5 sm:h-4.5 text-slate-950 stroke-[2.5]"></i>
+        <span class="tracking-wide uppercase hidden sm:inline">Save JSON</span>
+      </button>
+
+      <!-- PNG Snapshot Export -->
+      <button id="btnExportImage" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5 transition" title="Export PNG Snapshot">
+        <i data-lucide="camera" class="w-4 h-4 text-sky-400"></i>
+        <span class="hidden lg:inline">PNG</span>
+      </button>
+
+      <!-- Ghost Trails Toggle -->
+      <button id="toggleGhostTrails" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-emerald-600 border border-emerald-500 text-xs font-semibold text-white flex items-center gap-1.5 transition" title="Toggle Motion Path Vectors">
+        <i data-lucide="git-commit" class="w-4 h-4"></i>
+        <span class="hidden xl:inline">Trails</span>
+      </button>
+
+      <!-- Reset Field -->
+      <button id="btnResetBoard" class="p-2 rounded-xl bg-red-950/70 hover:bg-red-900 border border-red-800/80 text-xs text-red-200 flex items-center gap-1 transition" title="Reset Field">
+        <i data-lucide="trash-2" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Secondary Quick Playbook Banner for Smaller Screens & Direct Access -->
+  <div class="bg-slate-900/90 border-b border-slate-800/80 px-3 sm:px-5 py-1.5 flex items-center justify-between text-xs xl:hidden z-20">
+    <div class="flex items-center gap-2">
+      <span class="text-slate-400 font-semibold flex items-center gap-1">
+        <i data-lucide="bookmark" class="w-3.5 h-3.5 text-emerald-400"></i> Preset:
+      </span>
+      <select id="presetSelectMobile" class="bg-slate-800 text-slate-200 text-xs rounded border border-slate-700 px-2 py-0.5 max-w-[200px] sm:max-w-xs">
+        <option value="preset_strike">1. Backline Strike: 10-12 Loop (13v13)</option>
+        <option value="preset_lineout">2. 6-Man Lineout: Front Peel (13v13)</option>
+        <option value="preset_scrum">3. 6-Man Scrum: 8-9 Blindside Strike (13v13)</option>
+        <option value="preset_pod">4. Midfield Forward Pod & Screen (13v13)</option>
+      </select>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="btnSecondaryLoad" class="px-2 py-1 rounded-md bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-[11px] flex items-center gap-1">
+        <i data-lucide="folder-open" class="w-3.5 h-3.5"></i> Load Playbook
+      </button>
+      <button id="btnSecondarySave" class="px-2 py-1 rounded-md bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-[11px] flex items-center gap-1">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i> Save
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Body Content Area -->
+  <div class="flex-1 flex overflow-hidden relative">
+
+    <!-- Left Roster & Pitch Management Sidebar -->
+    <aside id="rosterSidebar" class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col z-20 shrink-0 transition-all duration-300 ease-in-out relative">
+      <!-- Team Switcher Tabs -->
+      <div class="p-2 border-b border-slate-800 grid grid-cols-2 gap-1 bg-slate-900/90">
+        <button id="tabTeamA" class="py-1.5 px-2 text-xs font-semibold rounded bg-red-600 text-white flex items-center justify-center gap-1.5 transition shadow-sm">
+          <span class="w-2.5 h-2.5 rounded-full bg-white"></span>
+          <span>Attack (Red)</span>
+        </button>
+        <button id="tabTeamB" class="py-1.5 px-2 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center gap-1.5 transition">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+          <span>Defense (Gold)</span>
+        </button>
+      </div>
+
+      <!-- Quick Formations Toolbar -->
+      <div class="px-3 py-2 border-b border-slate-800 bg-slate-900/50 flex flex-col gap-1.5 text-xs">
+        <div class="flex items-center justify-between text-slate-400 font-medium">
+          <span>Deploy Set Formations</span>
+        </div>
+        <div class="grid grid-cols-3 gap-1">
+          <button id="btnDeployBackline" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] rounded text-slate-300 hover:text-white border border-slate-700/60 transition truncate">
+            Backs Line
+          </button>
+          <button id="btnDeployScrum" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] rounded text-slate-300 hover:text-white border border-slate-700/60 transition truncate">
+            Scrum Pack
+          </button>
+          <button id="btnDeployLineout" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] rounded text-slate-300 hover:text-white border border-slate-700/60 transition truncate">
+            Lineout
+          </button>
+        </div>
+      </div>
+
+      <!-- Equipment Spawner (Ball, Cone, Pad) -->
+      <div class="p-2.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/40">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Equipment</span>
+        <div class="flex items-center gap-2">
+          <!-- Rugby Ball Spawner -->
+          <button id="spawnBallBtn" class="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-md shadow-sm transition active:scale-95" title="Place or Bring Ball to Pitch Center">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <ellipse cx="12" cy="12" rx="10" ry="6" transform="rotate(-30 12 12)" fill="#f8fafc" stroke="#0f172a" stroke-width="1.5"/>
+              <path d="M5 15 C 9 9, 15 15, 19 9" stroke="#dc2626" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            </svg>
+            Rugby Ball
+          </button>
+          <!-- Cone Spawner -->
+          <button id="spawnConeBtn" class="p-1 px-2 bg-orange-600 hover:bg-orange-500 text-white font-medium text-xs rounded-md shadow-sm transition" title="Place Marker Cone">
+            ▲ Cone
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Players on Field Quick Bench / Manager -->
+      <div class="px-3 py-1.5 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between text-xs">
+        <span class="text-slate-400 font-medium">On Pitch (<span id="activeCountDisplay">0</span>)</span>
+        <button id="btnClearAllPlayers" class="text-[10px] text-red-400 hover:text-red-300 hover:underline">Clear Team</button>
+      </div>
+
+      <!-- Scrollable Roster 1 to 15 Rugby Union Positional Tokens -->
+      <div class="flex-1 overflow-y-auto p-2 space-y-1.5" id="rosterListContainer">
+        <!-- Roster items populated dynamically via JS -->
+      </div>
+
+      <!-- Active Player Inspector & Removal Panel -->
+      <div id="inspectorPanel" class="p-2.5 bg-slate-950/95 border-t border-slate-800 hidden flex-col gap-2 shadow-xl">
+        <div class="flex items-center justify-between text-xs font-bold text-slate-300">
+          <span class="flex items-center gap-1.5">
+            <i data-lucide="user-check" class="w-3.5 h-3.5 text-emerald-400"></i> Selected Token
+          </span>
+          <!-- Direct Delete / Remove Player Button -->
+          <button id="btnDeleteSelected" class="px-2 py-0.5 rounded bg-red-900/60 hover:bg-red-800 text-red-200 text-xs font-semibold flex items-center gap-1 transition" title="Remove Player from Pitch (Del / Backspace)">
+            <i data-lucide="trash-2" class="w-3 h-3"></i>
+            <span>Remove</span>
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-0.5">Jersey / Num</label>
+            <input id="inspectorLabel" type="text" maxlength="4" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-white font-mono text-center font-bold">
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-0.5">Player Label</label>
+            <input id="inspectorName" type="text" maxlength="16" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-white">
+          </div>
+        </div>
+        <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-800">
+          <span class="text-[11px] text-slate-400">Ball Possession:</span>
+          <button id="btnAttachBall" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-[11px] flex items-center gap-1">
+            <i data-lucide="paperclip" class="w-3 h-3"></i> Make Carrier
+          </button>
+        </div>
+      </div>
+
+      <!-- Collapse Sidebar Toggle Button -->
+      <button id="btnToggleSidebar" class="absolute -right-3 top-20 bg-slate-800 border border-slate-700 text-slate-300 w-6 h-6 rounded-full flex items-center justify-center hover:bg-slate-700 shadow z-30">
+        <i data-lucide="chevron-left" id="sidebarCollapseIcon" class="w-4 h-4"></i>
+      </button>
+    </aside>
+
+    <!-- Pitch Stage & Animation Board -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-950 relative">
+
+      <!-- Tactical Drawing Toolbar -->
+      <div class="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-slate-900/95 backdrop-blur-md px-2 py-1.5 rounded-xl border border-slate-800/80 shadow-2xl">
+        <!-- Select / Pointer Mode -->
+        <button id="toolSelect" class="tool-btn active-tool p-2 rounded-lg text-xs font-medium bg-emerald-600 text-white transition" title="Select / Move Players & Ball (V)">
+          <i data-lucide="mouse-pointer" class="w-4 h-4"></i>
+        </button>
+        <div class="h-4 w-px bg-slate-700 mx-1"></div>
+        <!-- Running Line Arrow -->
+        <button id="toolRun" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Running Line / Carry (Solid Arrow)">
+          <i data-lucide="arrow-up-right" class="w-4 h-4 text-emerald-400"></i>
+        </button>
+        <!-- Pass Line Arrow -->
+        <button id="toolPass" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Passing Trajectory (Dashed Arrow)">
+          <i data-lucide="move-right" class="w-4 h-4 text-sky-400"></i>
+        </button>
+        <!-- Kick Trajectory Arc -->
+        <button id="toolKick" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Kick / Box Kick (Curved Arc)">
+          <i data-lucide="spline" class="w-4 h-4 text-purple-400"></i>
+        </button>
+        <!-- Defensive Block / Tackle Line -->
+        <button id="toolTackle" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Tackle / Defensive Line (Crossbar T-Line)">
+          <i data-lucide="minus" class="w-4 h-4 text-amber-400"></i>
+        </button>
+        <!-- Freehand Pen -->
+        <button id="toolPen" class="tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition" title="Freehand Pen Tool">
+          <i data-lucide="pencil" class="w-4 h-4 text-yellow-300"></i>
+        </button>
+        <div class="h-4 w-px bg-slate-700 mx-1"></div>
+        <!-- Color Palette -->
+        <div class="flex items-center gap-1 px-1">
+          <button class="color-btn w-5 h-5 rounded-full bg-yellow-400 ring-2 ring-white scale-110" data-color="#facc15" title="Yellow"></button>
+          <button class="color-btn w-5 h-5 rounded-full bg-white hover:scale-105" data-color="#ffffff" title="White"></button>
+          <button class="color-btn w-5 h-5 rounded-full bg-red-500 hover:scale-105" data-color="#ef4444" title="Red"></button>
+          <button class="color-btn w-5 h-5 rounded-full bg-sky-400 hover:scale-105" data-color="#38bdf8" title="Cyan/Sky"></button>
+        </div>
+        <div class="h-4 w-px bg-slate-700 mx-1"></div>
+        <!-- Clear Drawing Arrows -->
+        <button id="btnClearDrawings" class="p-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-red-950/60 hover:text-red-300 transition" title="Clear Tactical Arrows on this Frame">
+          <i data-lucide="eraser" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Pitch Wrapper Container -->
+      <div id="pitchWrapper" class="flex-1 w-full h-full p-2 sm:p-4 flex items-center justify-center relative select-none">
+
+        <!-- Drag-Off Trash Drop Bin Indicator (shown while dragging any actor) -->
+        <div id="dragTrashZone" class="absolute bottom-6 right-8 bg-red-950/80 border-2 border-dashed border-red-500 rounded-xl px-4 py-3 flex items-center gap-2 text-red-200 z-30 opacity-0 pointer-events-none transition-all duration-200 shadow-2xl">
+          <i data-lucide="trash-2" class="w-5 h-5 text-red-400 animate-bounce"></i>
+          <span class="text-xs font-bold uppercase tracking-wider">Drag here to remove</span>
+        </div>
+        
+        <!-- Pitch Board Holder -->
+        <div id="pitchBoard" class="relative rounded-2xl overflow-hidden pitch-shadow border-4 border-emerald-950 transition-all duration-300" style="width: 100%; max-width: 1100px; aspect-ratio: 100 / 60;">
+          
+          <!-- Pitch SVG Base & Field Graphics (World Rugby Standard Dimensions scaled 0..1000 x 0..600) -->
+          <svg id="pitchSvg" class="w-full h-full absolute inset-0 block" viewBox="0 0 1000 600" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="grassStripes" x1="0" y1="0" x2="1000" y2="0" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#246d2a"/>
+                <stop offset="10%" stop-color="#246d2a"/>
+                <stop offset="10%" stop-color="#1e5c23"/>
+                <stop offset="20%" stop-color="#1e5c23"/>
+                <stop offset="20%" stop-color="#246d2a"/>
+                <stop offset="30%" stop-color="#246d2a"/>
+                <stop offset="30%" stop-color="#1e5c23"/>
+                <stop offset="40%" stop-color="#1e5c23"/>
+                <stop offset="40%" stop-color="#246d2a"/>
+                <stop offset="50%" stop-color="#246d2a"/>
+                <stop offset="50%" stop-color="#1e5c23"/>
+                <stop offset="60%" stop-color="#1e5c23"/>
+                <stop offset="60%" stop-color="#246d2a"/>
+                <stop offset="70%" stop-color="#246d2a"/>
+                <stop offset="70%" stop-color="#1e5c23"/>
+                <stop offset="80%" stop-color="#1e5c23"/>
+                <stop offset="80%" stop-color="#246d2a"/>
+                <stop offset="90%" stop-color="#246d2a"/>
+                <stop offset="90%" stop-color="#1e5c23"/>
+                <stop offset="100%" stop-color="#1e5c23"/>
+              </linearGradient>
+
+              <marker id="arrow-run" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#facc15" />
+              </marker>
+              <marker id="arrow-pass" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8" />
+              </marker>
+              <marker id="arrow-kick" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#c084fc" />
+              </marker>
+              <marker id="arrow-custom" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="white" />
+              </marker>
+            </defs>
+
+            <!-- Grass Pitch Canvas Background -->
+            <rect width="1000" height="600" fill="url(#grassStripes)"/>
+
+            <!-- Rugby Field Markings -->
+            <g id="pitchMarkings" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.9">
+              <!-- Dead-ball lines and touchlines -->
+              <rect x="40" y="40" width="920" height="520" stroke-width="3"/>
+              
+              <!-- Try lines -->
+              <line x1="120" y1="40" x2="120" y2="560" stroke-width="4"/>
+              <line x1="880" y1="40" x2="880" y2="560" stroke-width="4"/>
+
+              <!-- In-Goal Watermarks -->
+              <text x="80" y="310" fill="#ffffff" fill-opacity="0.22" font-size="28" font-family="'Teko', sans-serif" font-weight="700" letter-spacing="4" transform="rotate(-90 80 310)" text-anchor="middle">IN-GOAL</text>
+              <text x="920" y="310" fill="#ffffff" fill-opacity="0.22" font-size="28" font-family="'Teko', sans-serif" font-weight="700" letter-spacing="4" transform="rotate(90 920 310)" text-anchor="middle">IN-GOAL</text>
+
+              <!-- Halfway line -->
+              <line x1="500" y1="40" x2="500" y2="560" stroke-width="3"/>
+              <circle cx="500" cy="300" r="4" fill="#ffffff"/>
+
+              <!-- 22m Lines -->
+              <line x1="296" y1="40" x2="296" y2="560" stroke-width="3"/>
+              <line x1="704" y1="40" x2="704" y2="560" stroke-width="3"/>
+              <text x="296" y="30" fill="#ffffff" fill-opacity="0.8" font-size="14" font-weight="700" text-anchor="middle">22m</text>
+              <text x="704" y="30" fill="#ffffff" fill-opacity="0.8" font-size="14" font-weight="700" text-anchor="middle">22m</text>
+              <text x="500" y="30" fill="#ffffff" fill-opacity="0.9" font-size="14" font-weight="700" text-anchor="middle">50m</text>
+
+              <!-- 10m Dashed lines -->
+              <line x1="420" y1="40" x2="420" y2="560" stroke-width="2" stroke-dasharray="10 10" stroke-opacity="0.85"/>
+              <line x1="580" y1="40" x2="580" y2="560" stroke-width="2" stroke-dasharray="10 10" stroke-opacity="0.85"/>
+              <text x="420" y="30" fill="#ffffff" fill-opacity="0.6" font-size="12" font-weight="600" text-anchor="middle">10m</text>
+              <text x="580" y="30" fill="#ffffff" fill-opacity="0.6" font-size="12" font-weight="600" text-anchor="middle">10m</text>
+
+              <!-- 5m Dashed Lines parallel to touchline -->
+              <line x1="120" y1="75" x2="880" y2="75" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.6"/>
+              <line x1="120" y1="525" x2="880" y2="525" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.6"/>
+
+              <!-- 15m Dashed Lines parallel to touchline -->
+              <line x1="120" y1="145" x2="880" y2="145" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.6"/>
+              <line x1="120" y1="455" x2="880" y2="455" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.6"/>
+
+              <!-- 5m Dashed off tryline -->
+              <line x1="160" y1="75" x2="160" y2="525" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.5"/>
+              <line x1="840" y1="75" x2="840" y2="525" stroke-width="1.8" stroke-dasharray="8 12" stroke-opacity="0.5"/>
+
+              <!-- Rugby Goal Posts -->
+              <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+                <line x1="120" y1="272" x2="120" y2="328"/>
+                <circle cx="120" cy="272" r="4.5" fill="#facc15" stroke="#ffffff" stroke-width="1.5"/>
+                <circle cx="120" cy="328" r="4.5" fill="#facc15" stroke="#ffffff" stroke-width="1.5"/>
+                <line x1="880" y1="272" x2="880" y2="328"/>
+                <circle cx="880" cy="272" r="4.5" fill="#facc15" stroke="#ffffff" stroke-width="1.5"/>
+                <circle cx="880" cy="328" r="4.5" fill="#facc15" stroke="#ffffff" stroke-width="1.5"/>
+              </g>
+            </g>
+
+            <!-- Ghost Motion Trails Layer (Below tokens) -->
+            <g id="ghostTrailsLayer" pointer-events="none"></g>
+
+            <!-- User Tactical Annotations (Below tokens) -->
+            <g id="drawingsLayer" pointer-events="stroke"></g>
+            
+            <!-- Live Active Drawing Preview -->
+            <path id="activeDrawingPath" d="" fill="none" stroke-width="3" stroke="#facc15" stroke-linecap="round" pointer-events="none"/>
+          </svg>
+
+          <!-- Interactive Players Layer (Z-Index 10) -->
+          <div id="actorsContainer" class="absolute inset-0 pointer-events-none z-10">
+            <!-- Tokens dynamically rendered here -->
+          </div>
+
+          <!-- Dedicated Top-Level Ball Layer (Z-Index 25) - ALWAYS ON TOP -->
+          <div id="ballTopLayer" class="absolute inset-0 pointer-events-none z-20">
+            <!-- Rugby ball dynamically rendered here above all players -->
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Right-Click Player Context Menu -->
+      <div id="contextMenu" class="bg-slate-900 border border-slate-700 rounded-lg shadow-2xl p-1 text-xs text-slate-200 min-w-[160px]">
+        <div class="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800" id="contextPlayerTitle">Player</div>
+        <button id="contextToggleCarrier" class="w-full text-left px-2.5 py-1.5 hover:bg-slate-800 rounded flex items-center gap-2">
+          <i data-lucide="paperclip" class="w-3.5 h-3.5 text-yellow-400"></i>
+          <span>Toggle Ball Carrier</span>
+        </button>
+        <button id="contextRemovePlayer" class="w-full text-left px-2.5 py-1.5 hover:bg-red-950/80 text-red-300 rounded flex items-center gap-2">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          <span>Remove from Pitch</span>
+        </button>
+      </div>
+
+      <!-- Bottom Frame Timeline & Animation Bar -->
+      <footer class="h-28 sm:h-32 bg-slate-900 border-t border-slate-800 flex flex-col z-30 shrink-0 select-none shadow-2xl">
+        <!-- Control Strip: Play/Pause, Step, Speed, Loop, Add Frame -->
+        <div class="h-10 px-3 sm:px-6 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <!-- Play / Pause -->
+            <button id="btnPlayPause" class="w-8 h-8 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow transition active:scale-95" title="Play / Pause Animation (Space)">
+              <i data-lucide="play" id="playIcon" class="w-4 h-4 ml-0.5"></i>
+            </button>
+
+            <!-- Step Navigation -->
+            <button id="btnPrevFrame" class="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Previous Phase (Left Arrow)">
+              <i data-lucide="skip-back" class="w-4 h-4"></i>
+            </button>
+            <button id="btnNextFrame" class="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Next Phase (Right Arrow)">
+              <i data-lucide="skip-forward" class="w-4 h-4"></i>
+            </button>
+
+            <!-- Status Indicator -->
+            <span id="frameStatusText" class="text-xs font-mono text-slate-300 font-semibold px-2">Phase 1 of 1</span>
+
+            <div class="h-4 w-px bg-slate-700 mx-1 hidden sm:block"></div>
+
+            <!-- Playback Speed -->
+            <div class="hidden sm:flex items-center space-x-1 text-slate-400">
+              <span class="text-[11px]">Speed:</span>
+              <select id="playbackSpeed" class="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded px-1.5 py-0.5 focus:outline-none">
+                <option value="0.5">0.5x</option>
+                <option value="1.0" selected>1.0x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2.0">2.0x</option>
+              </select>
+            </div>
+
+            <!-- Loop Toggle -->
+            <button id="btnToggleLoop" class="p-1.5 rounded-md bg-emerald-900/40 text-emerald-300 hover:bg-slate-800 transition" title="Toggle Looping">
+              <i data-lucide="repeat" class="w-3.5 h-3.5"></i>
+            </button>
+
+            <!-- Transition Style -->
+            <div class="hidden md:flex items-center space-x-1 text-slate-400">
+              <span class="text-[11px]">Ease:</span>
+              <select id="transitionStyle" class="bg-slate-800 text-xs text-slate-200 border border-slate-700 rounded px-1.5 py-0.5 focus:outline-none">
+                <option value="easeInOut">Smooth</option>
+                <option value="linear">Linear</option>
+                <option value="easeIn">Accelerate</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Add / Duplicate Frame Buttons -->
+          <div class="flex items-center space-x-1.5">
+            <button id="btnAddFrame" class="px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center gap-1 shadow transition">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <span>Add Step</span>
+            </button>
+            <button id="btnDuplicateFrame" class="px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs flex items-center gap-1" title="Duplicate current frame">
+              <i data-lucide="copy" class="w-3 h-3"></i>
+              <span class="hidden md:inline">Duplicate</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable Frame Strip -->
+        <div class="flex-1 overflow-x-auto flex items-center px-4 space-x-3 py-2" id="keyframeTimelineTrack">
+          <!-- Keyframe cards rendered here dynamically -->
+        </div>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- Dedicated Load / Import JSON Modal Dialog -->
+  <div id="loadModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 shadow-2xl flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="upload-cloud" class="w-5 h-5 text-emerald-400"></i>
+          <h3 class="font-bold text-white text-base">Load Playbook JSON</h3>
+        </div>
+        <button id="btnCloseLoadModal" class="text-slate-400 hover:text-white p-1 rounded">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- File Picker -->
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-semibold text-slate-300">Option 1: Choose File from Computer</label>
+        <label class="border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition bg-slate-950/40">
+          <i data-lucide="file-code" class="w-8 h-8 text-slate-400 mb-2"></i>
+          <span class="text-xs text-slate-300 font-medium">Click to browse or drag file here</span>
+          <span class="text-[10px] text-slate-500 mt-0.5">Supports .json RugbyTactix playbook files</span>
+          <input type="file" id="modalFileInput" accept=".json,application/json" class="hidden">
+        </label>
+      </div>
+
+      <!-- Raw Paste Area -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-semibold text-slate-300">Option 2: Paste JSON Content Directly</label>
+        <textarea id="modalJsonTextarea" rows="4" placeholder='{"title": "My Play", "frames": [...] }' class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs font-mono text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+        <button id="btnCancelLoad" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300">
+          Cancel
+        </button>
+        <button id="btnSubmitJsonPaste" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow">
+          Import & Open Playbook
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-36 right-6 bg-slate-900 border border-slate-700 text-white text-xs px-4 py-2.5 rounded-lg shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 z-50">
+    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400" id="toastIcon"></i>
+    <span id="toastMsg">Action completed</span>
+  </div>
+
+  <script>
+    // Standard U13 Rugby Union Positional Template (13-a-side: Props 1 & 3, Hooker 2, Second Row 4 & 5, No 8, 9, 10, 11, 12, 13, 14, 15)
+    const RUGBY_POSITIONS = [
+      { num: 1, name: 'Loosehead Prop', short: '1', role: 'prop', team: 'A' },
+      { num: 2, name: 'Hooker', short: '2', role: 'hooker', team: 'A' },
+      { num: 3, name: 'Tighthead Prop', short: '3', role: 'prop', team: 'A' },
+      { num: 4, name: 'Lock (Second Row)', short: '4', role: 'lock', team: 'A' },
+      { num: 5, name: 'Lock (Second Row)', short: '5', role: 'lock', team: 'A' },
+      { num: 8, name: 'Number Eight', short: '8', role: 'number8', team: 'A' },
+      { num: 9, name: 'Scrum Half', short: '9', role: 'scrumhalf', team: 'A' },
+      { num: 10, name: 'Fly Half', short: '10', role: 'flyhalf', team: 'A' },
+      { num: 11, name: 'Left Wing', short: '11', role: 'wing', team: 'A' },
+      { num: 12, name: 'Inside Centre', short: '12', role: 'centre', team: 'A' },
+      { num: 13, name: 'Outside Centre', short: '13', role: 'centre', team: 'A' },
+      { num: 14, name: 'Right Wing', short: '14', role: 'wing', team: 'A' },
+      { num: 15, name: 'Fullback', short: '15', role: 'fullback', team: 'A' }
+    ];
+
+    // Global Tactical Whiteboard State
+    const state = {
+      activeRosterTeam: 'A', // 'A' (Attack Blue) or 'B' (Defense Gold)
+      currentTool: 'select', // 'select', 'run', 'pass', 'kick', 'tackle', 'pen'
+      currentColor: '#facc15',
+      pitchView: 'full', // 'full', 'half', '22'
+      selectedActorId: null,
+      contextActorId: null,
+      showGhostTrails: true,
+
+      // Multi-Frame Animation State
+      frames: [
+        {
+          id: 1,
+          name: 'Phase 1 - Initial Set',
+          actors: [],
+          drawings: []
+        }
+      ],
+      currentFrameIndex: 0,
+      
+      // Playback Engine State
+      isPlaying: false,
+      playbackSpeed: 1.0,
+      loop: true,
+      animationProgress: 0,
+      animFrameReq: null,
+      lastTimestamp: 0,
+      frameDurationMs: 1400
+    };
+
+    // DOM Elements
+    const pitchSvg = document.getElementById('pitchSvg');
+    const pitchBoard = document.getElementById('pitchBoard');
+    const actorsContainer = document.getElementById('actorsContainer');
+    const ballTopLayer = document.getElementById('ballTopLayer');
+    const ghostTrailsLayer = document.getElementById('ghostTrailsLayer');
+    const drawingsLayer = document.getElementById('drawingsLayer');
+    const activeDrawingPath = document.getElementById('activeDrawingPath');
+    const keyframeTimelineTrack = document.getElementById('keyframeTimelineTrack');
+    const frameStatusText = document.getElementById('frameStatusText');
+    const btnPlayPause = document.getElementById('btnPlayPause');
+    const playIcon = document.getElementById('playIcon');
+    const inspectorPanel = document.getElementById('inspectorPanel');
+    const inspectorLabel = document.getElementById('inspectorLabel');
+    const inspectorName = document.getElementById('inspectorName');
+    const btnAttachBall = document.getElementById('btnAttachBall');
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    const dragTrashZone = document.getElementById('dragTrashZone');
+    const contextMenu = document.getElementById('contextMenu');
+
+    // Drawing interaction state
+    let isDrawing = false;
+    let drawingStartPt = null;
+    let currentFreehandPoints = [];
+
+    // Drag interaction state
+    let draggedActorId = null;
+    let dragOffset = { x: 0, y: 0 };
+    let isDragging = false;
+
+    // Convert mouse/touch event coordinates into Normalized Pitch Coordinates (0..1000 x 0..600)
+    function getPitchCoords(e) {
+      const rect = pitchSvg.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      
+      const rawX = ((clientX - rect.left) / rect.width) * 1000;
+      const rawY = ((clientY - rect.top) / rect.height) * 600;
+
+      const viewBox = pitchSvg.viewBox.baseVal;
+      const normX = viewBox.x + (rawX * (viewBox.width / 1000));
+      const normY = viewBox.y + (rawY * (viewBox.height / 600));
+
+      return {
+        x: Math.max(0, Math.min(1000, Math.round(normX))),
+        y: Math.max(0, Math.min(600, Math.round(normY)))
+      };
+    }
+
+    // Convert Normalized Pitch Coordinates (0..1000, 0..600) to relative percentages (%)
+    function pitchToPercent(x, y) {
+      const viewBox = pitchSvg.viewBox.baseVal;
+      const pX = ((x - viewBox.x) / viewBox.width) * 100;
+      const pY = ((y - viewBox.y) / viewBox.height) * 100;
+      return { pX, pY };
+    }
+
+    function renderRosterList() {
+      const container = document.getElementById('rosterListContainer');
+      container.innerHTML = '';
+      const currentTeam = state.activeRosterTeam;
+      const isAttack = currentTeam === 'A';
+      const bgBadgeColor = isAttack ? 'bg-red-600' : 'bg-amber-500';
+      const textBadgeColor = isAttack ? 'text-white' : 'text-slate-950 font-bold';
+
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const activePlayers = currentFrame.actors.filter(a => a.type === 'player');
+      document.getElementById('activeCountDisplay').innerText = activePlayers.length;
+
+      RUGBY_POSITIONS.forEach(pos => {
+        const onFieldPlayer = currentFrame.actors.find(a => a.type === 'player' && a.team === currentTeam && a.num === pos.num);
+
+        const card = document.createElement('div');
+        card.className = `flex items-center justify-between p-1.5 rounded-lg border text-xs transition ${
+          onFieldPlayer 
+            ? 'bg-slate-800/80 border-slate-700 text-slate-200' 
+            : 'bg-slate-800/40 border-slate-800 text-slate-400 hover:border-slate-700 hover:bg-slate-800'
+        }`;
+        
+        card.innerHTML = `
+          <div class="flex items-center space-x-2">
+            <span class="w-6 h-6 rounded-full ${bgBadgeColor} ${textBadgeColor} flex items-center justify-center font-mono text-[11px] font-bold">
+              ${pos.short}
+            </span>
+            <div class="flex flex-col">
+              <span class="font-medium truncate max-w-[120px]">${pos.name}</span>
+              <span class="text-[10px] text-slate-400 capitalize">${pos.role}</span>
+            </div>
+          </div>
+          ${onFieldPlayer ? `
+            <div class="flex items-center gap-1">
+              <button class="select-player-btn text-[10px] px-1.5 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-200" title="Select on pitch">
+                Select
+              </button>
+              <button class="remove-player-btn p-1 rounded bg-red-950/60 hover:bg-red-800 text-red-300" title="Remove #${pos.num} from pitch">
+                <i data-lucide="x" class="w-3 h-3"></i>
+              </button>
+            </div>
+          ` : `
+            <button class="deploy-player-btn text-[11px] px-2 py-0.5 rounded font-medium bg-emerald-600/90 text-white hover:bg-emerald-500">
+              Deploy
+            </button>
+          `}
+        `;
+
+        if (!onFieldPlayer) {
+          card.querySelector('.deploy-player-btn').onclick = () => deployPlayerToCenter(pos.num, pos.name, currentTeam);
+        } else {
+          card.querySelector('.select-player-btn').onclick = () => selectActor(onFieldPlayer.id);
+          card.querySelector('.remove-player-btn').onclick = () => removePlayerById(onFieldPlayer.id);
+        }
+
+        container.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    function removePlayerById(actorId) {
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const playerToRemove = currentFrame.actors.find(a => a.id === actorId);
+      
+      if (playerToRemove && playerToRemove.carrier) {
+        // Detach ball if this player was carrier
+        const ball = currentFrame.actors.find(a => a.type === 'ball');
+        if (ball) ball.carrier = null;
+      }
+
+      currentFrame.actors = currentFrame.actors.filter(a => a.id !== actorId);
+      if (state.selectedActorId === actorId) {
+        state.selectedActorId = null;
+        inspectorPanel.classList.add('hidden');
+      }
+
+      renderActors();
+      renderRosterList();
+      renderGhostTrails();
+      renderKeyframeTimeline();
+      showToast("Player removed from field");
+    }
+
+    document.getElementById('btnClearAllPlayers').onclick = () => {
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const currentTeam = state.activeRosterTeam;
+      currentFrame.actors = currentFrame.actors.filter(a => !(a.type === 'player' && a.team === currentTeam));
+      state.selectedActorId = null;
+      inspectorPanel.classList.add('hidden');
+      renderActors();
+      renderRosterList();
+      renderGhostTrails();
+      renderKeyframeTimeline();
+      showToast(`Cleared Team ${currentTeam === 'A' ? 'Red' : 'Gold'} players`);
+    };
+
+    function deployPlayerToCenter(num, name, team) {
+      const offset = (num * 20) % 200;
+      const teamX = team === 'A' ? 420 - offset : 560 + offset;
+      const teamY = 200 + ((num % 6) * 45);
+
+      const newActor = {
+        id: 'p_' + team + '_' + num + '_' + Date.now().toString().slice(-4),
+        type: 'player',
+        team: team,
+        num: num,
+        name: name,
+        x: Math.round(teamX),
+        y: Math.round(teamY),
+        carrier: false
+      };
+
+      state.frames[state.currentFrameIndex].actors.push(newActor);
+      renderActors();
+      renderRosterList();
+      renderGhostTrails();
+      showToast(`Placed #${num} ${name}`);
+    }
+
+    // Deploy or Recenter Rugby Ball
+    document.getElementById('spawnBallBtn').onclick = () => {
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const existingBall = currentFrame.actors.find(a => a.type === 'ball');
+      if (existingBall) {
+        existingBall.x = 500;
+        existingBall.y = 300;
+        // Unattach from any carrier
+        currentFrame.actors.forEach(a => { if (a.type === 'player') a.carrier = false; });
+        showToast("Ball placed at center halfway");
+      } else {
+        currentFrame.actors.push({
+          id: 'ball_' + Date.now().toString().slice(-4),
+          type: 'ball',
+          x: 500,
+          y: 300
+        });
+        showToast("Rugby ball added to pitch");
+      }
+      renderActors();
+      renderGhostTrails();
+    };
+
+    // Deploy Cone
+    document.getElementById('spawnConeBtn').onclick = () => {
+      const currentFrame = state.frames[state.currentFrameIndex];
+      currentFrame.actors.push({
+        id: 'cone_' + Date.now().toString().slice(-4),
+        type: 'cone',
+        x: 480 + (Math.random() * 40),
+        y: 280 + (Math.random() * 40)
+      });
+      renderActors();
+      showToast("Marker cone placed");
+    };
+
+    function renderActors(interpolatedActors = null) {
+      actorsContainer.innerHTML = '';
+      ballTopLayer.innerHTML = ''; // Clear dedicated ball layer
+
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const actorsToRender = interpolatedActors || currentFrame.actors;
+
+      // First Render Players & Cones into actorsContainer
+      actorsToRender.forEach(actor => {
+        if (actor.type === 'ball') return; // Ball is rendered separately on top!
+
+        const coords = pitchToPercent(actor.x, actor.y);
+        const el = document.createElement('div');
+        el.className = 'absolute -translate-x-1/2 -translate-y-1/2 pointer-events-auto cursor-grab active:cursor-grabbing transition-transform select-none';
+        el.style.left = `${coords.pX}%`;
+        el.style.top = `${coords.pY}%`;
+        el.dataset.id = actor.id;
+
+        if (actor.type === 'player') {
+          const isSelected = state.selectedActorId === actor.id;
+          const isAttack = actor.team === 'A';
+          const teamColorClass = isAttack 
+            ? 'bg-red-600 border-2 border-white text-white shadow-red-950/80 ring-2 ring-black/60' 
+            : 'bg-amber-500 border-2 border-slate-950 text-slate-950 font-black shadow-amber-950/60 ring-2 ring-black/40';
+
+          el.innerHTML = `
+            <div class="relative group">
+              <!-- Selection Aura Ring -->
+              ${isSelected ? '<div class="absolute -inset-2 rounded-full border-2 border-emerald-400 animate-pulse pointer-events-none"></div>' : ''}
+              
+              <!-- Ball Carrier Halo (Yellow dashed ring) -->
+              ${actor.carrier ? '<div class="absolute -inset-2.5 rounded-full border-2 border-dashed border-yellow-300 animate-spin" style="animation-duration: 5s;"></div>' : ''}
+
+              <!-- Numbered Jersey Token Circle -->
+              <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full ${teamColorClass} flex items-center justify-center font-bold text-xs sm:text-sm shadow-xl transform transition group-hover:scale-110">
+                ${actor.num}
+              </div>
+
+              <!-- Positional Name Badge -->
+              <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap px-1.5 py-0.2 rounded bg-slate-950/90 border border-slate-700/80 text-[9px] font-semibold text-slate-200 pointer-events-none">
+                ${actor.name.split(' ')[0]}
+              </div>
+
+              <!-- Quick Delete Floating 'x' icon on hover/select -->
+              <button class="player-quick-del-btn absolute -top-2 -right-2 w-4 h-4 bg-red-600 hover:bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold shadow opacity-0 group-hover:opacity-100 transition" title="Delete Player">
+                ×
+              </button>
+            </div>
+          `;
+
+          // Quick delete button event
+          const delBtn = el.querySelector('.player-quick-del-btn');
+          if (delBtn) {
+            delBtn.onmousedown = (e) => {
+              e.stopPropagation();
+              removePlayerById(actor.id);
+            };
+          }
+
+          // Right-click context menu listener
+          el.oncontextmenu = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openContextMenu(e, actor.id);
+          };
+
+        } else if (actor.type === 'cone') {
+          el.innerHTML = `
+            <div class="w-4 h-4 text-orange-500 drop-shadow-md flex items-center justify-center font-bold">
+              ▲
+            </div>
+          `;
+        }
+
+        // Attach Mouse & Touch Drag Listeners
+        el.onmousedown = (e) => handleActorDragStart(e, actor.id);
+        el.ontouchstart = (e) => handleActorDragStart(e, actor.id);
+
+        actorsContainer.appendChild(el);
+      });
+
+      // Always Render Rugby Ball in Dedicated Top Layer (Guaranteed on top of all players)
+      const ballActor = actorsToRender.find(a => a.type === 'ball');
+      if (ballActor) {
+        const coords = pitchToPercent(ballActor.x, ballActor.y);
+        const ballEl = document.createElement('div');
+        ballEl.className = 'absolute -translate-x-1/2 -translate-y-1/2 pointer-events-auto cursor-grab active:cursor-grabbing select-none z-30';
+        ballEl.style.left = `${coords.pX}%`;
+        ballEl.style.top = `${coords.pY}%`;
+        ballEl.dataset.id = ballActor.id;
+
+        const isSelected = state.selectedActorId === ballActor.id;
+
+        ballEl.innerHTML = `
+          <div class="relative group cursor-grab">
+            ${isSelected ? '<div class="absolute -inset-2 rounded-full border-2 border-yellow-300 animate-pulse"></div>' : ''}
+            <!-- Rugby Ball SVG Token -->
+            <div class="w-8 h-5 sm:w-9 sm:h-5 bg-gradient-to-r from-amber-50 via-white to-amber-100 rounded-full border-2 border-amber-950 flex items-center justify-center shadow-2xl transform -rotate-12 transition group-hover:scale-125 ring-2 ring-black/40">
+              <div class="w-full h-0.5 bg-red-600 relative">
+                <!-- Seams & Laces -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex space-x-0.5">
+                  <span class="w-0.5 h-2 bg-slate-900"></span>
+                  <span class="w-0.5 h-2 bg-slate-900"></span>
+                  <span class="w-0.5 h-2 bg-slate-900"></span>
+                </div>
+              </div>
+            </div>
+            <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 text-[8px] font-extrabold text-amber-300 bg-slate-950/90 px-1 py-0.2 rounded border border-amber-500/40 uppercase tracking-tighter">BALL</div>
+          </div>
+        `;
+
+        ballEl.onmousedown = (e) => handleActorDragStart(e, ballActor.id);
+        ballEl.ontouchstart = (e) => handleActorDragStart(e, ballActor.id);
+
+        ballTopLayer.appendChild(ballEl);
+      }
+    }
+
+    function handleActorDragStart(e, actorId) {
+      if (state.isPlaying) return;
+      if (state.currentTool !== 'select') return;
+      e.stopPropagation();
+
+      closeContextMenu();
+      draggedActorId = actorId;
+      isDragging = true;
+      selectActor(actorId);
+
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const actor = currentFrame.actors.find(a => a.id === actorId);
+      const coords = getPitchCoords(e);
+
+      if (actor) {
+        dragOffset.x = coords.x - actor.x;
+        dragOffset.y = coords.y - actor.y;
+      }
+
+      // Show bottom trash drop zone while dragging
+      dragTrashZone.classList.remove('opacity-0', 'pointer-events-none');
+      dragTrashZone.classList.add('opacity-100');
+
+      window.addEventListener('mousemove', handleActorDragMove);
+      window.addEventListener('touchmove', handleActorDragMove, { passive: false });
+      window.addEventListener('mouseup', handleActorDragEnd);
+      window.addEventListener('touchend', handleActorDragEnd);
+    }
+
+    function handleActorDragMove(e) {
+      if (!isDragging || !draggedActorId) return;
+      if (e.cancelable && e.type === 'touchmove') e.preventDefault();
+
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const actor = currentFrame.actors.find(a => a.id === draggedActorId);
+      if (!actor) return;
+
+      const coords = getPitchCoords(e);
+      actor.x = Math.max(10, Math.min(990, coords.x - dragOffset.x));
+      actor.y = Math.max(10, Math.min(590, coords.y - dragOffset.y));
+
+      // Carrier attachment: keep ball glued next to player
+      if (actor.carrier) {
+        const ball = currentFrame.actors.find(a => a.type === 'ball');
+        if (ball) {
+          ball.x = actor.x + 9;
+          ball.y = actor.y + 9;
+        }
+      }
+
+      renderActors();
+      renderGhostTrails();
+    }
+
+    function handleActorDragEnd(e) {
+      if (!isDragging) return;
+      isDragging = false;
+
+      // Check if dropped into trash drop zone
+      const trashRect = dragTrashZone.getBoundingClientRect();
+      const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+      const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+
+      if (
+        clientX >= trashRect.left &&
+        clientX <= trashRect.right &&
+        clientY >= trashRect.top &&
+        clientY <= trashRect.bottom
+      ) {
+        removePlayerById(draggedActorId);
+      }
+
+      dragTrashZone.classList.remove('opacity-100');
+      dragTrashZone.classList.add('opacity-0', 'pointer-events-none');
+
+      draggedActorId = null;
+
+      window.removeEventListener('mousemove', handleActorDragMove);
+      window.removeEventListener('touchmove', handleActorDragMove);
+      window.removeEventListener('mouseup', handleActorDragEnd);
+      window.removeEventListener('touchend', handleActorDragEnd);
+
+      renderKeyframeTimeline();
+    }
+
+    function selectActor(id) {
+      state.selectedActorId = id;
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const actor = currentFrame.actors.find(a => a.id === id);
+
+      if (actor && actor.type === 'player') {
+        inspectorPanel.classList.remove('hidden');
+        inspectorPanel.classList.add('flex');
+        inspectorLabel.value = actor.num;
+        inspectorName.value = actor.name;
+        btnAttachBall.innerHTML = actor.carrier 
+          ? `<i data-lucide="check" class="w-3 h-3 text-emerald-400"></i> Ball Carrier` 
+          : `<i data-lucide="paperclip" class="w-3 h-3"></i> Make Carrier`;
+        lucide.createIcons();
+      } else {
+        inspectorPanel.classList.add('hidden');
+        inspectorPanel.classList.remove('flex');
+      }
+      renderActors();
+    }
+
+    // Context menu handlers
+    function openContextMenu(e, actorId) {
+      state.contextActorId = actorId;
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const actor = currentFrame.actors.find(a => a.id === actorId);
+      if (!actor) return;
+
+      document.getElementById('contextPlayerTitle').innerText = `#${actor.num} ${actor.name}`;
+      contextMenu.style.left = `${e.pageX + 5}px`;
+      contextMenu.style.top = `${e.pageY + 5}px`;
+      contextMenu.style.display = 'block';
+    }
+
+    function closeContextMenu() {
+      contextMenu.style.display = 'none';
+      state.contextActorId = null;
+    }
+
+    window.addEventListener('click', (e) => {
+      if (!e.target.closest('#contextMenu')) {
+        closeContextMenu();
+      }
+    });
+
+    document.getElementById('contextRemovePlayer').onclick = () => {
+      if (state.contextActorId) {
+        removePlayerById(state.contextActorId);
+        closeContextMenu();
+      }
+    };
+
+    document.getElementById('contextToggleCarrier').onclick = () => {
+      if (state.contextActorId) {
+        toggleCarrierForActor(state.contextActorId);
+        closeContextMenu();
+      }
+    };
+
+    function toggleCarrierForActor(actorId) {
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const actor = currentFrame.actors.find(a => a.id === actorId);
+      if (!actor || actor.type !== 'player') return;
+
+      actor.carrier = !actor.carrier;
+      if (actor.carrier) {
+        currentFrame.actors.forEach(a => { if (a.id !== actor.id) a.carrier = false; });
+        let ball = currentFrame.actors.find(a => a.type === 'ball');
+        if (!ball) {
+          ball = { id: 'ball_main', type: 'ball', x: actor.x + 9, y: actor.y + 9 };
+          currentFrame.actors.push(ball);
+        } else {
+          ball.x = actor.x + 9;
+          ball.y = actor.y + 9;
+        }
+        showToast(`Ball snapped to #${actor.num} ${actor.name}`);
+      }
+      selectActor(actor.id);
+      renderActors();
+      renderGhostTrails();
+    }
+
+    inspectorLabel.oninput = (e) => {
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const actor = currentFrame.actors.find(a => a.id === state.selectedActorId);
+      if (actor) {
+        actor.num = e.target.value;
+        renderActors();
+        renderRosterList();
+      }
+    };
+
+    inspectorName.oninput = (e) => {
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const actor = currentFrame.actors.find(a => a.id === state.selectedActorId);
+      if (actor) {
+        actor.name = e.target.value;
+        renderActors();
+        renderRosterList();
+      }
+    };
+
+    btnAttachBall.onclick = () => {
+      if (state.selectedActorId) toggleCarrierForActor(state.selectedActorId);
+    };
+
+    document.getElementById('btnDeleteSelected').onclick = () => {
+      if (state.selectedActorId) removePlayerById(state.selectedActorId);
+    };
+
+    pitchSvg.onmousedown = handleDrawStart;
+    pitchSvg.ontouchstart = handleDrawStart;
+
+    function handleDrawStart(e) {
+      if (state.isPlaying) return;
+      if (state.currentTool === 'select') {
+        state.selectedActorId = null;
+        inspectorPanel.classList.add('hidden');
+        renderActors();
+        return;
+      }
+      isDrawing = true;
+      drawingStartPt = getPitchCoords(e);
+      currentFreehandPoints = [drawingStartPt];
+
+      window.addEventListener('mousemove', handleDrawMove);
+      window.addEventListener('touchmove', handleDrawMove, { passive: false });
+      window.addEventListener('mouseup', handleDrawEnd);
+      window.addEventListener('touchend', handleDrawEnd);
+    }
+
+    function handleDrawMove(e) {
+      if (!isDrawing) return;
+      if (e.cancelable && e.type === 'touchmove') e.preventDefault();
+      const currentPt = getPitchCoords(e);
+
+      if (state.currentTool === 'pen') {
+        currentFreehandPoints.push(currentPt);
+        const pathStr = currentFreehandPoints.reduce((acc, pt, idx) => {
+          return idx === 0 ? `M ${pt.x} ${pt.y}` : `${acc} L ${pt.x} ${pt.y}`;
+        }, '');
+        activeDrawingPath.setAttribute('d', pathStr);
+        activeDrawingPath.setAttribute('stroke', state.currentColor);
+        activeDrawingPath.removeAttribute('stroke-dasharray');
+      } else {
+        const d = `M ${drawingStartPt.x} ${drawingStartPt.y} L ${currentPt.x} ${currentPt.y}`;
+        activeDrawingPath.setAttribute('d', d);
+        activeDrawingPath.setAttribute('stroke', state.currentColor);
+        
+        if (state.currentTool === 'pass') {
+          activeDrawingPath.setAttribute('stroke-dasharray', '8 6');
+        } else if (state.currentTool === 'kick') {
+          const midX = (drawingStartPt.x + currentPt.x) / 2;
+          const midY = (drawingStartPt.y + currentPt.y) / 2 - 40;
+          activeDrawingPath.setAttribute('d', `M ${drawingStartPt.x} ${drawingStartPt.y} Q ${midX} ${midY} ${currentPt.x} ${currentPt.y}`);
+          activeDrawingPath.removeAttribute('stroke-dasharray');
+        } else {
+          activeDrawingPath.removeAttribute('stroke-dasharray');
+        }
+      }
+    }
+
+    function handleDrawEnd(e) {
+      if (!isDrawing) return;
+      isDrawing = false;
+      activeDrawingPath.setAttribute('d', '');
+
+      window.removeEventListener('mousemove', handleDrawMove);
+      window.removeEventListener('touchmove', handleDrawMove);
+      window.removeEventListener('mouseup', handleDrawEnd);
+      window.removeEventListener('touchend', handleDrawEnd);
+
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const endPt = currentFreehandPoints[currentFreehandPoints.length - 1] || drawingStartPt;
+
+      const dist = Math.hypot(endPt.x - drawingStartPt.x, endPt.y - drawingStartPt.y);
+      if (state.currentTool !== 'pen' && dist < 12) return;
+
+      const newDrawing = {
+        id: 'draw_' + Date.now().toString().slice(-5),
+        tool: state.currentTool,
+        color: state.currentColor,
+        points: currentFreehandPoints,
+        startX: drawingStartPt.x,
+        startY: drawingStartPt.y,
+        endX: endPt.x,
+        endY: endPt.y
+      };
+
+      currentFrame.drawings.push(newDrawing);
+      renderDrawings();
+    }
+
+    function renderDrawings() {
+      drawingsLayer.innerHTML = '';
+      const currentFrame = state.frames[state.currentFrameIndex];
+
+      currentFrame.drawings.forEach(d => {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+        if (d.tool === 'pen') {
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          const pathStr = d.points.reduce((acc, pt, idx) => idx === 0 ? `M ${pt.x} ${pt.y}` : `${acc} L ${pt.x} ${pt.y}`, '');
+          path.setAttribute('d', pathStr);
+          path.setAttribute('stroke', d.color);
+          path.setAttribute('stroke-width', '3');
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke-linecap', 'round');
+          path.setAttribute('stroke-linejoin', 'round');
+          g.appendChild(path);
+        } else if (d.tool === 'run') {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', d.startX);
+          line.setAttribute('y1', d.startY);
+          line.setAttribute('x2', d.endX);
+          line.setAttribute('y2', d.endY);
+          line.setAttribute('stroke', d.color);
+          line.setAttribute('stroke-width', '3.5');
+          line.setAttribute('marker-end', 'url(#arrow-run)');
+          g.appendChild(line);
+        } else if (d.tool === 'pass') {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', d.startX);
+          line.setAttribute('y1', d.startY);
+          line.setAttribute('x2', d.endX);
+          line.setAttribute('y2', d.endY);
+          line.setAttribute('stroke', d.color);
+          line.setAttribute('stroke-width', '3');
+          line.setAttribute('stroke-dasharray', '8 6');
+          line.setAttribute('marker-end', 'url(#arrow-pass)');
+          g.appendChild(line);
+        } else if (d.tool === 'kick') {
+          const midX = (d.startX + d.endX) / 2;
+          const midY = (d.startY + d.endY) / 2 - 45;
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', `M ${d.startX} ${d.startY} Q ${midX} ${midY} ${d.endX} ${d.endY}`);
+          path.setAttribute('stroke', d.color);
+          path.setAttribute('stroke-width', '3');
+          path.setAttribute('fill', 'none');
+          path.setAttribute('marker-end', 'url(#arrow-kick)');
+          g.appendChild(path);
+        } else if (d.tool === 'tackle') {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', d.startX);
+          line.setAttribute('y1', d.startY);
+          line.setAttribute('x2', d.endX);
+          line.setAttribute('y2', d.endY);
+          line.setAttribute('stroke', d.color);
+          line.setAttribute('stroke-width', '3');
+          
+          const angle = Math.atan2(d.endY - d.startY, d.endX - d.startX);
+          const barLen = 14;
+          const bar = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          bar.setAttribute('x1', d.endX + Math.sin(angle) * barLen);
+          bar.setAttribute('y1', d.endY - Math.cos(angle) * barLen);
+          bar.setAttribute('x2', d.endX - Math.sin(angle) * barLen);
+          bar.setAttribute('y2', d.endY + Math.cos(angle) * barLen);
+          bar.setAttribute('stroke', d.color);
+          bar.setAttribute('stroke-width', '4');
+
+          g.appendChild(line);
+          g.appendChild(bar);
+        }
+
+        drawingsLayer.appendChild(g);
+      });
+    }
+
+    document.getElementById('btnClearDrawings').onclick = () => {
+      state.frames[state.currentFrameIndex].drawings = [];
+      renderDrawings();
+      showToast("Tactical drawings cleared");
+    };
+
+    function renderGhostTrails() {
+      ghostTrailsLayer.innerHTML = '';
+      if (!state.showGhostTrails) return;
+
+      const prevFrame = state.frames[state.currentFrameIndex - 1];
+      const currFrame = state.frames[state.currentFrameIndex];
+      if (!prevFrame) return;
+
+      currFrame.actors.forEach(currActor => {
+        const prevActor = prevFrame.actors.find(a => a.id === currActor.id || (a.type === 'player' && a.num === currActor.num && a.team === currActor.team));
+        if (prevActor) {
+          const dist = Math.hypot(currActor.x - prevActor.x, currActor.y - prevActor.y);
+          if (dist > 15) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', prevActor.x);
+            line.setAttribute('y1', prevActor.y);
+            line.setAttribute('x2', currActor.x);
+            line.setAttribute('y2', currActor.y);
+            line.setAttribute('stroke', currActor.type === 'ball' ? '#facc15' : (currActor.team === 'A' ? '#ef4444' : '#f59e0b'));
+            line.setAttribute('stroke-width', currActor.type === 'ball' ? '2.5' : '2');
+            line.setAttribute('stroke-dasharray', '5 4');
+            line.setAttribute('stroke-opacity', '0.75');
+            line.setAttribute('marker-end', 'url(#arrow-custom)');
+
+            const ghostCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            ghostCircle.setAttribute('cx', prevActor.x);
+            ghostCircle.setAttribute('cy', prevActor.y);
+            ghostCircle.setAttribute('r', currActor.type === 'ball' ? '5' : '9');
+            ghostCircle.setAttribute('fill', 'none');
+            ghostCircle.setAttribute('stroke', currActor.type === 'ball' ? '#facc15' : (currActor.team === 'A' ? '#ef4444' : '#f59e0b'));
+            ghostCircle.setAttribute('stroke-width', '1.5');
+            ghostCircle.setAttribute('stroke-opacity', '0.5');
+
+            ghostTrailsLayer.appendChild(line);
+            ghostTrailsLayer.appendChild(ghostCircle);
+          }
+        }
+      });
+    }
+
+    document.getElementById('toggleGhostTrails').onclick = (e) => {
+      state.showGhostTrails = !state.showGhostTrails;
+      e.currentTarget.classList.toggle('bg-emerald-600', state.showGhostTrails);
+      e.currentTarget.classList.toggle('text-white', state.showGhostTrails);
+      renderGhostTrails();
+      showToast(state.showGhostTrails ? "Motion trails enabled" : "Motion trails disabled");
+    };
+
+    function renderKeyframeTimeline() {
+      keyframeTimelineTrack.innerHTML = '';
+
+      state.frames.forEach((frame, idx) => {
+        const isActive = idx === state.currentFrameIndex;
+        const card = document.createElement('div');
+        card.className = `flex-shrink-0 w-28 sm:w-32 h-16 sm:h-20 rounded-xl p-1.5 flex flex-col justify-between border cursor-pointer transition select-none ${
+          isActive 
+            ? 'bg-slate-800 border-red-500 shadow-md ring-2 ring-red-500/40 text-white' 
+            : 'bg-slate-900 border-slate-700/80 hover:border-slate-600 text-slate-400 hover:text-slate-200'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-mono font-bold uppercase tracking-wider ${isActive ? 'text-red-400' : 'text-slate-500'}">
+              Phase ${idx + 1}
+            </span>
+            ${state.frames.length > 1 ? `
+              <button class="delete-frame-btn text-slate-500 hover:text-red-400 p-0.5 rounded transition" data-index="${idx}" title="Delete phase">
+                <i data-lucide="x" class="w-3 h-3"></i>
+              </button>
+            ` : ''}
+          </div>
+
+          <div class="w-full flex-1 my-1 bg-turf-field/60 rounded border border-emerald-900/60 relative overflow-hidden flex items-center justify-center">
+            <div class="absolute inset-y-0 left-1/2 w-px bg-white/20"></div>
+            <span class="text-[9px] font-semibold text-emerald-200/90 tracking-tight">
+              ${frame.actors.length} actors
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between text-[9px] text-slate-400">
+            <span class="truncate max-w-[75px]">${frame.name || `Phase ${idx + 1}`}</span>
+            <span>${(idx * 1.5).toFixed(1)}s</span>
+          </div>
+        `;
+
+        card.onclick = (e) => {
+          if (e.target.closest('.delete-frame-btn')) return;
+          jumpToFrame(idx);
+        };
+
+        const delBtn = card.querySelector('.delete-frame-btn');
+        if (delBtn) {
+          delBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteFrame(idx);
+          };
+        }
+
+        keyframeTimelineTrack.appendChild(card);
+      });
+
+      frameStatusText.innerText = `Phase ${state.currentFrameIndex + 1} of ${state.frames.length}`;
+      lucide.createIcons();
+    }
+
+    function jumpToFrame(index) {
+      if (state.isPlaying) pauseAnimation();
+      state.currentFrameIndex = index;
+      state.selectedActorId = null;
+      renderActors();
+      renderDrawings();
+      renderGhostTrails();
+      renderRosterList();
+      renderKeyframeTimeline();
+    }
+
+    function addKeyframe(duplicate = false) {
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const clonedActors = JSON.parse(JSON.stringify(currentFrame.actors));
+      
+      const newFrame = {
+        id: Date.now(),
+        name: `Phase ${state.frames.length + 1}`,
+        actors: clonedActors,
+        drawings: duplicate ? JSON.parse(JSON.stringify(currentFrame.drawings)) : []
+      };
+
+      state.frames.splice(state.currentFrameIndex + 1, 0, newFrame);
+      state.currentFrameIndex++;
+      renderKeyframeTimeline();
+      jumpToFrame(state.currentFrameIndex);
+      showToast(duplicate ? "Step duplicated" : "New step added");
+    }
+
+    function deleteFrame(index) {
+      if (state.frames.length <= 1) return;
+      state.frames.splice(index, 1);
+      if (state.currentFrameIndex >= state.frames.length) {
+        state.currentFrameIndex = state.frames.length - 1;
+      }
+      jumpToFrame(state.currentFrameIndex);
+      showToast("Phase removed");
+    }
+
+    document.getElementById('btnAddFrame').onclick = () => addKeyframe(false);
+    document.getElementById('btnDuplicateFrame').onclick = () => addKeyframe(true);
+    document.getElementById('btnPrevFrame').onclick = () => {
+      if (state.currentFrameIndex > 0) jumpToFrame(state.currentFrameIndex - 1);
+    };
+    document.getElementById('btnNextFrame').onclick = () => {
+      if (state.currentFrameIndex < state.frames.length - 1) jumpToFrame(state.currentFrameIndex + 1);
+    };
+
+    function startAnimation() {
+      if (state.frames.length < 2) {
+        showToast("Add at least 2 steps to animate");
+        return;
+      }
+      state.isPlaying = true;
+      playIcon.setAttribute('data-lucide', 'pause');
+      lucide.createIcons();
+      state.lastTimestamp = performance.now();
+      requestAnimationFrame(animationLoop);
+    }
+
+    function pauseAnimation() {
+      state.isPlaying = false;
+      playIcon.setAttribute('data-lucide', 'play');
+      lucide.createIcons();
+      if (state.animFrameReq) cancelAnimationFrame(state.animFrameReq);
+      renderActors();
+    }
+
+    function togglePlay() {
+      if (state.isPlaying) {
+        pauseAnimation();
+      } else {
+        if (state.currentFrameIndex >= state.frames.length - 1) {
+          state.currentFrameIndex = 0;
+          state.animationProgress = 0;
+        }
+        startAnimation();
+      }
+    }
+
+    btnPlayPause.onclick = togglePlay;
+
+    function easeInOutQuad(t) {
+      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    }
+    function easeInQuad(t) {
+      return t * t;
+    }
+
+    function animationLoop(timestamp) {
+      if (!state.isPlaying) return;
+
+      const delta = timestamp - state.lastTimestamp;
+      state.lastTimestamp = timestamp;
+
+      const effectiveDuration = state.frameDurationMs / state.playbackSpeed;
+      state.animationProgress += delta / effectiveDuration;
+
+      if (state.animationProgress >= 1) {
+        state.animationProgress = 0;
+        state.currentFrameIndex++;
+
+        if (state.currentFrameIndex >= state.frames.length - 1) {
+          if (state.loop) {
+            state.currentFrameIndex = 0;
+          } else {
+            state.currentFrameIndex = state.frames.length - 1;
+            pauseAnimation();
+            renderKeyframeTimeline();
+            return;
+          }
+        }
+        renderKeyframeTimeline();
+      }
+
+      const frameA = state.frames[state.currentFrameIndex];
+      const nextIndex = (state.currentFrameIndex + 1) % state.frames.length;
+      const frameB = state.frames[nextIndex];
+
+      const easeType = document.getElementById('transitionStyle').value;
+      let easedT = state.animationProgress;
+      if (easeType === 'easeInOut') easedT = easeInOutQuad(state.animationProgress);
+      else if (easeType === 'easeIn') easedT = easeInQuad(state.animationProgress);
+
+      const interpolatedActors = frameA.actors.map(actorA => {
+        const actorB = frameB.actors.find(b => b.id === actorA.id || (b.type === 'player' && b.num === actorA.num && b.team === actorA.team));
+        if (!actorB) return actorA;
+
+        return {
+          ...actorA,
+          x: actorA.x + (actorB.x - actorA.x) * easedT,
+          y: actorA.y + (actorB.y - actorA.y) * easedT
+        };
+      });
+
+      renderActors(interpolatedActors);
+      state.animFrameReq = requestAnimationFrame(animationLoop);
+    }
+
+    document.getElementById('playbackSpeed').onchange = (e) => {
+      state.playbackSpeed = parseFloat(e.target.value);
+    };
+
+    document.getElementById('btnToggleLoop').onclick = (e) => {
+      state.loop = !state.loop;
+      e.currentTarget.classList.toggle('bg-emerald-900/40', state.loop);
+      e.currentTarget.classList.toggle('text-emerald-300', state.loop);
+      e.currentTarget.classList.toggle('text-slate-500', !state.loop);
+      showToast(state.loop ? "Looping enabled" : "Looping disabled");
+    };
+
+    function setPitchView(mode) {
+      state.pitchView = mode;
+      const btnFull = document.getElementById('viewFullPitch');
+      const btnHalf = document.getElementById('viewHalfPitch');
+      const btn22 = document.getElementById('view22Pitch');
+
+      [btnFull, btnHalf, btn22].forEach(b => {
+        b.classList.remove('bg-emerald-600', 'text-white');
+        b.classList.add('text-slate-300');
+      });
+
+      if (mode === 'full') {
+        btnFull.classList.add('bg-emerald-600', 'text-white');
+        pitchSvg.setAttribute('viewBox', '0 0 1000 600');
+        pitchBoard.style.aspectRatio = '100 / 60';
+      } else if (mode === 'half') {
+        btnHalf.classList.add('bg-emerald-600', 'text-white');
+        pitchSvg.setAttribute('viewBox', '480 30 500 540');
+        pitchBoard.style.aspectRatio = '50 / 54';
+      } else if (mode === '22') {
+        btn22.classList.add('bg-emerald-600', 'text-white');
+        pitchSvg.setAttribute('viewBox', '680 30 300 540');
+        pitchBoard.style.aspectRatio = '30 / 54';
+      }
+
+      renderActors();
+      renderDrawings();
+      renderGhostTrails();
+    }
+
+    document.getElementById('viewFullPitch').onclick = () => setPitchView('full');
+    document.getElementById('viewHalfPitch').onclick = () => setPitchView('half');
+    document.getElementById('view22Pitch').onclick = () => setPitchView('22');
+
+    document.getElementById('tabTeamA').onclick = (e) => {
+      state.activeRosterTeam = 'A';
+      e.currentTarget.className = 'py-1.5 px-2 text-xs font-semibold rounded bg-red-600 text-white flex items-center justify-center gap-1.5 transition shadow-sm';
+      document.getElementById('tabTeamB').className = 'py-1.5 px-2 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center gap-1.5 transition';
+      renderRosterList();
+    };
+
+    document.getElementById('tabTeamB').onclick = (e) => {
+      state.activeRosterTeam = 'B';
+      e.currentTarget.className = 'py-1.5 px-2 text-xs font-semibold rounded bg-amber-500 text-slate-950 font-bold flex items-center justify-center gap-1.5 transition';
+      document.getElementById('tabTeamA').className = 'py-1.5 px-2 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center gap-1.5 transition';
+      renderRosterList();
+    };
+
+    const rosterSidebar = document.getElementById('rosterSidebar');
+    const sidebarCollapseIcon = document.getElementById('sidebarCollapseIcon');
+    let sidebarOpen = true;
+    document.getElementById('btnToggleSidebar').onclick = () => {
+      sidebarOpen = !sidebarOpen;
+      if (sidebarOpen) {
+        rosterSidebar.style.marginLeft = '0px';
+        sidebarCollapseIcon.setAttribute('data-lucide', 'chevron-left');
+      } else {
+        rosterSidebar.style.marginLeft = '-16rem';
+        sidebarCollapseIcon.setAttribute('data-lucide', 'chevron-right');
+      }
+      lucide.createIcons();
+    };
+
+    const toolButtons = {
+      select: document.getElementById('toolSelect'),
+      run: document.getElementById('toolRun'),
+      pass: document.getElementById('toolPass'),
+      kick: document.getElementById('toolKick'),
+      tackle: document.getElementById('toolTackle'),
+      pen: document.getElementById('toolPen')
+    };
+
+    function setActiveTool(tool) {
+      state.currentTool = tool;
+      Object.keys(toolButtons).forEach(key => {
+        const btn = toolButtons[key];
+        if (key === tool) {
+          btn.className = 'tool-btn active-tool p-2 rounded-lg text-xs font-medium bg-emerald-600 text-white shadow transition';
+        } else {
+          btn.className = 'tool-btn p-2 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition';
+        }
+      });
+      pitchBoard.style.cursor = tool === 'select' ? 'default' : 'crosshair';
+    }
+
+    Object.keys(toolButtons).forEach(tool => {
+      toolButtons[tool].onclick = () => setActiveTool(tool);
+    });
+
+    document.querySelectorAll('.color-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('ring-2', 'ring-white', 'scale-110'));
+        btn.classList.add('ring-2', 'ring-white', 'scale-110');
+        state.currentColor = btn.dataset.color;
+      };
+    });
+
+    // Formations Presets for U13 (3-2-1 6-player forward pack, 7-player backline)
+    function deployFormationPreset(type) {
+      const currentFrame = state.frames[state.currentFrameIndex];
+      const team = state.activeRosterTeam;
+      const xMod = team === 'A' ? 1 : -1;
+      const baseX = team === 'A' ? 380 : 620;
+
+      if (type === 'backline') {
+        currentFrame.actors = currentFrame.actors.filter(a => !(a.team === team && [9,10,11,12,13,14,15].includes(a.num)));
+        const backline = [
+          { num: 9, name: 'Scrum Half', x: baseX, y: 300 },
+          { num: 10, name: 'Fly Half', x: baseX - (35 * xMod), y: 340, carrier: team === 'A' },
+          { num: 12, name: 'Inside Centre', x: baseX - (70 * xMod), y: 390 },
+          { num: 13, name: 'Outside Centre', x: baseX - (105 * xMod), y: 440 },
+          { num: 11, name: 'Left Wing', x: baseX, y: 110 },
+          { num: 14, name: 'Right Wing', x: baseX - (130 * xMod), y: 500 },
+          { num: 15, name: 'Fullback', x: baseX - (145 * xMod), y: 380 }
+        ];
+        backline.forEach(b => {
+          currentFrame.actors.push({
+            id: 'p_' + team + '_' + b.num + '_' + Date.now().toString().slice(-4),
+            type: 'player',
+            team: team,
+            num: b.num,
+            name: b.name,
+            x: b.x,
+            y: b.y,
+            carrier: !!b.carrier
+          });
+        });
+        showToast(`Deployed ${team === 'A' ? 'Attack (Red)' : 'Defense (Gold)'} U13 Backline (7)`);
+      } else if (type === 'scrum') {
+        // U13 6-player scrum: 3-2-1 formation (1, 2, 3 front row; 4, 5 second row; 8 at base)
+        currentFrame.actors = currentFrame.actors.filter(a => !(a.team === team && [1,2,3,4,5,8].includes(a.num)));
+        const forwards = [
+          { num: 1, name: 'Loosehead Prop', x: baseX, y: 285 },
+          { num: 2, name: 'Hooker', x: baseX, y: 300 },
+          { num: 3, name: 'Tighthead Prop', x: baseX, y: 315 },
+          { num: 4, name: 'Lock 4', x: baseX - (22 * xMod), y: 292 },
+          { num: 5, name: 'Lock 5', x: baseX - (22 * xMod), y: 308 },
+          { num: 8, name: 'Number Eight', x: baseX - (44 * xMod), y: 300 }
+        ];
+        forwards.forEach(f => {
+          currentFrame.actors.push({
+            id: 'p_' + team + '_' + f.num + '_' + Date.now().toString().slice(-4),
+            type: 'player',
+            team: team,
+            num: f.num,
+            name: f.name,
+            x: f.x,
+            y: f.y
+          });
+        });
+        showToast(`Deployed ${team === 'A' ? 'Attack (Red)' : 'Defense (Gold)'} U13 Scrum Pack (3-2-1)`);
+      } else if (type === 'lineout') {
+        // U13 6-player lineout: Hooker 2 throwing + 1, 3, 4, 5, 8
+        currentFrame.actors = currentFrame.actors.filter(a => !(a.team === team && [1,2,3,4,5,8].includes(a.num)));
+        const lineout = [
+          { num: 2, name: 'Hooker', x: baseX, y: 55 },
+          { num: 1, name: 'Prop 1', x: baseX, y: 100 },
+          { num: 4, name: 'Lock 4', x: baseX, y: 130 },
+          { num: 3, name: 'Prop 3', x: baseX, y: 155 },
+          { num: 5, name: 'Lock 5', x: baseX, y: 185 },
+          { num: 8, name: 'Number Eight', x: baseX, y: 215 }
+        ];
+        lineout.forEach(l => {
+          currentFrame.actors.push({
+            id: 'p_' + team + '_' + l.num + '_' + Date.now().toString().slice(-4),
+            type: 'player',
+            team: team,
+            num: l.num,
+            name: l.name,
+            x: l.x,
+            y: l.y
+          });
+        });
+        showToast(`Deployed ${team === 'A' ? 'Attack (Red)' : 'Defense (Gold)'} 6-Man Lineout`);
+      }
+
+      renderActors();
+      renderRosterList();
+      renderGhostTrails();
+    }
+
+    document.getElementById('btnDeployBackline').onclick = () => deployFormationPreset('backline');
+    document.getElementById('btnDeployScrum').onclick = () => deployFormationPreset('scrum');
+    document.getElementById('btnDeployLineout').onclick = () => deployFormationPreset('lineout');
+
+    const PLAYBOOK_PRESETS = {
+      preset_strike: {
+        title: "Backline Strike & Loop (13v13 U13)",
+        frames: [
+          {
+            name: "Phase 1 - Midfield Ruck Platform & Launch",
+            actors: [
+              // Attack Blue (13 players: 6 forwards + 7 backs)
+              // Forwards securing breakdown
+              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 385, y: 285 },
+              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 395, y: 298 },
+              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 385, y: 312 },
+              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 365, y: 288 },
+              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 365, y: 310 },
+              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 350, y: 298 },
+              // Backline
+              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 375, y: 260 },
+              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 330, y: 335, carrier: true },
+              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 295, y: 390 },
+              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 255, y: 440 },
+              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 390, y: 115 },
+              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 215, y: 505 },
+              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 220, y: 370 },
+              // Ball
+              { id: 'ball_1', type: 'ball', x: 338, y: 340 },
+              // Defense Gold (13 players: 6 forwards + 7 backs in drift formation)
+              // Forwards at breakdown
+              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 420, y: 285 },
+              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 415, y: 298 },
+              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 420, y: 312 },
+              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 440, y: 280 },
+              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 440, y: 315 },
+              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 450, y: 298 },
+              // Defensive Backline
+              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 435, y: 255 },
+              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 460, y: 340 },
+              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 465, y: 390 },
+              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 470, y: 440 },
+              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 485, y: 505 },
+              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 480, y: 120 },
+              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 550, y: 380 }
+            ],
+            drawings: [
+              { tool: 'pass', color: '#38bdf8', startX: 375, startY: 260, endX: 330, endY: 335 }
+            ]
+          },
+          {
+            name: "Phase 2 - 10 Passes to 12 & Loops Around",
+            actors: [
+              // Attack Blue
+              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 405, y: 290 },
+              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 410, y: 305 },
+              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 405, y: 320 },
+              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 390, y: 295 },
+              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 390, y: 318 },
+              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 380, y: 308 },
+              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 400, y: 280 },
+              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 390, y: 405, carrier: false },
+              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 400, y: 385, carrier: true },
+              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 345, y: 450 },
+              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 415, y: 135 },
+              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 310, y: 510 },
+              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 300, y: 420 },
+              // Ball
+              { id: 'ball_1', type: 'ball', x: 408, y: 389 },
+              // Defense Gold (Forwards fold, Backs drift hard on 12)
+              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 290 },
+              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 425, y: 305 },
+              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 430, y: 320 },
+              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 445, y: 295 },
+              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 450, y: 320 },
+              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 460, y: 310 },
+              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 440, y: 275 },
+              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 435, y: 355 },
+              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 420, y: 385 },
+              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 435, y: 440 },
+              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 450, y: 505 },
+              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 470, y: 130 },
+              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 520, y: 410 }
+            ],
+            drawings: [
+              { tool: 'pass', color: '#38bdf8', startX: 400, startY: 385, endX: 390, endY: 405 }
+            ]
+          },
+          {
+            name: "Phase 3 - 10 Wraps & Releases Overlap Out Wide",
+            actors: [
+              // Attack Blue
+              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 430, y: 300 },
+              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 435, y: 315 },
+              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 430, y: 330 },
+              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 420, y: 310 },
+              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 425, y: 335 },
+              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 430, y: 350 },
+              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 430, y: 300 },
+              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 475, y: 430, carrier: true },
+              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 435, y: 385, carrier: false },
+              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 500, y: 470 },
+              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 440, y: 160 },
+              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 490, y: 520 },
+              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 440, y: 460 },
+              // Ball
+              { id: 'ball_1', type: 'ball', x: 483, y: 435 },
+              // Defense Gold (Narrowed by 12, caught in 3v2 on flank)
+              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 445, y: 300 },
+              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 440, y: 315 },
+              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 445, y: 330 },
+              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 455, y: 310 },
+              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 460, y: 330 },
+              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 465, y: 345 },
+              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 450, y: 295 },
+              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 445, y: 365 },
+              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 440, y: 390 },
+              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 460, y: 445 },
+              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 480, y: 495 },
+              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 465, y: 150 },
+              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 505, y: 435 }
+            ],
+            drawings: [
+              { tool: 'run', color: '#facc15', startX: 475, startY: 430, endX: 590, endY: 485 }
+            ]
+          }
+        ]
+      },
+
+      preset_lineout: {
+        title: "6-Man Lineout to Backs Strike (13v13 U13)",
+        frames: [
+          {
+            name: "Phase 1 - 6-Man Lineout Set on 5m",
+            actors: [
+              // Attack Blue (13 players: 6 forwards + 7 backs)
+              // 6-man lineout (Hooker 2 throwing, 1, 4, 3, 5, 8 in line)
+              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 410, y: 55, carrier: true },
+              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 410, y: 95 },
+              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 410, y: 125 },
+              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 410, y: 155 },
+              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 410, y: 185 },
+              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 410, y: 215 },
+              // Backline 10m back from line of touch
+              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 375, y: 155 },
+              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 310, y: 260 },
+              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 275, y: 320 },
+              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 240, y: 380 },
+              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 380, y: 90 },
+              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 205, y: 460 },
+              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 200, y: 310 },
+              // Ball
+              { id: 'ball_1', type: 'ball', x: 416, y: 55 },
+              // Defense Gold (13 players: 6 mirror forwards + 7 backs)
+              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 440, y: 70 },
+              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 95 },
+              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 430, y: 125 },
+              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 430, y: 155 },
+              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 430, y: 185 },
+              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 430, y: 215 },
+              // Defensive Backline (10m back on 50m line)
+              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 460, y: 155 },
+              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 500, y: 260 },
+              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 500, y: 320 },
+              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 500, y: 380 },
+              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 505, y: 460 },
+              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 475, y: 90 },
+              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 575, y: 320 }
+            ],
+            drawings: [
+              { tool: 'pass', color: '#38bdf8', startX: 410, startY: 55, endX: 410, endY: 125 }
+            ]
+          },
+          {
+            name: "Phase 2 - Jumper Won at 4 & Dish to 9",
+            actors: [
+              // Attack Blue
+              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 420, y: 70 },
+              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 410, y: 110 },
+              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 410, y: 125, carrier: true },
+              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 410, y: 140 },
+              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 415, y: 180 },
+              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 415, y: 210 },
+              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 400, y: 135 },
+              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 350, y: 260 },
+              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 310, y: 325 },
+              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 275, y: 390 },
+              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 395, y: 90 },
+              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 240, y: 470 },
+              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 235, y: 330 },
+              // Ball
+              { id: 'ball_1', type: 'ball', x: 415, y: 128 },
+              // Defense Gold (Front pod contests, Backs prepare lineout rush)
+              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 445, y: 75 },
+              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 425, y: 110 },
+              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 425, y: 125 },
+              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 425, y: 140 },
+              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 425, y: 180 },
+              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 425, y: 210 },
+              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 450, y: 145 },
+              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 480, y: 260 },
+              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 480, y: 320 },
+              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 480, y: 380 },
+              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 490, y: 460 },
+              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 465, y: 90 },
+              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 555, y: 320 }
+            ],
+            drawings: [
+              { tool: 'pass', color: '#38bdf8', startX: 410, startY: 125, endX: 400, endY: 135 }
+            ]
+          },
+          {
+            name: "Phase 3 - 9 Fires Rapid Ball to 10 on the Charge",
+            actors: [
+              // Attack Blue
+              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 435, y: 85 },
+              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 420, y: 115 },
+              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 420, y: 130 },
+              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 420, y: 145 },
+              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 425, y: 180 },
+              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 430, y: 205 },
+              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 415, y: 150 },
+              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 430, y: 265, carrier: true },
+              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 400, y: 330 },
+              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 370, y: 400 },
+              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 410, y: 90 },
+              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 340, y: 480 },
+              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 335, y: 350 },
+              // Ball
+              { id: 'ball_1', type: 'ball', x: 437, y: 270 },
+              // Defense Gold (Pressing up)
+              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 450, y: 85 },
+              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 115 },
+              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 430, y: 130 },
+              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 430, y: 145 },
+              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 435, y: 180 },
+              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 440, y: 205 },
+              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 440, y: 160 },
+              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 460, y: 265 },
+              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 455, y: 325 },
+              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 455, y: 385 },
+              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 470, y: 465 },
+              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 455, y: 95 },
+              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 535, y: 325 }
+            ],
+            drawings: [
+              { tool: 'pass', color: '#38bdf8', startX: 415, startY: 150, endX: 430, endY: 265 }
+            ]
+          }
+        ]
+      },
+
+      preset_scrum: {
+        title: "3-2-1 Scrum Strike: Blindside 8-9 (13v13 U13)",
+        frames: [
+          {
+            name: "Phase 1 - 3-2-1 Packs Engaged on 15m Mark",
+            actors: [
+              // Attack Blue (13 players: 3-2-1 Scrum pack + 7 backs)
+              // Scrum pack: 1-2-3 front row, 4-5 second row, 8 at the base
+              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 410, y: 185 },
+              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 410, y: 200 },
+              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 410, y: 215 },
+              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 388, y: 192 },
+              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 388, y: 208 },
+              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 366, y: 200, carrier: true },
+              // Backline: 9 at scrum base, 11 on blind touchline, 10-12-13-14-15 open
+              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 375, y: 165 },
+              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Blind Wing', x: 340, y: 95 },
+              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 330, y: 295 },
+              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 295, y: 350 },
+              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 260, y: 410 },
+              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Open Wing', x: 220, y: 480 },
+              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 240, y: 310 },
+              // Ball
+              { id: 'ball_1', type: 'ball', x: 372, y: 204 },
+              // Defense Gold (13 players: 3-2-1 Scrum pack + 7 backs)
+              // Defense Scrum
+              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 185 },
+              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 430, y: 200 },
+              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 430, y: 215 },
+              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 452, y: 192 },
+              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 452, y: 208 },
+              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 474, y: 200 },
+              // Defensive Backline
+              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 410, y: 160 },
+              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Blind Wing', x: 450, y: 95 },
+              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 460, y: 295 },
+              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 460, y: 355 },
+              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 460, y: 415 },
+              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Open Wing', x: 470, y: 480 },
+              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 540, y: 250 }
+            ],
+            drawings: []
+          },
+          {
+            name: "Phase 2 - No 8 Picks Blind & Commits Defending 9",
+            actors: [
+              // Attack Blue
+              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 420, y: 185 },
+              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 420, y: 200 },
+              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 420, y: 215 },
+              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 405, y: 192 },
+              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 405, y: 208 },
+              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 430, y: 155, carrier: true },
+              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 445, y: 125 },
+              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Blind Wing', x: 410, y: 80 },
+              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 350, y: 295 },
+              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 310, y: 350 },
+              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 275, y: 410 },
+              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Open Wing', x: 235, y: 480 },
+              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 280, y: 280 },
+              // Ball
+              { id: 'ball_1', type: 'ball', x: 436, y: 159 },
+              // Defense Gold (Scrum unpacks, Def 9 committed by 8)
+              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 430, y: 185 },
+              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 430, y: 200 },
+              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 430, y: 215 },
+              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 445, y: 192 },
+              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 445, y: 208 },
+              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 455, y: 180 },
+              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 435, y: 150 },
+              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Blind Wing', x: 455, y: 90 },
+              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 460, y: 295 },
+              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 460, y: 355 },
+              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 460, y: 415 },
+              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Open Wing', x: 470, y: 480 },
+              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 515, y: 210 }
+            ],
+            drawings: [
+              { tool: 'pass', color: '#38bdf8', startX: 430, startY: 155, endX: 445, endY: 125 }
+            ]
+          },
+          {
+            name: "Phase 3 - 8 to 9 to 11 Blindside Touchline Break",
+            actors: [
+              // Attack Blue
+              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'LH Prop', x: 440, y: 185 },
+              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Hooker', x: 440, y: 200 },
+              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 440, y: 215 },
+              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Lock 4', x: 430, y: 190 },
+              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 430, y: 210 },
+              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 470, y: 160 },
+              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 515, y: 115 },
+              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Blind Wing', x: 565, y: 65, carrier: true },
+              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 375, y: 285 },
+              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 335, y: 340 },
+              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 300, y: 400 },
+              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Open Wing', x: 260, y: 470 },
+              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 340, y: 240 },
+              // Ball
+              { id: 'ball_1', type: 'ball', x: 572, y: 69 },
+              // Defense Gold (Def 14 stepped inside, 15 sprinting across cover)
+              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Prop 1', x: 440, y: 185 },
+              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 440, y: 200 },
+              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 440, y: 215 },
+              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 450, y: 190 },
+              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 450, y: 210 },
+              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 480, y: 170 },
+              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 485, y: 140 },
+              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Blind Wing', x: 505, y: 85 },
+              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 450, y: 285 },
+              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 450, y: 345 },
+              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 450, y: 405 },
+              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Open Wing', x: 460, y: 470 },
+              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 520, y: 160 }
+            ],
+            drawings: [
+              { tool: 'run', color: '#facc15', startX: 565, startY: 65, endX: 720, endY: 55 }
+            ]
+          }
+        ]
+      },
+
+      preset_pod: {
+        title: "Forward Pod & Backline Release (13v13 U13)",
+        frames: [
+          {
+            name: "Phase 1 - 3-Man Forward Pod Setup",
+            actors: [
+              // Attack Blue (13 players: 3-man forward pod [1, 2, 4] + secondary pack [3, 5, 8] + 7 backs)
+              // Pod 1
+              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'Pod Prop 1', x: 430, y: 275 },
+              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Pod Lock 4', x: 440, y: 300 },
+              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Pod Hooker', x: 430, y: 325 },
+              // Secondary pack (cleaning/support)
+              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 360, y: 270 },
+              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 365, y: 300 },
+              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 360, y: 330 },
+              // Backline
+              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 380, y: 300, carrier: true },
+              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 390, y: 375 },
+              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 355, y: 425 },
+              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 320, y: 475 },
+              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 395, y: 120 },
+              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 285, y: 520 },
+              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 290, y: 390 },
+              // Ball
+              { id: 'ball_1', type: 'ball', x: 386, y: 305 },
+              // Defense Gold (13 players in structured defensive line)
+              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Forward 1', x: 490, y: 275 },
+              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 495, y: 300 },
+              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 490, y: 325 },
+              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 475, y: 250 },
+              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 475, y: 220 },
+              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 480, y: 350 },
+              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 460, y: 280 },
+              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 485, y: 380 },
+              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 480, y: 430 },
+              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 480, y: 480 },
+              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 490, y: 525 },
+              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 470, y: 130 },
+              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 550, y: 390 }
+            ],
+            drawings: [
+              { tool: 'pass', color: '#38bdf8', startX: 380, startY: 300, endX: 440, endY: 300 }
+            ]
+          },
+          {
+            name: "Phase 2 - Lock 4 Screen Pass to 10 Out the Back",
+            actors: [
+              // Attack Blue
+              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'Pod Prop 1', x: 465, y: 275 },
+              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Pod Lock 4', x: 470, y: 300, carrier: true },
+              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Pod Hooker', x: 465, y: 325 },
+              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 420, y: 270 },
+              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 425, y: 300 },
+              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 420, y: 330 },
+              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 405, y: 300 },
+              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 445, y: 385 },
+              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 410, y: 435 },
+              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 375, y: 485 },
+              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 410, y: 130 },
+              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 340, y: 525 },
+              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 350, y: 405 },
+              // Ball
+              { id: 'ball_1', type: 'ball', x: 476, y: 304 },
+              // Defense Gold (Forwards bite hard on pod crash)
+              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Forward 1', x: 480, y: 275 },
+              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 480, y: 300 },
+              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 480, y: 325 },
+              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 470, y: 250 },
+              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 470, y: 220 },
+              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 475, y: 350 },
+              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 465, y: 275 },
+              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 470, y: 380 },
+              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 475, y: 430 },
+              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 475, y: 480 },
+              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 485, y: 525 },
+              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 470, y: 135 },
+              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 535, y: 410 }
+            ],
+            drawings: [
+              { tool: 'pass', color: '#38bdf8', startX: 470, startY: 300, endX: 445, endY: 385 }
+            ]
+          },
+          {
+            name: "Phase 3 - 10 Shifts to Centres & Exploits Space",
+            actors: [
+              // Attack Blue
+              { id: 'p_A_1', type: 'player', team: 'A', num: 1, name: 'Pod Prop 1', x: 480, y: 275 },
+              { id: 'p_A_4', type: 'player', team: 'A', num: 4, name: 'Pod Lock 4', x: 485, y: 300 },
+              { id: 'p_A_2', type: 'player', team: 'A', num: 2, name: 'Pod Hooker', x: 480, y: 325 },
+              { id: 'p_A_3', type: 'player', team: 'A', num: 3, name: 'TH Prop', x: 450, y: 270 },
+              { id: 'p_A_5', type: 'player', team: 'A', num: 5, name: 'Lock 5', x: 455, y: 300 },
+              { id: 'p_A_8', type: 'player', team: 'A', num: 8, name: 'No 8', x: 450, y: 330 },
+              { id: 'p_A_9', type: 'player', team: 'A', num: 9, name: 'Scrum Half', x: 425, y: 310 },
+              { id: 'p_A_10', type: 'player', team: 'A', num: 10, name: 'Fly Half', x: 485, y: 395 },
+              { id: 'p_A_12', type: 'player', team: 'A', num: 12, name: 'Inside Centre', x: 510, y: 450, carrier: true },
+              { id: 'p_A_13', type: 'player', team: 'A', num: 13, name: 'Outside Centre', x: 475, y: 505 },
+              { id: 'p_A_11', type: 'player', team: 'A', num: 11, name: 'Left Wing', x: 425, y: 140 },
+              { id: 'p_A_14', type: 'player', team: 'A', num: 14, name: 'Right Wing', x: 440, y: 540 },
+              { id: 'p_A_15', type: 'player', team: 'A', num: 15, name: 'Fullback', x: 410, y: 425 },
+              // Ball
+              { id: 'ball_1', type: 'ball', x: 517, y: 455 },
+              // Defense Gold (Caught on inside shoulder)
+              { id: 'p_B_1', type: 'player', team: 'B', num: 1, name: 'Def Forward 1', x: 485, y: 280 },
+              { id: 'p_B_4', type: 'player', team: 'B', num: 4, name: 'Def Lock 4', x: 490, y: 305 },
+              { id: 'p_B_2', type: 'player', team: 'B', num: 2, name: 'Def Hooker', x: 485, y: 330 },
+              { id: 'p_B_3', type: 'player', team: 'B', num: 3, name: 'Def Prop 3', x: 475, y: 260 },
+              { id: 'p_B_5', type: 'player', team: 'B', num: 5, name: 'Def Lock 5', x: 475, y: 230 },
+              { id: 'p_B_8', type: 'player', team: 'B', num: 8, name: 'Def No 8', x: 485, y: 350 },
+              { id: 'p_B_9', type: 'player', team: 'B', num: 9, name: 'Def Scrum Half', x: 470, y: 285 },
+              { id: 'p_B_10', type: 'player', team: 'B', num: 10, name: 'Def Fly Half', x: 480, y: 385 },
+              { id: 'p_B_12', type: 'player', team: 'B', num: 12, name: 'Def Centre 12', x: 490, y: 440 },
+              { id: 'p_B_13', type: 'player', team: 'B', num: 13, name: 'Def Centre 13', x: 490, y: 490 },
+              { id: 'p_B_11', type: 'player', team: 'B', num: 11, name: 'Def Wing 11', x: 495, y: 535 },
+              { id: 'p_B_14', type: 'player', team: 'B', num: 14, name: 'Def Wing 14', x: 475, y: 145 },
+              { id: 'p_B_15', type: 'player', team: 'B', num: 15, name: 'Def Fullback', x: 520, y: 440 }
+            ],
+            drawings: [
+              { tool: 'run', color: '#facc15', startX: 510, startY: 450, endX: 630, endY: 490 }
+            ]
+          }
+        ]
+      }
+    };
+
+    function loadTacticalPreset(presetKey) {
+      const preset = PLAYBOOK_PRESETS[presetKey];
+      if (!preset) return;
+      pauseAnimation();
+      state.frames = JSON.parse(JSON.stringify(preset.frames));
+      state.currentFrameIndex = 0;
+      document.getElementById('playTitleDisplay').innerText = preset.title;
+      jumpToFrame(0);
+      showToast(`Loaded: ${preset.title}`);
+    }
+
+    document.getElementById('presetSelect').onchange = (e) => {
+      loadTacticalPreset(e.target.value);
+      const mob = document.getElementById('presetSelectMobile');
+      if (mob) mob.value = e.target.value;
+    };
+
+    const presetSelectMobile = document.getElementById('presetSelectMobile');
+    if (presetSelectMobile) {
+      presetSelectMobile.onchange = (e) => {
+        loadTacticalPreset(e.target.value);
+        document.getElementById('presetSelect').value = e.target.value;
+      };
+    }
+
+    const btnSecondaryLoad = document.getElementById('btnSecondaryLoad');
+    if (btnSecondaryLoad) {
+      btnSecondaryLoad.onclick = openLoadModal;
+    }
+
+    const btnSecondarySave = document.getElementById('btnSecondarySave');
+    if (btnSecondarySave) {
+      btnSecondarySave.onclick = () => document.getElementById('btnSavePlay').click();
+    }
+
+    // Load Playbook JSON Modal & Drag/Drop
+    const loadModal = document.getElementById('loadModal');
+    const modalFileInput = document.getElementById('modalFileInput');
+    const modalJsonTextarea = document.getElementById('modalJsonTextarea');
+    const dropOverlay = document.getElementById('dropOverlay');
+
+    function openLoadModal() {
+      loadModal.classList.remove('hidden');
+      modalJsonTextarea.value = '';
+    }
+
+    function closeLoadModal() {
+      loadModal.classList.add('hidden');
+    }
+
+    document.getElementById('btnOpenLoadModal').onclick = openLoadModal;
+    document.getElementById('btnCloseLoadModal').onclick = closeLoadModal;
+    document.getElementById('btnCancelLoad').onclick = closeLoadModal;
+
+    function applyImportedPlaybook(parsed, sourceLabel = "JSON file") {
+      if (!parsed || !Array.isArray(parsed.frames) || parsed.frames.length === 0) {
+        showToast("Invalid JSON: 'frames' array is required");
+        return false;
+      }
+      pauseAnimation();
+      state.frames = parsed.frames;
+      state.currentFrameIndex = 0;
+      if (parsed.title) {
+        document.getElementById('playTitleDisplay').innerText = parsed.title;
+      } else {
+        document.getElementById('playTitleDisplay').innerText = "Imported Playbook";
+      }
+      jumpToFrame(0);
+      closeLoadModal();
+      showToast(`Playbook loaded successfully from ${sourceLabel}`);
+      return true;
+    }
+
+    modalFileInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          applyImportedPlaybook(parsed, file.name);
+        } catch (err) {
+          showToast("Error: File is not valid JSON syntax");
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    document.getElementById('btnSubmitJsonPaste').onclick = () => {
+      const text = modalJsonTextarea.value.trim();
+      if (!text) {
+        showToast("Please paste JSON text or select a file");
+        return;
+      }
+      try {
+        const parsed = JSON.parse(text);
+        applyImportedPlaybook(parsed, "pasted text");
+      } catch (err) {
+        showToast("Syntax error in pasted JSON text");
+      }
+    };
+
+    // Global Drag & Drop for JSON Files anywhere on the window
+    window.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropOverlay.classList.remove('hidden');
+    });
+
+    window.addEventListener('dragleave', (e) => {
+      if (e.relatedTarget === null) {
+        dropOverlay.classList.add('hidden');
+      }
+    });
+
+    window.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropOverlay.classList.add('hidden');
+
+      if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        if (file.name.endsWith('.json') || file.type === 'application/json') {
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            try {
+              const parsed = JSON.parse(evt.target.result);
+              applyImportedPlaybook(parsed, file.name);
+            } catch (err) {
+              showToast("Dropped file is not valid JSON");
+            }
+          };
+          reader.readAsText(file);
+        } else {
+          showToast("Please drop a valid .json playbook file");
+        }
+      }
+    });
+
+    // Reset Whole Board
+    document.getElementById('btnResetBoard').onclick = () => {
+      pauseAnimation();
+      state.frames = [{
+        id: 1,
+        name: 'Phase 1 - Initial Set',
+        actors: [],
+        drawings: []
+      }];
+      state.currentFrameIndex = 0;
+      state.selectedActorId = null;
+      inspectorPanel.classList.add('hidden');
+      renderActors();
+      renderDrawings();
+      renderGhostTrails();
+      renderRosterList();
+      renderKeyframeTimeline();
+      showToast("Whiteboard reset");
+    };
+
+    // Save & Export JSON
+    document.getElementById('btnSavePlay').onclick = () => {
+      const playData = {
+        title: document.getElementById('playTitleDisplay').innerText,
+        date: new Date().toISOString(),
+        frames: state.frames
+      };
+      const jsonStr = JSON.stringify(playData, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `rugby-play-${Date.now().toString().slice(-4)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Playbook JSON saved & downloaded");
+    };
+
+    // Export PNG Screenshot using HTML5 Canvas
+    document.getElementById('btnExportImage').onclick = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1200;
+      canvas.height = 720;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#1b5e20';
+      ctx.fillRect(0, 0, 1200, 720);
+
+      const svgData = new XMLSerializer().serializeToString(pitchSvg);
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const URLObj = window.URL || window.webkitURL || window;
+      const blobURL = URLObj.createObjectURL(svgBlob);
+
+      const img = new Image();
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, 1200, 720);
+
+        const currentFrame = state.frames[state.currentFrameIndex];
+        
+        // 1. Draw Players First
+        currentFrame.actors.forEach(actor => {
+          if (actor.type === 'ball') return;
+          const x = (actor.x / 1000) * 1200;
+          const y = (actor.y / 600) * 720;
+
+          if (actor.type === 'player') {
+            ctx.beginPath();
+            ctx.arc(x, y, 18, 0, Math.PI * 2);
+            ctx.fillStyle = actor.team === 'A' ? '#2563eb' : '#f59e0b';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+
+            ctx.fillStyle = actor.team === 'A' ? '#ffffff' : '#0f172a';
+            ctx.font = 'bold 15px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(actor.num, x, y);
+
+            ctx.font = '11px Inter, sans-serif';
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillText(actor.name.split(' ')[0], x, y + 26);
+          }
+        });
+
+        // 2. Draw Rugby Ball ALWAYS on top in export too
+        const ball = currentFrame.actors.find(a => a.type === 'ball');
+        if (ball) {
+          const bx = (ball.x / 1000) * 1200;
+          const by = (ball.y / 600) * 720;
+          ctx.save();
+          ctx.translate(bx, by);
+          ctx.rotate(-0.25);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 16, 10, 0, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+          ctx.lineWidth = 2.5;
+          ctx.strokeStyle = '#7f1d1d';
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.font = 'bold 14px Inter, sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.textAlign = 'right';
+        ctx.fillText('RugbyTactix Pro Studio', 1170, 700);
+
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = `rugby-tactic-phase-${state.currentFrameIndex + 1}.png`;
+        a.click();
+        URLObj.revokeObjectURL(blobURL);
+        showToast("PNG Snapshot exported");
+      };
+      img.src = blobURL;
+    };
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        if (state.currentFrameIndex < state.frames.length - 1) jumpToFrame(state.currentFrameIndex + 1);
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        if (state.currentFrameIndex > 0) jumpToFrame(state.currentFrameIndex - 1);
+      } else if (e.code === 'KeyV') {
+        setActiveTool('select');
+      } else if (e.code === 'KeyR') {
+        setActiveTool('run');
+      } else if (e.code === 'KeyP') {
+        setActiveTool('pass');
+      } else if (e.code === 'KeyK') {
+        setActiveTool('kick');
+      } else if (e.code === 'KeyT') {
+        setActiveTool('tackle');
+      } else if (e.code === 'Delete' || e.code === 'Backspace') {
+        if (state.selectedActorId) {
+          removePlayerById(state.selectedActorId);
+        }
+      }
+    });
+
+    function showToast(msg) {
+      toastMsg.innerText = msg;
+      toast.classList.remove('opacity-0', 'translate-y-20', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-20', 'pointer-events-none');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2400);
+    }
+
+    window.onload = () => {
+      lucide.createIcons();
+      renderRosterList();
+      loadTacticalPreset('preset_strike');
+    };
+  </script>
+</body>
+</html>
