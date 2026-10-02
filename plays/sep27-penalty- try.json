@@ -200,7 +200,7 @@
           "name": "Fly Half",
           "x": 206,
           "y": 286,
-          "carrier": true
+          "carrier": false
         },
         {
           "id": "p_A_12_4335",
