@@ -1,10 +1,10 @@
 [
   { "title": "Sep 27th - penalty - try", "file": "plays/sep27-penalty- try.json" },
   { "title": "Sep 27th - penalty - no try", "file": "plays/sep27-penalty.json" },
-  { "title": "Sep 27th - penalty - no try", "file": "plays/u13-play-1.json" },
-    { "title": "Sep 27th - penalty - no try", "file": "plays/u13-play-2.json" },
-    { "title": "Sep 27th - penalty - no try", "file": "plays/u13-play-3.json" },
-   { "title": "Sep 27th - penalty - no try", "file": "plays/u13-play-4.json" },
-   { "title": "Sep 27th - penalty - no try", "file": "plays/u13-play-5.json" },
-   { "title": "Sep 27th - penalty - no try", "file": "plays/u13-play-6.json" }
+  { "title": "1: 10/12", "file": "plays/u13-play-1.json" },
+    { "title": "2: 10/13", "file": "plays/u13-play-2.json" },
+    { "title": "3: 10/12 switch", "file": "plays/u13-play-3.json" },
+   { "title": "4: 10/12 dummy switch", "file": "plays/u13-play-4.json" },
+   { "title": "5: Rangi", "file": "plays/u13-play-5.json" },
+   { "title": "6: Sixton", "file": "plays/u13-play-6.json" }
 ]
