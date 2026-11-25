@@ -1,5 +1,10 @@
 [
   { "title": "Sep 27th - penalty - try", "file": "plays/sep27-penalty- try.json" },
-  { "title": "Sep 27th - penalty - no try", "file": "plays/sep27-penalty.json" }
-
+  { "title": "Sep 27th - penalty - no try", "file": "plays/sep27-penalty.json" },
+  { "title": "Sep 27th - penalty - no try", "file": "plays/u13-play-1.json" },
+    { "title": "Sep 27th - penalty - no try", "file": "plays/u13-play-2.json" },
+    { "title": "Sep 27th - penalty - no try", "file": "plays/u13-play-3.json" },
+   { "title": "Sep 27th - penalty - no try", "file": "plays/u13-play-4.json" },
+   { "title": "Sep 27th - penalty - no try", "file": "plays/u13-play-5.json" },
+   { "title": "Sep 27th - penalty - no try", "file": "plays/u13-play-6.json" }
 ]
